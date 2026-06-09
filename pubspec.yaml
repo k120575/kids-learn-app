@@ -88,6 +88,11 @@ flutter:
     - family: TitleFontM
       fonts:
         - asset: assets/fonts/title-gensen-m.otf
+    # 彩色 emoji 字型（Noto Color Emoji, CBDT）。設為全 App 字型 fallback，
+    # 確保所有題目/關卡的 emoji 在各裝置都顯示一致，不因系統字型缺字而變空白。
+    - family: NotoColorEmoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -51,7 +51,7 @@ class _OppositeGameState extends State<OppositeGame> {
     super.initState();
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('找出相反的！'),
+      (_) => AudioService.instance.speakAfterVoice('找出相反的！'),
     );
   }
 

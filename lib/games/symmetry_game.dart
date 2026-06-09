@@ -51,7 +51,7 @@ class _SymmetryGameState extends State<SymmetryGame> {
     _half = level == 0 ? 2 : 3;
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('看著鏡子，把另一半補成一樣！'),
+      (_) => AudioService.instance.speakAfterVoice('看著鏡子，把另一半補成一樣！'),
     );
   }
 
@@ -102,15 +102,20 @@ class _SymmetryGameState extends State<SymmetryGame> {
     if (_lock) return;
     final bool now = !_right[r][j];
     setState(() => _right[r][j] = now);
-    // 填到「不該填」的格子 → 溫和提示並計一次錯（仍可再點取消）。
-    if (now && !_target(r, j)) {
-      AudioService.instance.wrong();
-      _mistakes++;
-      _roundMistakes++;
-      setState(() {}); // 觸發提示重算
-      return;
+    AudioService.instance.tap(); // 每次填／取消都只給輕點聲，不論對錯
+    // 取消（清空格子）不需判定，讓孩子自由調整。
+    if (!now) return;
+    // 還沒填滿「應有的格數」前不提示對錯——等孩子覺得完成了再一次判定。
+    int filled = 0;
+    int target = 0;
+    for (int rr = 0; rr < _rows; rr++) {
+      for (int jj = 0; jj < _half; jj++) {
+        if (_right[rr][jj]) filled++;
+        if (_target(rr, jj)) target++;
+      }
     }
-    AudioService.instance.tap();
+    if (filled < target) return;
+    // 已填到該有的格數 → 這時才看整體鏡像對不對。
     if (_solved) {
       _lock = true;
       setState(() => _success = true);
@@ -126,6 +131,12 @@ class _SymmetryGameState extends State<SymmetryGame> {
       } else {
         await _finish();
       }
+    } else {
+      // 全部填完但有錯 → 這時才說「再試一次」，並計一次錯（供提示與評分）。
+      AudioService.instance.wrong();
+      _mistakes++;
+      _roundMistakes++;
+      setState(() {}); // 觸發提示重算
     }
   }
 

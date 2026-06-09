@@ -69,6 +69,7 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
   /// 逐字念算式：「三 乘以 五 等於多少？」（沿用加減法的分段念法）。
   Future<void> _readQuestion() async {
     final AudioService a = AudioService.instance;
+    await a.waitUntilVoiceIdle(); // 先讓關卡名稱念完，再開始念算式
     if (mounted) setState(() => _lock = true);
     a.speak('${_q.a}');
     await Future<void>.delayed(const Duration(milliseconds: 850));

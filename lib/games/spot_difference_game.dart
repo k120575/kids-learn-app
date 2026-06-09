@@ -63,7 +63,7 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
     _numDiff = level == 0 ? 2 : (level == 1 ? widget.numDiff : 4);
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('哪裡不一樣？點出來！'),
+      (_) => AudioService.instance.speakAfterVoice('哪裡不一樣？點出來！'),
     );
   }
 

@@ -104,7 +104,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
     super.initState();
     _reset();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak(widget.intro),
+      (_) => AudioService.instance.speakAfterVoice(widget.intro),
     );
   }
 
@@ -329,12 +329,8 @@ class _DragMatchGameState extends State<DragMatchGame> {
       data: p,
       feedback: Transform.scale(scale: 1.15, child: content),
       childWhenDragging: Opacity(opacity: 0.3, child: content),
-      onDragEnd: (DraggableDetails d) {
-        if (!d.wasAccepted) {
-          _mistakes++;
-          AudioService.instance.wrong();
-        }
-      },
+      // 放錯目標時會自己彈回，不出「再試一次」、不計為錯誤
+      // （只放得進正確的籃子/洞，放完必定正確）。
       child: content,
     );
   }

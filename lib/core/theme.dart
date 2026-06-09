@@ -8,6 +8,11 @@ ThemeData buildTheme() {
       seedColor: const Color(0xFF42A5F5),
     ),
     scaffoldBackgroundColor: const Color(0xFFFFFDF6),
+    // 把彩色 emoji 字型放全 App 字型 fallback：題目/關卡大量用 emoji，靠系統字型
+    // 在部分裝置會缺字變空白方框，改用自帶字型確保各裝置一致顯示。
+    // 註：自帶的 NotoColorEmoji 已 subset 掉 ASCII（0-9 等），避免它搶走一般數字
+    //（否則「3-4」會變成寬間距的 emoji 數字）。詳見 tool/subset_emoji_font.py。
+    fontFamilyFallback: const <String>['NotoColorEmoji'],
   );
 
   return base.copyWith(

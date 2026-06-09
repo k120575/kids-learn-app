@@ -84,7 +84,7 @@ class _MazeGameState extends State<MazeGame> {
     _prepare();
     _load();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak(widget.intro),
+      (_) => AudioService.instance.speakAfterVoice(widget.intro),
     );
   }
 

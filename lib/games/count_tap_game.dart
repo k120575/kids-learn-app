@@ -64,7 +64,7 @@ class _CountTapGameState extends State<CountTapGame> {
     super.initState();
     _prepareRounds();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('數一數，每一個都要點到喔'),
+      (_) => AudioService.instance.speakAfterVoice('數一數，每一個都要點到喔'),
     );
   }
 

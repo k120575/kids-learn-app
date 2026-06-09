@@ -62,7 +62,7 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
     _len = level == 0 ? 5 : (level == 1 ? widget.length : 8);
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('找出規律，補上空格！'),
+      (_) => AudioService.instance.speakAfterVoice('找出規律，補上空格！'),
     );
   }
 

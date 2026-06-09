@@ -75,6 +75,7 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
   /// 用固定間隔依序播放，避免 onPlayerComplete 被前一段的停止事件誤觸發。
   Future<void> _readQuestion() async {
     final AudioService a = AudioService.instance;
+    await a.waitUntilVoiceIdle(); // 先讓關卡名稱念完，再開始念算式
     if (mounted) setState(() => _lock = true); // 念題中先鎖住，避免題目還沒念完就作答
     a.speak('${_q.a}');
     await Future<void>.delayed(const Duration(milliseconds: 850));

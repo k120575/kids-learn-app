@@ -59,7 +59,7 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
     _maxValue = level == 0 ? 10 : (level == 1 ? widget.maxValue : widget.maxValue + 10);
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak(_prompt),
+      (_) => AudioService.instance.speakAfterVoice(_prompt),
     );
   }
 

@@ -205,6 +205,8 @@ class _PickGameState extends State<PickGame> {
   /// 念題（或播音效）並「等播完」。先聽完才作答，是聽辨類遊戲的核心。
   Future<void> _speak() async {
     final PickRound r = _round;
+    // 先等關卡名稱（剛進關卡時念的）或上一句念完，再放題目音效/提示，避免重疊。
+    await AudioService.instance.waitUntilVoiceIdle();
     if (r.soundAsset != null) {
       final bool ok = await AudioService.instance.playSfxAndWait(r.soundAsset!);
       if (ok) return; // 有真實音效就用音效（已等播完）

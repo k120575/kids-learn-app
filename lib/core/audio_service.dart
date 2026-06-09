@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../content/voice_manifest.dart';
@@ -18,7 +19,7 @@ import 'progress_store.dart';
 ///
 /// 音檔由 `tool/gen_voice.py`（edge-tts）產生，雜湊集合在 voice_manifest.dart；
 /// 背景音樂由 `tool/gen_bgm.py` 合成。
-class AudioService {
+class AudioService with WidgetsBindingObserver {
   AudioService._();
   static final AudioService instance = AudioService._();
 
@@ -35,6 +36,16 @@ class AudioService {
   final Set<AudioPlayer> _talking = <AudioPlayer>{};
   Timer? _restoreTimer;
   bool _bgmPlaying = false;
+
+  /// 背景音樂是否「因切到背景而被暫停」（回前景時據此決定要不要接著播）。
+  bool _bgmPausedByLifecycle = false;
+
+  /// 語音閘門：speak/speakForDuration 時「同步」開啟，語音自然播完
+  /// （onPlayerComplete）或被 stop 時關閉。waitUntilVoiceIdle 等這個 gate，
+  /// 確保「題目/音效」一定等關卡名稱（或上一句）念完才出聲。
+  /// 用 gate 而非查 _voice.state：play() 還沒切到 playing 狀態時查 state 會誤判成
+  /// 「沒在播」而不等待 → 聲音重疊。gate 在 speak 呼叫當下同步開啟，不會有此競態。
+  Completer<void>? _voiceGate;
 
   /// 壓低時的音量倍率（相對使用者設定的背景音量）。
   static const double _duckFactor = 0.25;
@@ -70,6 +81,10 @@ class AudioService {
     for (final AudioPlayer pl in <AudioPlayer>[_voice, _sfx, _beat]) {
       pl.onPlayerStateChanged.listen((PlayerState st) => _onTalkState(pl, st));
     }
+    // 語音自然播完 → 關閉語音閘門（讓等待中的題目/音效接著播）。
+    _voice.onPlayerComplete.listen((_) => _closeVoiceGate());
+    // 監聽 App 生命週期：切到背景時暫停音訊，省電（不然背景音樂會一直播）。
+    WidgetsBinding.instance.addObserver(this);
     try {
       await _tts.setLanguage('zh-TW');
       await _tts.setSpeechRate(0.45);
@@ -80,6 +95,40 @@ class AudioService {
     // 依設定啟動背景音樂。
     if (ProgressStore.instance.musicEnabled) {
       await startBgm();
+    }
+  }
+
+  /// App 切到背景/回前景時的音訊處理：背景時暫停背景音樂、停掉語音與音效，
+  /// 避免在背景持續發聲耗電；回前景且音樂仍開著時無縫接著播。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (_bgmPausedByLifecycle) {
+          _bgmPausedByLifecycle = false;
+          // 用 startBgm 重新播放（比 resume 穩：長時間背景後播放器可能被系統回收，
+          // resume 會失敗；startBgm 內部會自行檢查音樂是否開啟）。
+          startBgm().catchError((Object _) {});
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break; // 短暫狀態（如下拉通知）不處理，避免一直暫停/恢復閃爍
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        if (_bgmPlaying) _bgmPausedByLifecycle = true;
+        _bgm.pause().catchError((Object _) {});
+        _closeVoiceGate();
+        for (final AudioPlayer pl in <AudioPlayer>[
+          _voice,
+          _sfx,
+          _beat,
+          _cheer
+        ]) {
+          pl.stop().catchError((Object _) {});
+        }
+        _tts.stop().catchError((Object _) {});
+        break;
     }
   }
 
@@ -158,19 +207,55 @@ class AudioService {
 
   // ===================== 語音 =====================
 
+  /// 開啟語音閘門（同步）。放掉上一個等待者再建新的。
+  void _openVoiceGate() {
+    final Completer<void>? old = _voiceGate;
+    if (old != null && !old.isCompleted) old.complete();
+    _voiceGate = Completer<void>();
+  }
+
+  /// 關閉語音閘門：喚醒所有 waitUntilVoiceIdle 的等待者。
+  void _closeVoiceGate() {
+    final Completer<void>? g = _voiceGate;
+    if (g != null && !g.isCompleted) g.complete();
+    _voiceGate = null;
+  }
+
   /// 念一段話：只播烤好的國語音檔。沒有對應音檔就「不出聲」，
   /// 絕不使用裝置內建 TTS（那會是外國腔的爛中文，且會與音檔疊在一起）。
   Future<void> speak(String text) async {
     if (!_enabled || text.isEmpty) return;
     final String key = _key(text);
     if (!voiceManifest.contains(key)) return; // 沒烤的就靜音
+    _openVoiceGate(); // 同步開閘：保證緊接著（甚至下一個 frame）的 waitUntilVoiceIdle 等得到
     try {
       await _voice.stop();
       await _voice.play(AssetSource('voice/$key.mp3'));
+    } catch (_) {
+      _closeVoiceGate();
+    }
+  }
+
+  /// 等目前的語音（speak，例如剛進關卡時念的關卡名稱）播完才返回；
+  /// 逾時保護避免卡住。用來確保題目/音效不會蓋過關卡名稱或上一句提示。
+  Future<void> waitUntilVoiceIdle(
+      {Duration timeout = const Duration(seconds: 5)}) async {
+    final Completer<void>? gate = _voiceGate;
+    if (gate == null || gate.isCompleted) return;
+    try {
+      await gate.future.timeout(timeout);
     } catch (_) {}
   }
 
+  /// 念一段話，但先等目前的語音（通常是進場時念的關卡名稱）播完再念，
+  /// 避免第一句題目/提示蓋掉關卡名稱。用於每個遊戲「進場後的第一句」。
+  Future<void> speakAfterVoice(String text) async {
+    await waitUntilVoiceIdle();
+    await speak(text);
+  }
+
   Future<void> stop() async {
+    _closeVoiceGate(); // 被打斷時也要放掉等待者，避免卡住
     for (final AudioPlayer pl in <AudioPlayer>[_voice, _sfx, _beat, _cheer]) {
       try {
         await pl.stop();
@@ -189,12 +274,15 @@ class AudioService {
       await Future<void>.delayed(const Duration(milliseconds: 600));
       return;
     }
+    _openVoiceGate();
     try {
       await _voice.stop();
       await _voice.play(AssetSource('voice/$key.mp3'));
       await _voice.onPlayerComplete.first
           .timeout(const Duration(seconds: 3), onTimeout: () {});
-    } catch (_) {}
+    } catch (_) {
+      _closeVoiceGate();
+    }
   }
 
   /// 念一段話，並等「實際音檔長度 + [extra]」才返回（用 getDuration 取得真實長度，
@@ -210,6 +298,7 @@ class AudioService {
       await Future<void>.delayed(const Duration(milliseconds: 700));
       return;
     }
+    _openVoiceGate();
     try {
       await _voice.stop();
       await _voice.setSource(AssetSource('voice/$key.mp3'));
@@ -219,6 +308,7 @@ class AudioService {
       await Future<void>.delayed(
           (d ?? const Duration(milliseconds: 2800)) + extra);
     } catch (_) {
+      _closeVoiceGate();
       await Future<void>.delayed(const Duration(milliseconds: 2800));
     }
   }
@@ -235,13 +325,18 @@ class AudioService {
   }
 
   /// 題目音效（動物/樂器，`assets/sfx/<file>`）。缺檔回傳 false（退回語音）。
-  Future<bool> playSfx(String file) => _playOn(_sfx, file);
+  /// 先等關卡名稱/上一句語音念完，避免聲音與語音重疊。
+  Future<bool> playSfx(String file) async {
+    await waitUntilVoiceIdle();
+    return _playOn(_sfx, file);
+  }
 
   /// 播題目音效並「等它播完」才返回（用實際長度）。
   /// 用於聽音辨識遊戲（聲音尋寶/樂器配對）：必須先聽完聲音才開放作答。
   /// 缺檔或關音回傳 false（呼叫端退回語音提示）。
   Future<bool> playSfxAndWait(String file) async {
     if (!_enabled) return false;
+    await waitUntilVoiceIdle(); // 先讓關卡名稱/上一句語音念完，避免重疊
     try {
       await _sfx.stop();
       await _sfx.setSource(AssetSource('sfx/$file'));
@@ -257,7 +352,11 @@ class AudioService {
   }
 
   /// 節奏鼓聲（獨立播放器，不會被歡呼音切掉）。
-  Future<bool> playBeat(String file) => _playOn(_beat, file);
+  /// 先等關卡名稱/上一句語音念完，避免鼓聲與語音重疊。
+  Future<bool> playBeat(String file) async {
+    await waitUntilVoiceIdle();
+    return _playOn(_beat, file);
+  }
 
   /// 答對歡呼音（獨立播放器，不會被下一題音效切掉）。
   Future<bool> playCheer(String file) => _playOn(_cheer, file);

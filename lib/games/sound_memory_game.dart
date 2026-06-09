@@ -94,6 +94,7 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
       _lock = true;
       _step = 0;
     });
+    await AudioService.instance.waitUntilVoiceIdle(); // 先讓關卡名稱念完
     await AudioService.instance
         .speakForDuration('仔細聽，記住順序！',
             extra: const Duration(milliseconds: 500));

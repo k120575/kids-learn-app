@@ -71,7 +71,7 @@ class _JigsawGameState extends State<JigsawGame> {
     super.initState();
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('看看完成圖，把每一塊拼回正確的位置！'),
+      (_) => AudioService.instance.speakAfterVoice('看看完成圖，把每一塊拼回正確的位置！'),
     );
   }
 
@@ -381,12 +381,8 @@ class _JigsawGameState extends State<JigsawGame> {
         child: Transform.scale(scale: 1.12, child: piece),
       ),
       childWhenDragging: Opacity(opacity: 0.3, child: piece),
-      onDragEnd: (DraggableDetails d) {
-        if (!d.wasAccepted) {
-          _mistakes++;
-          AudioService.instance.wrong();
-        }
-      },
+      // 放錯位置時碎片會自己彈回托盤，不出「再試一次」、不計為錯誤
+      // （碎片只卡得進正確格，拼完必定正確，沒有「完成卻有錯」的情況）。
       child: piece,
     );
   }

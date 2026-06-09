@@ -50,7 +50,8 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
   void initState() {
     super.initState();
     _prepare();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _speak());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => AudioService.instance.speakAfterVoice(_item.$1));
   }
 
   @override

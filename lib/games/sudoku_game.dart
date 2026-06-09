@@ -51,7 +51,7 @@ class _SudokuGameState extends State<SudokuGame> {
     super.initState();
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('每一行、每一列都不能有一樣的！'),
+      (_) => AudioService.instance.speakAfterVoice('每一行、每一列都不能有一樣的！'),
     );
   }
 

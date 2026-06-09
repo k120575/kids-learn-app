@@ -56,7 +56,7 @@ class _MemoryGameState extends State<MemoryGame> {
     _pairs = level == 0 ? 4 : (level == 1 ? widget.pairs : 8);
     _deal();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speak('翻翻看，找出一樣的！'),
+      (_) => AudioService.instance.speakAfterVoice('翻翻看，找出一樣的！'),
     );
   }
 
@@ -102,10 +102,10 @@ class _MemoryGameState extends State<MemoryGame> {
         await _finish();
       }
     } else {
-      // 不對，翻回去
+      // 沒配對到：不責備、不出「再試一次」，靜靜翻回去就好（翻錯是記憶遊戲的常態）。
+      // 仍計入 mistakes 供星數/適性難度評分，但不發出聲音提示。
       _lock = true;
       _mistakes++;
-      AudioService.instance.wrong();
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
       setState(() {
