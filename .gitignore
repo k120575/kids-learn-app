@@ -1,0 +1,61 @@
+# ===== Secrets (API keys) — never commit =====
+tool/secrets.env
+*.env
+
+# ===== Claude Code (local session settings) =====
+.claude/settings.local.json
+
+# ===== Local run / debug artifacts =====
+.run_log.txt
+.run_debug*.txt
+
+# ===== Miscellaneous =====
+*.class
+*.log
+*.pyc
+__pycache__/
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ===== IntelliJ / Android Studio =====
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# ===== Flutter / Dart / Pub =====
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# ===== Android build artifacts =====
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+/android/captures/
+/android/local.properties
+/android/key.properties
+*.jks
+*.keystore

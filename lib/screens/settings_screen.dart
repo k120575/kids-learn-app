@@ -1,0 +1,205 @@
+import 'package:flutter/material.dart';
+
+import '../core/audio_service.dart';
+import '../core/progress_store.dart';
+import '../core/responsive.dart';
+import '../core/theme.dart';
+import '../core/widgets/game_scaffold.dart';
+import 'dashboard_screen.dart';
+import 'profiles_screen.dart';
+
+/// 設定頁（由家長鎖進入）：音效、螢幕時間提醒、總星數、清除進度。
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final ProgressStore _store = ProgressStore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return GameScaffold(
+      title: '設定',
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: ListView(
+            padding: const EdgeInsets.all(Sizes.bigGap),
+            children: <Widget>[
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.star_rounded,
+                      color: const Color(0xFFFFC107), size: context.s(32)),
+                  title: Text('累積星星', style: TextStyle(fontSize: context.s(20))),
+                  trailing: Text(
+                    '${_store.totalStars()} ⭐',
+                    style: TextStyle(
+                        fontSize: context.s(22), fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: Sizes.gap),
+              Card(
+                child: SwitchListTile(
+                  secondary: Icon(Icons.volume_up_rounded, size: context.s(32)),
+                  title: Text('聲音（語音／音效）',
+                      style: TextStyle(fontSize: context.s(20))),
+                  value: _store.soundEnabled,
+                  onChanged: (bool v) =>
+                      setState(() => _store.soundEnabled = v),
+                ),
+              ),
+              const SizedBox(height: Sizes.gap),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    SwitchListTile(
+                      secondary: Icon(Icons.music_note_rounded, size: context.s(32)),
+                      title: Text('背景音樂', style: TextStyle(fontSize: context.s(20))),
+                      value: _store.musicEnabled,
+                      onChanged: (bool v) {
+                        setState(() => _store.musicEnabled = v);
+                        AudioService.instance.applyMusicSetting();
+                      },
+                    ),
+                    if (_store.musicEnabled)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Row(
+                          children: <Widget>[
+                            const Icon(Icons.volume_down_rounded,
+                                color: Color(0xFF90A4AE)),
+                            Expanded(
+                              child: Slider(
+                                value: _store.musicVolume,
+                                divisions: 10,
+                                label: '${(_store.musicVolume * 100).round()}%',
+                                onChanged: (double v) {
+                                  setState(() => _store.musicVolume = v);
+                                  AudioService.instance.applyMusicSetting();
+                                },
+                              ),
+                            ),
+                            const Icon(Icons.volume_up_rounded,
+                                color: Color(0xFF90A4AE)),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: Sizes.gap),
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.insights_rounded,
+                      size: context.s(32), color: const Color(0xFF42A5F5)),
+                  title: Text('學習報告', style: TextStyle(fontSize: context.s(20))),
+                  subtitle: const Text('使用時間、各遊戲表現與常錯處'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => const DashboardScreen()),
+                  ),
+                ),
+              ),
+              const SizedBox(height: Sizes.gap),
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.people_rounded,
+                      size: context.s(32), color: const Color(0xFF66BB6A)),
+                  title: Text('孩子檔案', style: TextStyle(fontSize: context.s(20))),
+                  subtitle: Text('目前：${_store.activeProfile.emoji} '
+                      '${_store.activeProfile.name}'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                          builder: (_) => const ProfilesScreen()),
+                    );
+                    if (mounted) setState(() {});
+                  },
+                ),
+              ),
+              const SizedBox(height: Sizes.gap),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.timer_rounded, size: context.s(32)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text('休息提醒（分鐘）',
+                                style: TextStyle(fontSize: context.s(20))),
+                          ),
+                          Text(
+                            _store.screenTimeMinutes == 0
+                                ? '關閉'
+                                : '${_store.screenTimeMinutes} 分',
+                            style: TextStyle(
+                                fontSize: context.s(20), fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: _store.screenTimeMinutes.toDouble(),
+                        min: 0,
+                        max: 40,
+                        divisions: 8,
+                        label: _store.screenTimeMinutes == 0
+                            ? '關閉'
+                            : '${_store.screenTimeMinutes} 分',
+                        onChanged: (double v) => setState(
+                            () => _store.screenTimeMinutes = v.round()),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: Sizes.bigGap),
+              OutlinedButton.icon(
+                onPressed: _confirmClear,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(60),
+                  foregroundColor: Colors.red,
+                ),
+                icon: const Icon(Icons.delete_outline_rounded),
+                label: Text('清除所有進度', style: TextStyle(fontSize: context.s(18))),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmClear() async {
+    final bool? yes = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('清除所有進度？'),
+        content: const Text('星星紀錄會全部歸零，無法復原。'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('確定清除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (yes ?? false) {
+      await _store.clearProgress();
+      if (mounted) setState(() {});
+    }
+  }
+}
