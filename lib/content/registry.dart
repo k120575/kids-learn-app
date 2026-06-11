@@ -1,19 +1,23 @@
 import '../games/arithmetic_game.dart';
 import '../games/count_tap_game.dart';
 import '../games/drag_match_game.dart';
+import '../games/find_same_game.dart';
 import '../games/jigsaw_game.dart';
 import '../games/maze_game.dart';
 import '../games/memory_game.dart';
 import '../games/multiplication_game.dart';
+import '../games/next_in_row_game.dart';
 import '../games/number_compare_game.dart';
 import '../games/opposite_game.dart';
 import '../games/pattern_matrix_game.dart';
 import '../games/pick_game.dart';
 import '../games/read_aloud_game.dart';
+import '../games/rotate_match_game.dart';
 import '../games/sound_memory_game.dart';
 import '../games/spot_difference_game.dart';
 import '../games/sudoku_game.dart';
 import '../games/symmetry_game.dart';
+import '../games/whats_missing_game.dart';
 import '../models/age_band.dart';
 import '../models/domain.dart';
 import '../models/game_def.dart';
@@ -176,6 +180,43 @@ final List<GameDef> gameRegistry = <GameDef>[
   ),
   // （節奏跟打已移除）
 
+  // ---------- 動腦 ----------
+  // 3-4 全新內容（非難度變體）：感知辨識 + 短期記憶 + 重複規律，
+  // 與 4-5 的記憶翻牌/找不同/找規律是不同的認知動作。
+  GameDef(
+    id: 'find_same_34',
+    title: '找一樣',
+    emoji: '👀',
+    domain: Domain.brain,
+    ageBands: _age34,
+    builder: (_) => const FindSameGame(
+      gameId: 'find_same_34',
+      title: '找一樣',
+    ),
+  ),
+  GameDef(
+    id: 'whats_missing_34',
+    title: '什麼不見了',
+    emoji: '🙈',
+    domain: Domain.brain,
+    ageBands: _age34,
+    builder: (_) => const WhatsMissingGame(
+      gameId: 'whats_missing_34',
+      title: '什麼不見了',
+    ),
+  ),
+  GameDef(
+    id: 'next_in_row_34',
+    title: '接下去',
+    emoji: '🚂',
+    domain: Domain.brain,
+    ageBands: _age34,
+    builder: (_) => const NextInRowGame(
+      gameId: 'next_in_row_34',
+      title: '接下去',
+    ),
+  ),
+
   // ==================== 4-5 歲 ====================
   // ---------- 邏輯數學 ----------
   GameDef(
@@ -279,6 +320,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     builder: (_) => const SpotDifferenceGame(
       gameId: 'spot_diff',
       title: '找不同',
+      numDiff: 3, // 適性難度階梯：簡單 2 / 一般 3 / 挑戰 4（原本一般也是 2，太平）
     ),
   ),
   GameDef(
@@ -502,6 +544,17 @@ final List<GameDef> gameRegistry = <GameDef>[
       title: '拼圖高手',
       minPieces: 16, // 16~25 片，行列隨機（可非正方形）
       maxPieces: 25,
+    ),
+  ),
+  GameDef(
+    id: 'rotate_match_56',
+    title: '轉轉看',
+    emoji: '🔄',
+    domain: Domain.spatial,
+    ageBands: _age56,
+    builder: (_) => const RotateMatchGame(
+      gameId: 'rotate_match_56',
+      title: '轉轉看',
     ),
   ),
 
