@@ -33,24 +33,62 @@ class RotateMatchGame extends StatefulWidget {
   // 確保鏡像永遠不等於任何旋轉，避免出現「兩個都對」。
   static const List<List<Point<int>>> _tetromino = <List<Point<int>>>[
     // L
-    <Point<int>>[Point<int>(0, 0), Point<int>(0, 1), Point<int>(0, 2), Point<int>(1, 2)],
+    <Point<int>>[
+      Point<int>(0, 0),
+      Point<int>(0, 1),
+      Point<int>(0, 2),
+      Point<int>(1, 2),
+    ],
     // S
-    <Point<int>>[Point<int>(1, 0), Point<int>(2, 0), Point<int>(0, 1), Point<int>(1, 1)],
+    <Point<int>>[
+      Point<int>(1, 0),
+      Point<int>(2, 0),
+      Point<int>(0, 1),
+      Point<int>(1, 1),
+    ],
   ];
   static const List<List<Point<int>>> _pentomino = <List<Point<int>>>[
     // F
-    <Point<int>>[Point<int>(1, 0), Point<int>(2, 0), Point<int>(0, 1), Point<int>(1, 1), Point<int>(1, 2)],
+    <Point<int>>[
+      Point<int>(1, 0),
+      Point<int>(2, 0),
+      Point<int>(0, 1),
+      Point<int>(1, 1),
+      Point<int>(1, 2),
+    ],
     // N
-    <Point<int>>[Point<int>(1, 0), Point<int>(1, 1), Point<int>(0, 2), Point<int>(1, 2), Point<int>(0, 3)],
+    <Point<int>>[
+      Point<int>(1, 0),
+      Point<int>(1, 1),
+      Point<int>(0, 2),
+      Point<int>(1, 2),
+      Point<int>(0, 3),
+    ],
     // Y
-    <Point<int>>[Point<int>(1, 0), Point<int>(0, 1), Point<int>(1, 1), Point<int>(1, 2), Point<int>(1, 3)],
+    <Point<int>>[
+      Point<int>(1, 0),
+      Point<int>(0, 1),
+      Point<int>(1, 1),
+      Point<int>(1, 2),
+      Point<int>(1, 3),
+    ],
     // Z
-    <Point<int>>[Point<int>(0, 0), Point<int>(1, 0), Point<int>(1, 1), Point<int>(1, 2), Point<int>(2, 2)],
+    <Point<int>>[
+      Point<int>(0, 0),
+      Point<int>(1, 0),
+      Point<int>(1, 1),
+      Point<int>(1, 2),
+      Point<int>(2, 2),
+    ],
   ];
 
   static const List<Color> _colors = <Color>[
-    Color(0xFF42A5F5), Color(0xFFEF5350), Color(0xFF66BB6A),
-    Color(0xFFAB47BC), Color(0xFFFFA726), Color(0xFF26A69A),
+    Color(0xFF42A5F5),
+    Color(0xFFEF5350),
+    Color(0xFF66BB6A),
+    Color(0xFFAB47BC),
+    Color(0xFFFFA726),
+    Color(0xFF26A69A),
   ];
 
   @override
@@ -73,10 +111,12 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
   static List<Point<int>> _normalize(List<Point<int>> s) {
     final int minX = s.map((Point<int> p) => p.x).reduce(min);
     final int minY = s.map((Point<int> p) => p.y).reduce(min);
-    final List<Point<int>> out =
-        s.map((Point<int> p) => Point<int>(p.x - minX, p.y - minY)).toList();
-    out.sort((Point<int> a, Point<int> b) =>
-        a.x != b.x ? a.x - b.x : a.y - b.y);
+    final List<Point<int>> out = s
+        .map((Point<int> p) => Point<int>(p.x - minX, p.y - minY))
+        .toList();
+    out.sort(
+      (Point<int> a, Point<int> b) => a.x != b.x ? a.x - b.x : a.y - b.y,
+    );
     return out;
   }
 
@@ -136,20 +176,26 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
       final List<Point<int>> base = pool[_rng.nextInt(pool.length)];
       rots = _rotations(base);
       mrots = _rotations(_mirror(base));
-      final Set<String> rotKeys =
-          rots.map((List<Point<int>> s) => _key(s)).toSet();
-      final bool chiral =
-          mrots.every((List<Point<int>> s) => !rotKeys.contains(_key(s)));
+      final Set<String> rotKeys = rots
+          .map((List<Point<int>> s) => _key(s))
+          .toSet();
+      final bool chiral = mrots.every(
+        (List<Point<int>> s) => !rotKeys.contains(_key(s)),
+      );
       if (chiral && mrots.length >= 3) break;
     }
 
     _target = rots[_rng.nextInt(rots.length)];
     final List<Point<int>> correct = rots[_rng.nextInt(rots.length)];
-    final List<List<Point<int>>> distract =
-        (List<List<Point<int>>>.of(mrots)..shuffle(_rng)).take(3).toList();
+    final List<List<Point<int>>> distract = (List<List<Point<int>>>.of(
+      mrots,
+    )..shuffle(_rng)).take(3).toList();
     _options = <List<Point<int>>>[correct, ...distract]..shuffle(_rng);
-    _correct = _options.indexWhere((List<Point<int>> s) => identical(s, correct));
-    _color = RotateMatchGame._colors[_rng.nextInt(RotateMatchGame._colors.length)];
+    _correct = _options.indexWhere(
+      (List<Point<int>> s) => identical(s, correct),
+    );
+    _color =
+        RotateMatchGame._colors[_rng.nextInt(RotateMatchGame._colors.length)];
     _wrong.clear();
     _lock = false;
     _success = false;
@@ -171,8 +217,11 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
           _gen();
         });
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -200,62 +249,75 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
       onReplay: () => AudioService.instance.speak('轉一轉，哪一個一樣？'),
       child: Stack(
         children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              // 目標圖形。
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3CD),
-                  borderRadius: BorderRadius.circular(Sizes.radius),
-                  border: Border.all(color: const Color(0xFFFFC107), width: 4),
-                ),
-                child: _ShapeView(
-                    cells: _target, color: _color, box: context.s(108)),
-              ),
-              SizedBox(height: context.s(18)),
-              // 四個選項。
-              Wrap(
-                spacing: Sizes.bigGap,
-                runSpacing: Sizes.gap,
-                alignment: WrapAlignment.center,
-                children: List<Widget>.generate(_options.length, (int idx) {
-                  final bool win = _success && idx == _correct;
-                  return Shaker(
-                    trigger: _wrong[idx] ?? 0,
-                    child: GestureDetector(
-                      onTap: () => _onTap(idx),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: win ? const Color(0xFFC8E6C9) : Colors.white,
-                          borderRadius: BorderRadius.circular(Sizes.radius),
-                          border: Border.all(
-                            color: win
-                                ? const Color(0xFF4CAF50)
-                                : Colors.grey.shade300,
-                            width: win ? 6 : 3,
-                          ),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: _ShapeView(
-                            cells: _options[idx],
-                            color: _color,
-                            box: context.s(96)),
+          Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  // 目標圖形。
+                  Container(
+                    padding: EdgeInsets.all(context.s(10)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF3CD),
+                      borderRadius: BorderRadius.circular(Sizes.radius),
+                      border: Border.all(
+                        color: const Color(0xFFFFC107),
+                        width: 4,
                       ),
                     ),
-                  );
-                }),
+                    child: _ShapeView(
+                      cells: _target,
+                      color: _color,
+                      box: context.s(108),
+                    ),
+                  ),
+                  SizedBox(height: context.s(18)),
+                  // 四個選項。
+                  Wrap(
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.gap),
+                    alignment: WrapAlignment.center,
+                    children: List<Widget>.generate(_options.length, (int idx) {
+                      final bool win = _success && idx == _correct;
+                      return Shaker(
+                        trigger: _wrong[idx] ?? 0,
+                        child: GestureDetector(
+                          onTap: () => _onTap(idx),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.all(context.s(10)),
+                            decoration: BoxDecoration(
+                              color: win
+                                  ? const Color(0xFFC8E6C9)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(Sizes.radius),
+                              border: Border.all(
+                                color: win
+                                    ? const Color(0xFF4CAF50)
+                                    : Colors.grey.shade300,
+                                width: win ? 6 : 3,
+                              ),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: _ShapeView(
+                              cells: _options[idx],
+                              color: _color,
+                              box: context.s(96),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           if (_success) const Positioned.fill(child: Celebration()),
         ],
@@ -266,8 +328,11 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
 
 /// 把一組 cell 座標畫成方塊圖形，整體塞進 [box]×[box] 的方框內。
 class _ShapeView extends StatelessWidget {
-  const _ShapeView(
-      {required this.cells, required this.color, required this.box});
+  const _ShapeView({
+    required this.cells,
+    required this.color,
+    required this.box,
+  });
 
   final List<Point<int>> cells;
   final Color color;
@@ -279,8 +344,9 @@ class _ShapeView extends StatelessWidget {
     final int h = cells.map((Point<int> p) => p.y).reduce(max) + 1;
     final int dim = max(w, h);
     final double cell = box / dim;
-    final Set<String> filled =
-        cells.map((Point<int> p) => '${p.x},${p.y}').toSet();
+    final Set<String> filled = cells
+        .map((Point<int> p) => '${p.x},${p.y}')
+        .toSet();
     // 置中：把圖形在 dim×dim 方格內水平/垂直置中。
     final int offX = (dim - w) ~/ 2;
     final int offY = (dim - h) ~/ 2;

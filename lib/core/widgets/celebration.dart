@@ -48,8 +48,11 @@ class Celebration extends StatelessWidget {
       offset: Offset(cos(angle) * dist, sin(angle) * dist),
       child: Opacity(
         opacity: (1 - t).clamp(0.0, 1.0),
-        child: Icon(Icons.star_rounded,
-            color: const Color(0xFFFFC107), size: context.s(28 + 12 * t)),
+        child: Icon(
+          Icons.star_rounded,
+          color: const Color(0xFFFFC107),
+          size: context.s(28 + 12 * t),
+        ),
       ),
     );
   }

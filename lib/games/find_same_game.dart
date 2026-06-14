@@ -35,9 +35,34 @@ class FindSameGame extends StatefulWidget {
 class _FindSameGameState extends State<FindSameGame> {
   // 視覺差異夠大的圖庫，避免幼兒分不清相近圖案。
   static const List<String> _pool = <String>[
-    '🐶', '🐱', '🐰', '🐸', '🐵', '🐧', '🦊', '🐯', '🦁', '🐮',
-    '🍎', '🍌', '🍓', '🍇', '🚗', '🚀', '⚽', '🎈', '🌈', '⭐',
-    '🌸', '🍦', '🎁', '🦋', '🐟', '🌟', '🍉', '🐝',
+    '🐶',
+    '🐱',
+    '🐰',
+    '🐸',
+    '🐵',
+    '🐧',
+    '🦊',
+    '🐯',
+    '🦁',
+    '🐮',
+    '🍎',
+    '🍌',
+    '🍓',
+    '🍇',
+    '🚗',
+    '🚀',
+    '⚽',
+    '🎈',
+    '🌈',
+    '⭐',
+    '🌸',
+    '🍦',
+    '🎁',
+    '🦋',
+    '🐟',
+    '🌟',
+    '🍉',
+    '🐝',
   ];
 
   final Random _rng = Random();
@@ -103,8 +128,11 @@ class _FindSameGameState extends State<FindSameGame> {
           _gen();
         });
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -136,17 +164,27 @@ class _FindSameGameState extends State<FindSameGame> {
             children: <Widget>[
               // 目標圖：放在圓角卡片裡，明確「就是要找這個」。
               Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 4),
+                padding: EdgeInsets.only(
+                  top: context.s(8),
+                  bottom: context.s(4),
+                ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 22, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.s(22),
+                    vertical: context.s(10),
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3CD),
                     borderRadius: BorderRadius.circular(Sizes.radius),
-                    border: Border.all(color: const Color(0xFFFFC107), width: 4),
+                    border: Border.all(
+                      color: const Color(0xFFFFC107),
+                      width: 4,
+                    ),
                   ),
-                  child: Text(_target,
-                      style: TextStyle(fontSize: context.s(86))),
+                  child: Text(
+                    _target,
+                    style: TextStyle(fontSize: context.s(86)),
+                  ),
                 ),
               ),
               const Divider(height: 1),
@@ -154,11 +192,12 @@ class _FindSameGameState extends State<FindSameGame> {
                 child: Center(
                   child: SingleChildScrollView(
                     child: Wrap(
-                      spacing: Sizes.bigGap,
-                      runSpacing: Sizes.bigGap,
+                      spacing: context.s(Sizes.bigGap),
+                      runSpacing: context.s(Sizes.bigGap),
                       alignment: WrapAlignment.center,
-                      children:
-                          List<Widget>.generate(_options.length, (int idx) {
+                      children: List<Widget>.generate(_options.length, (
+                        int idx,
+                      ) {
                         final bool win = _success && idx == _correct;
                         return Shaker(
                           trigger: _wrong[idx] ?? 0,
@@ -205,9 +244,7 @@ class _Tile extends StatelessWidget {
           color: highlight ? const Color(0xFFC8E6C9) : Colors.white,
           borderRadius: BorderRadius.circular(Sizes.radius),
           border: Border.all(
-            color: highlight
-                ? const Color(0xFF4CAF50)
-                : Colors.grey.shade300,
+            color: highlight ? const Color(0xFF4CAF50) : Colors.grey.shade300,
             width: highlight ? 6 : 3,
           ),
           boxShadow: <BoxShadow>[

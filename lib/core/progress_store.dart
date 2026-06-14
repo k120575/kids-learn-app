@@ -71,24 +71,28 @@ class ProgressStore {
   List<Profile> get profiles => List<Profile>.unmodifiable(_profiles);
   String get activeProfileId => _active;
   Profile get activeProfile => _profiles.firstWhere(
-        (Profile p) => p.id == _active,
-        orElse: () => _profiles.isNotEmpty
-            ? _profiles.first
-            : const Profile(id: AppDb.kDefaultProfile, name: '寶貝', emoji: '🐧'),
-      );
+    (Profile p) => p.id == _active,
+    orElse: () => _profiles.isNotEmpty
+        ? _profiles.first
+        : const Profile(id: AppDb.kDefaultProfile, name: '寶貝', emoji: '🐧'),
+  );
 
   Future<void> _reloadProfiles() async {
     final List<Map<String, Object?>> rows = await AppDb.instance.loadProfiles();
     if (rows.isEmpty) return; // 保留記憶體後備
     _profiles
       ..clear()
-      ..addAll(rows.map((Map<String, Object?> r) => Profile(
+      ..addAll(
+        rows.map(
+          (Map<String, Object?> r) => Profile(
             id: r['id'] as String,
             name: r['name'] as String,
             emoji: r['emoji'] as String,
             createdAt: r['created_at'] as int,
             sort: r['sort'] as int,
-          )));
+          ),
+        ),
+      );
     if (!_profiles.any((Profile p) => p.id == _active)) {
       _active = _profiles.first.id;
     }
@@ -148,10 +152,14 @@ class ProgressStore {
     final String id = 'p$now';
     final int sort = _profiles.length;
     final Profile prof = Profile(
-        id: id, name: name, emoji: emoji, createdAt: now, sort: sort);
+      id: id,
+      name: name,
+      emoji: emoji,
+      createdAt: now,
+      sort: sort,
+    );
     _profiles.add(prof);
-    _persist(() =>
-        AppDb.instance.upsertProfile(id, name, emoji, now, sort));
+    _persist(() => AppDb.instance.upsertProfile(id, name, emoji, now, sort));
     await switchProfile(id); // 新增後切到新孩子（全新空白進度）
   }
 
@@ -160,8 +168,15 @@ class ProgressStore {
     if (idx < 0) return;
     final Profile old = _profiles[idx];
     _profiles[idx] = old.copyWith(name: name, emoji: emoji);
-    _persist(() => AppDb.instance
-        .upsertProfile(id, name, emoji, old.createdAt, old.sort));
+    _persist(
+      () => AppDb.instance.upsertProfile(
+        id,
+        name,
+        emoji,
+        old.createdAt,
+        old.sort,
+      ),
+    );
   }
 
   Future<void> deleteProfile(String id) async {
@@ -214,11 +229,15 @@ class ProgressStore {
   }
 
   // ===================== 遊玩紀錄 / 時間 =====================
-  Future<void> logPlay(String gameId,
-      {required int stars, required int mistakes}) async {
+  Future<void> logPlay(
+    String gameId, {
+    required int stars,
+    required int mistakes,
+  }) async {
     final int ts = DateTime.now().millisecondsSinceEpoch;
-    _persist(() =>
-        AppDb.instance.addPlay(_active, gameId, stars, mistakes, ts));
+    _persist(
+      () => AppDb.instance.addPlay(_active, gameId, stars, mistakes, ts),
+    );
   }
 
   /// 由 ScreenTimeManager 週期性回報的「實際使用秒數」，累進到今天。
@@ -306,8 +325,7 @@ class ProgressStore {
       _stars.keys.where((String k) => (_stars[k] ?? 0) > 0).toSet();
 
   /// 拿過 3 星的遊戲數 —— 成就「完美高手」用。
-  int get gamesThreeStarCount =>
-      _stars.values.where((int v) => v >= 3).length;
+  int get gamesThreeStarCount => _stars.values.where((int v) => v >= 3).length;
 
   int get streakCurrent => _streakCur;
   int get streakBest => _streakBest;
@@ -324,8 +342,9 @@ class ProgressStore {
     }
     if (_streakCur > _streakBest) _streakBest = _streakCur;
     _streakLast = today;
-    _persist(() =>
-        AppDb.instance.setStreak(_active, today, _streakCur, _streakBest));
+    _persist(
+      () => AppDb.instance.setStreak(_active, today, _streakCur, _streakBest),
+    );
     // 每日獎勵：基本 5 顆，連續滿 7 的倍數再加碼 10 顆。
     final int bonus = 5 + (_streakCur % 7 == 0 ? 10 : 0);
     await addEarnedStars(bonus);
@@ -365,14 +384,16 @@ class ProgressStore {
   double get musicVolume => _musicVol;
   set musicVolume(double v) {
     _musicVol = v < 0 ? 0 : (v > 1 ? 1 : v);
-    _persist(() =>
-        AppDb.instance.setSetting('music_volume', _musicVol.toString()));
+    _persist(
+      () => AppDb.instance.setSetting('music_volume', _musicVol.toString()),
+    );
   }
 
   int get screenTimeMinutes => _screen;
   set screenTimeMinutes(int v) {
     _screen = v;
     _persist(
-        () => AppDb.instance.setSetting('screen_time_minutes', v.toString()));
+      () => AppDb.instance.setSetting('screen_time_minutes', v.toString()),
+    );
   }
 }

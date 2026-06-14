@@ -66,9 +66,13 @@ class _SymmetryGameState extends State<SymmetryGame> {
 
   void _gen() {
     _left = List<List<bool>>.generate(
-        _rows, (_) => List<bool>.filled(_half, false));
+      _rows,
+      (_) => List<bool>.filled(_half, false),
+    );
     _right = List<List<bool>>.generate(
-        _rows, (_) => List<bool>.filled(_half, false));
+      _rows,
+      (_) => List<bool>.filled(_half, false),
+    );
     final int cells = _rows * _half;
     // 填色格數：約 40%~60%，至少 3 格、至多比總格數少 1。
     int want = (cells * (0.4 + _rng.nextDouble() * 0.2)).round();
@@ -141,8 +145,11 @@ class _SymmetryGameState extends State<SymmetryGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -176,67 +183,68 @@ class _SymmetryGameState extends State<SymmetryGame> {
       title: widget.title,
       current: _i,
       total: widget.rounds,
-      onReplay: () =>
-          AudioService.instance.speak('看著鏡子，把另一半補成一樣！'),
+      onReplay: () => AudioService.instance.speak('看著鏡子，把另一半補成一樣！'),
       child: Stack(
         children: <Widget>[
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text('把右邊補成左邊的鏡像',
-                      style: TextStyle(
-                          fontSize: context.s(20),
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: Sizes.gap),
+                  Text(
+                    '把右邊補成左邊的鏡像',
+                    style: TextStyle(
+                      fontSize: context.s(20),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: context.s(Sizes.gap)),
                   // 窄螢幕時整個鏡像盤面等比縮小，不會被裁切。
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List<Widget>.generate(_rows, (int r) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          // 左半（題目，固定）
-                          for (int c = 0; c < _half; c++)
-                            _Cell(
-                              filled: _left[r][c],
-                              given: true,
-                            ),
-                          // 鏡子
-                          Container(
-                            width: context.s(6),
-                            height: context.s(52),
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: <Color>[
-                                  Color(0xFFB388FF),
-                                  Color(0xFF7C4DFF),
-                                ],
+                      mainAxisSize: MainAxisSize.min,
+                      children: List<Widget>.generate(_rows, (int r) {
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            // 左半（題目，固定）
+                            for (int c = 0; c < _half; c++)
+                              _Cell(filled: _left[r][c], given: true),
+                            // 鏡子
+                            Container(
+                              width: context.s(6),
+                              height: context.s(52),
+                              margin: EdgeInsets.symmetric(
+                                horizontal: context.s(4),
                               ),
-                              borderRadius: BorderRadius.circular(3),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: <Color>[
+                                    Color(0xFFB388FF),
+                                    Color(0xFF7C4DFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
-                          ),
-                          // 右半（玩家填）
-                          for (int j = 0; j < _half; j++)
-                            _Cell(
-                              filled: _right[r][j],
-                              given: false,
-                              hint: hintCell != null &&
-                                  hintCell.$1 == r &&
-                                  hintCell.$2 == j,
-                              onTap: () => _tapRight(r, j),
-                            ),
-                        ],
-                      );
-                    }),
+                            // 右半（玩家填）
+                            for (int j = 0; j < _half; j++)
+                              _Cell(
+                                filled: _right[r][j],
+                                given: false,
+                                hint:
+                                    hintCell != null &&
+                                    hintCell.$1 == r &&
+                                    hintCell.$2 == j,
+                                onTap: () => _tapRight(r, j),
+                              ),
+                          ],
+                        );
+                      }),
                     ),
                   ),
                 ],
@@ -274,7 +282,7 @@ class _Cell extends StatelessWidget {
         duration: const Duration(milliseconds: 140),
         width: context.s(52),
         height: context.s(52),
-        margin: const EdgeInsets.all(3),
+        margin: EdgeInsets.all(context.s(3)),
         decoration: BoxDecoration(
           color: filled ? fill : Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -287,9 +295,14 @@ class _Cell extends StatelessWidget {
         ),
         child: filled
             ? Center(
-                child: Text('✦',
-                    style: TextStyle(
-                        fontSize: context.s(26), color: Colors.white)))
+                child: Text(
+                  '✦',
+                  style: TextStyle(
+                    fontSize: context.s(26),
+                    color: Colors.white,
+                  ),
+                ),
+              )
             : null,
       ),
     );

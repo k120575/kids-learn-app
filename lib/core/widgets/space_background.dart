@@ -26,10 +26,7 @@ class _SpaceBackgroundState extends State<SpaceBackground>
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _SpacePainter(_c),
-      size: Size.infinite,
-    );
+    return CustomPaint(painter: _SpacePainter(_c), size: Size.infinite);
   }
 }
 
@@ -63,35 +60,53 @@ class _SpacePainter extends CustomPainter {
       final double y = rng.nextDouble() * h;
       final double base = 0.6 + rng.nextDouble() * 1.6;
       final double tw = 0.4 + 0.6 * (0.5 + 0.5 * sin(p * 2 * pi + i));
-      canvas.drawCircle(Offset(x, y), base,
-          Paint()..color = Colors.white.withValues(alpha: tw));
+      canvas.drawCircle(
+        Offset(x, y),
+        base,
+        Paint()..color = Colors.white.withValues(alpha: tw),
+      );
     }
     // 幾顆大亮星
     for (int i = 0; i < 5; i++) {
       final double x = rng.nextDouble() * w;
       final double y = rng.nextDouble() * h * 0.7;
-      _sparkle(canvas, Offset(x, y), 5 + rng.nextDouble() * 3,
-          0.5 + 0.5 * sin(p * 2 * pi + i * 2));
+      _sparkle(
+        canvas,
+        Offset(x, y),
+        5 + rng.nextDouble() * 3,
+        0.5 + 0.5 * sin(p * 2 * pi + i * 2),
+      );
     }
 
     // 月亮
     final Offset moon = Offset(w * 0.12, h * 0.22);
-    canvas.drawCircle(moon, h * 0.07,
-        Paint()..color = const Color(0xFFECEFF1));
-    canvas.drawCircle(moon + Offset(-h * 0.02, -h * 0.015), h * 0.015,
-        Paint()..color = const Color(0xFFB0BEC5));
-    canvas.drawCircle(moon + Offset(h * 0.025, h * 0.02), h * 0.012,
-        Paint()..color = const Color(0xFFB0BEC5));
+    canvas.drawCircle(moon, h * 0.07, Paint()..color = const Color(0xFFECEFF1));
+    canvas.drawCircle(
+      moon + Offset(-h * 0.02, -h * 0.015),
+      h * 0.015,
+      Paint()..color = const Color(0xFFB0BEC5),
+    );
+    canvas.drawCircle(
+      moon + Offset(h * 0.025, h * 0.02),
+      h * 0.012,
+      Paint()..color = const Color(0xFFB0BEC5),
+    );
 
     // 土星（含環）
     _saturn(canvas, Offset(w * 0.82, h * 0.28), h * 0.1);
 
     // 另一顆星球
     final Offset planet = Offset(w * 0.7, h * 0.72);
-    canvas.drawCircle(planet, h * 0.06,
-        Paint()..color = const Color(0xFF4DD0E1));
-    canvas.drawCircle(planet + Offset(-h * 0.02, -h * 0.02), h * 0.018,
-        Paint()..color = Colors.white.withValues(alpha: 0.3));
+    canvas.drawCircle(
+      planet,
+      h * 0.06,
+      Paint()..color = const Color(0xFF4DD0E1),
+    );
+    canvas.drawCircle(
+      planet + Offset(-h * 0.02, -h * 0.02),
+      h * 0.018,
+      Paint()..color = Colors.white.withValues(alpha: 0.3),
+    );
 
     // 火箭（飛過）
     final double rx = (p % 1) * (w + 240) - 120;
@@ -110,18 +125,22 @@ class _SpacePainter extends CustomPainter {
 
   void _saturn(Canvas c, Offset o, double r) {
     c.drawCircle(o, r, Paint()..color = const Color(0xFFFFB74D));
-    c.drawCircle(o + Offset(-r * 0.3, -r * 0.3), r * 0.35,
-        Paint()..color = const Color(0xFFFFE0B2).withValues(alpha: 0.5));
+    c.drawCircle(
+      o + Offset(-r * 0.3, -r * 0.3),
+      r * 0.35,
+      Paint()..color = const Color(0xFFFFE0B2).withValues(alpha: 0.5),
+    );
     // 環
     c.save();
     c.translate(o.dx, o.dy);
     c.rotate(-0.4);
     c.drawOval(
-        Rect.fromCenter(center: Offset.zero, width: r * 3.4, height: r * 1.1),
-        Paint()
-          ..color = const Color(0xFFFFE082)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = r * 0.18);
+      Rect.fromCenter(center: Offset.zero, width: r * 3.4, height: r * 1.1),
+      Paint()
+        ..color = const Color(0xFFFFE082)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = r * 0.18,
+    );
     c.restore();
   }
 
@@ -144,16 +163,20 @@ class _SpacePainter extends CustomPainter {
       ..close();
     c.drawPath(body, Paint()..color = Colors.white);
     // 窗
-    c.drawCircle(Offset(s * 0.2, 0), s * 0.14,
-        Paint()..color = const Color(0xFF42A5F5));
+    c.drawCircle(
+      Offset(s * 0.2, 0),
+      s * 0.14,
+      Paint()..color = const Color(0xFF42A5F5),
+    );
     // 尾翼
     c.drawPath(
-        Path()
-          ..moveTo(-s * 0.5, s * 0.3)
-          ..lineTo(-s * 0.7, s * 0.5)
-          ..lineTo(-s * 0.3, s * 0.28)
-          ..close(),
-        Paint()..color = const Color(0xFFEF5350));
+      Path()
+        ..moveTo(-s * 0.5, s * 0.3)
+        ..lineTo(-s * 0.7, s * 0.5)
+        ..lineTo(-s * 0.3, s * 0.28)
+        ..close(),
+      Paint()..color = const Color(0xFFEF5350),
+    );
     c.restore();
   }
 

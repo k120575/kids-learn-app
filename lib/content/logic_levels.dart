@@ -8,13 +8,34 @@ import '../games/drag_match_game.dart';
 
 /// 數數點點 50 題庫（圖案 × 數量 3-15）。每局隨機抽題。
 const List<String> _countEmojis = <String>[
-  '🍎', '⭐', '🐟', '🍌', '🐥', '🐶', '🎈', '🌸', '🐱', '🐰',
-  '🚗', '🍓', '🦋', '🐸', '🐢', '🍇', '🐝', '🌻', '🍪', '🐞',
+  '🍎',
+  '⭐',
+  '🐟',
+  '🍌',
+  '🐥',
+  '🐶',
+  '🎈',
+  '🌸',
+  '🐱',
+  '🐰',
+  '🚗',
+  '🍓',
+  '🦋',
+  '🐸',
+  '🐢',
+  '🍇',
+  '🐝',
+  '🌻',
+  '🍪',
+  '🐞',
 ];
 
 final List<CountRound> countBank = <CountRound>[
   for (int i = 0; i < 50; i++)
-    CountRound(emoji: _countEmojis[i % _countEmojis.length], count: 3 + (i % 13)),
+    CountRound(
+      emoji: _countEmojis[i % _countEmojis.length],
+      count: 3 + (i % 13),
+    ),
 ];
 
 const Color _red = Color(0xFFEF5350);
@@ -35,15 +56,25 @@ const Color _green = Color(0xFF66BB6A);
   final List<DragPiece> pieces = <DragPiece>[];
   int id = 0;
   for (final (Color, String, String) c in colors) {
-    slots.add(DropSlot(
-        category: c.$2, color: c.$1, emoji: '🧺', label: c.$3, capacity: 12));
+    slots.add(
+      DropSlot(
+        category: c.$2,
+        color: c.$1,
+        emoji: '🧺',
+        label: c.$3,
+        capacity: 12,
+      ),
+    );
     final int n = 1 + rng.nextInt(4);
     for (int k = 0; k < n; k++) {
-      pieces.add(DragPiece(
+      pieces.add(
+        DragPiece(
           id: '${c.$2}${id++}',
           category: c.$2,
           shape: ShapeKind.circle,
-          color: c.$1));
+          color: c.$1,
+        ),
+      );
     }
   }
   return (pieces, slots);
@@ -73,11 +104,14 @@ const Color _green = Color(0xFF66BB6A);
   for (final (Color, String) c in cols.take(colCount)) {
     for (final (ShapeKind, String) s in shps.take(2)) {
       final String cat = '${c.$2}_${s.$2}';
-      slots.add(DropSlot(category: cat, shape: s.$1, color: c.$1, capacity: cap));
+      slots.add(
+        DropSlot(category: cat, shape: s.$1, color: c.$1, capacity: cap),
+      );
       final int n = 1 + rng.nextInt(cap);
       for (int k = 0; k < n; k++) {
         pieces.add(
-            DragPiece(id: '$cat${id++}', category: cat, shape: s.$1, color: c.$1));
+          DragPiece(id: '$cat${id++}', category: cat, shape: s.$1, color: c.$1),
+        );
       }
     }
   }

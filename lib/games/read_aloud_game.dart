@@ -50,14 +50,21 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
   void initState() {
     super.initState();
     _prepare();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => AudioService.instance.speakAfterVoice(_item.$1));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _speakIntro());
   }
 
   @override
   void dispose() {
     AudioService.instance.stop();
     super.dispose();
+  }
+
+  /// 進場第一句：等關卡名念完再念短語。等待期間若已離開關卡就不念
+  /// （避免退出後仍念到結束）。
+  Future<void> _speakIntro() async {
+    await AudioService.instance.waitUntilVoiceIdle();
+    if (!mounted) return;
+    AudioService.instance.speak(_item.$1);
   }
 
   void _speak() => AudioService.instance.speak(_item.$1);
@@ -91,18 +98,25 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
       onReplay: _speak,
       child: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Sizes.bigGap),
+          padding: EdgeInsets.all(context.s(Sizes.bigGap)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text('👨‍👩‍👧 親子一起念',
-                  style: TextStyle(fontSize: context.s(16), color: const Color(0xFF888888))),
-              const SizedBox(height: Sizes.gap),
+              Text(
+                '👨‍👩‍👧 親子一起念',
+                style: TextStyle(
+                  fontSize: context.s(16),
+                  color: const Color(0xFF888888),
+                ),
+              ),
+              SizedBox(height: context.s(Sizes.gap)),
               Text(item.$2, style: TextStyle(fontSize: context.s(96))),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.s(24),
+                  vertical: context.s(16),
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF3CD),
                   borderRadius: BorderRadius.circular(Sizes.radius),
@@ -112,13 +126,15 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
                   item.$1,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: context.s(40), fontWeight: FontWeight.bold),
+                    fontSize: context.s(40),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: Sizes.bigGap),
+              SizedBox(height: context.s(Sizes.bigGap)),
               Wrap(
-                spacing: Sizes.gap,
-                runSpacing: Sizes.gap,
+                spacing: context.s(Sizes.gap),
+                runSpacing: context.s(Sizes.gap),
                 alignment: WrapAlignment.center,
                 children: <Widget>[
                   OutlinedButton.icon(
@@ -141,9 +157,14 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(_intro,
-                  style: TextStyle(fontSize: context.s(15), color: const Color(0xFFAAAAAA))),
+              SizedBox(height: context.s(8)),
+              Text(
+                _intro,
+                style: TextStyle(
+                  fontSize: context.s(15),
+                  color: const Color(0xFFAAAAAA),
+                ),
+              ),
             ],
           ),
         ),

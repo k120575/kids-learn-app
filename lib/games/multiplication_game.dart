@@ -70,7 +70,8 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
   Future<void> _readQuestion() async {
     final AudioService a = AudioService.instance;
     await a.waitUntilVoiceIdle(); // 先讓關卡名稱念完，再開始念算式
-    if (mounted) setState(() => _lock = true);
+    if (!mounted) return; // 等待時若已離開關卡，別再念題（避免退出後仍念到結束）
+    setState(() => _lock = true);
     a.speak('${_q.a}');
     await Future<void>.delayed(const Duration(milliseconds: 850));
     if (!mounted) return;
@@ -104,7 +105,12 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
     while (opts.length < 4) {
       // 干擾項：鄰近的乘積（±1 組 / ±1 個 / ±b），避免太離譜。
       final List<int> cands = <int>[
-        (a + 1) * b, (a - 1) * b, a * (b + 1), a * (b - 1), ans + b, ans - b,
+        (a + 1) * b,
+        (a - 1) * b,
+        a * (b + 1),
+        a * (b - 1),
+        ans + b,
+        ans - b,
       ];
       final int d = cands[_rng.nextInt(cands.length)];
       if (d > 0 && d != ans) opts.add(d);
@@ -136,8 +142,11 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
         });
         _readQuestion();
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -170,7 +179,7 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
       child: Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(Sizes.gap),
+            padding: EdgeInsets.all(context.s(Sizes.gap)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -178,28 +187,35 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
                 if (_q.a * _q.b <= 30)
                   _ArrayView(rows: _q.a, cols: _q.b)
                 else
-                  Text('${_q.a} 組，每組 ${_q.b} 個',
-                      style: TextStyle(
-                          fontSize: context.s(22), color: const Color(0xFF8E24AA))),
-                const SizedBox(height: Sizes.gap),
+                  Text(
+                    '${_q.a} 組，每組 ${_q.b} 個',
+                    style: TextStyle(
+                      fontSize: context.s(22),
+                      color: const Color(0xFF8E24AA),
+                    ),
+                  ),
+                SizedBox(height: context.s(Sizes.gap)),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
                     '${_q.a} × ${_q.b} ＝ ?',
                     style: TextStyle(
-                        fontSize: context.s(48), fontWeight: FontWeight.bold),
+                      fontSize: context.s(48),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const SizedBox(height: Sizes.bigGap),
+                SizedBox(height: context.s(Sizes.bigGap)),
                 AnimatedOpacity(
                   opacity: (_lock && !_success) ? 0.4 : 1.0,
                   duration: const Duration(milliseconds: 200),
                   child: Wrap(
-                    spacing: Sizes.bigGap,
-                    runSpacing: Sizes.gap,
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.gap),
                     alignment: WrapAlignment.center,
-                    children:
-                        List<Widget>.generate(_q.options.length, (int idx) {
+                    children: List<Widget>.generate(_q.options.length, (
+                      int idx,
+                    ) {
                       final int v = _q.options[idx];
                       final bool win = _success && v == _q.answer;
                       return Shaker(
@@ -238,12 +254,12 @@ class _ArrayView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: List<Widget>.generate(rows, (int r) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: EdgeInsets.symmetric(vertical: context.s(2)),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: List<Widget>.generate(cols, (int c) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: EdgeInsets.symmetric(horizontal: context.s(2)),
                   child: Text('⭐', style: TextStyle(fontSize: context.s(26))),
                 );
               }),
@@ -289,9 +305,13 @@ class _NumTile extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Text('$value',
-              style:
-                  TextStyle(fontSize: context.s(48), fontWeight: FontWeight.bold)),
+          child: Text(
+            '$value',
+            style: TextStyle(
+              fontSize: context.s(48),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

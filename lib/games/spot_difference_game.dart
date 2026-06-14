@@ -36,9 +36,30 @@ class SpotDifferenceGame extends StatefulWidget {
 
 class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
   static const List<String> _pool = <String>[
-    '🐶', '🐱', '🐰', '🐸', '🐵', '🐧', '🦊', '🐯', '🦁', '🐮',
-    '🍎', '🍌', '🍓', '🍇', '⭐', '🌈', '🚗', '🚀', '⚽', '🎈',
-    '🌸', '🍦', '🎁', '🦋',
+    '🐶',
+    '🐱',
+    '🐰',
+    '🐸',
+    '🐵',
+    '🐧',
+    '🦊',
+    '🐯',
+    '🦁',
+    '🐮',
+    '🍎',
+    '🍌',
+    '🍓',
+    '🍇',
+    '⭐',
+    '🌈',
+    '🚗',
+    '🚀',
+    '⚽',
+    '🎈',
+    '🌸',
+    '🍦',
+    '🎁',
+    '🦋',
   ];
 
   final Random _rng = Random();
@@ -74,7 +95,9 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
   }
 
   void _gen() {
-    _left = <String>[for (int i = 0; i < _count; i++) _pool[_rng.nextInt(_pool.length)]];
+    _left = <String>[
+      for (int i = 0; i < _count; i++) _pool[_rng.nextInt(_pool.length)],
+    ];
     _right = List<String>.of(_left);
     _diffs = <int>{};
     while (_diffs.length < _numDiff) {
@@ -112,8 +135,11 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
             _gen();
           });
         } else {
-          final bool again =
-              await finishGame(context, widget.gameId, mistakes: _mistakes);
+          final bool again = await finishGame(
+            context,
+            widget.gameId,
+            mistakes: _mistakes,
+          );
           if (!mounted) return;
           if (again) {
             setState(() {
@@ -144,10 +170,14 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
           Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text('找到 ${_found.length} / ${_diffs.length}',
-                    style: TextStyle(
-                        fontSize: context.s(22), fontWeight: FontWeight.bold)),
+                padding: EdgeInsets.all(context.s(8)),
+                child: Text(
+                  '找到 ${_found.length} / ${_diffs.length}',
+                  style: TextStyle(
+                    fontSize: context.s(22),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               Expanded(
                 child: Center(
@@ -162,9 +192,12 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             _panel(_left),
-                            const SizedBox(width: 10),
-                            Container(width: 3, color: Colors.grey.shade300),
-                            const SizedBox(width: 10),
+                            SizedBox(width: context.s(10)),
+                            Container(
+                              width: context.s(3),
+                              color: Colors.grey.shade300,
+                            ),
+                            SizedBox(width: context.s(10)),
                             _panel(_right),
                           ],
                         ),
@@ -195,7 +228,7 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
               child: Container(
                 width: context.s(84),
                 height: context.s(84),
-                margin: const EdgeInsets.all(3),
+                margin: EdgeInsets.all(context.s(3)),
                 decoration: BoxDecoration(
                   color: found ? const Color(0xFFC8E6C9) : null,
                   borderRadius: BorderRadius.circular(14),
@@ -204,8 +237,10 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
                       : null,
                 ),
                 child: Center(
-                  child:
-                      Text(data[idx], style: TextStyle(fontSize: context.s(50))),
+                  child: Text(
+                    data[idx],
+                    style: TextStyle(fontSize: context.s(50)),
+                  ),
                 ),
               ),
             );

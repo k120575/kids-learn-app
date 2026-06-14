@@ -36,8 +36,20 @@ class NextInRowGame extends StatefulWidget {
 class _NextInRowGameState extends State<NextInRowGame> {
   // 顏色/造型對比鮮明，方便看出重複節奏。
   static const List<String> _pool = <String>[
-    '🔴', '🔵', '🟡', '🟢', '🟣', '🟠',
-    '🍎', '🍌', '🍇', '⭐', '🌸', '🐶', '🐱', '🚗',
+    '🔴',
+    '🔵',
+    '🟡',
+    '🟢',
+    '🟣',
+    '🟠',
+    '🍎',
+    '🍌',
+    '🍇',
+    '⭐',
+    '🌸',
+    '🐶',
+    '🐱',
+    '🚗',
   ];
 
   final Random _rng = Random();
@@ -115,8 +127,11 @@ class _NextInRowGameState extends State<NextInRowGame> {
           _gen();
         });
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -153,14 +168,24 @@ class _NextInRowGameState extends State<NextInRowGame> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    for (final String e in _seq) _Car(child: Text(e,
-                        style: TextStyle(fontSize: context.s(48)))),
+                    for (final String e in _seq)
+                      _Car(
+                        child: Text(
+                          e,
+                          style: TextStyle(fontSize: context.s(48)),
+                        ),
+                      ),
                     _Car(
                       dashed: true,
                       child: _success
-                          ? Text(_answer,
-                              style: TextStyle(fontSize: context.s(48)))
-                          : Text('❓', style: TextStyle(fontSize: context.s(44))),
+                          ? Text(
+                              _answer,
+                              style: TextStyle(fontSize: context.s(48)),
+                            )
+                          : Text(
+                              '❓',
+                              style: TextStyle(fontSize: context.s(44)),
+                            ),
                     ),
                   ],
                 ),
@@ -168,8 +193,8 @@ class _NextInRowGameState extends State<NextInRowGame> {
               SizedBox(height: context.s(20)),
               // 選項。
               Wrap(
-                spacing: Sizes.bigGap,
-                runSpacing: Sizes.gap,
+                spacing: context.s(Sizes.bigGap),
+                runSpacing: context.s(Sizes.gap),
                 alignment: WrapAlignment.center,
                 children: List<Widget>.generate(_options.length, (int idx) {
                   final bool win = _success && idx == _correct;
@@ -204,7 +229,7 @@ class _Car extends StatelessWidget {
     return Container(
       width: context.s(72),
       height: context.s(72),
-      margin: const EdgeInsets.all(4),
+      margin: EdgeInsets.all(context.s(4)),
       decoration: BoxDecoration(
         color: dashed ? const Color(0xFFF1F1F1) : Colors.white,
         borderRadius: BorderRadius.circular(16),

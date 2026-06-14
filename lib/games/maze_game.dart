@@ -68,7 +68,9 @@ class _MazeGameState extends State<MazeGame> {
   void _prepare() {
     if (widget.generator != null) {
       _levels = List<MazeLevel>.generate(
-          widget.genCount, (_) => widget.generator!());
+        widget.genCount,
+        (_) => widget.generator!(),
+      );
       return;
     }
     _levels = List<MazeLevel>.of(widget.levels)..shuffle();
@@ -157,7 +159,7 @@ class _MazeGameState extends State<MazeGame> {
         children: <Widget>[
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: _MazeBoard(maze: _maze, r: _r, c: _c),
             ),
           ),
@@ -214,7 +216,9 @@ class _MazeBoard extends StatelessWidget {
                             ? const Color(0xFF8D6E63)
                             : const Color(0xFFFFF8E1),
                         border: Border.all(
-                            color: const Color(0x22000000), width: 0.5),
+                          color: const Color(0x22000000),
+                          width: 0.5,
+                        ),
                       ),
                       child: Center(
                         child: Text(
@@ -270,16 +274,16 @@ class _DPad extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         _btn(Icons.keyboard_arrow_up_rounded, onUp, iconSize),
-        const SizedBox(height: 12),
+        SizedBox(height: context.s(12)),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             _btn(Icons.keyboard_arrow_left_rounded, onLeft, iconSize),
-            const SizedBox(width: 72),
+            SizedBox(width: context.s(72)),
             _btn(Icons.keyboard_arrow_right_rounded, onRight, iconSize),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: context.s(12)),
         _btn(Icons.keyboard_arrow_down_rounded, onDown, iconSize),
       ],
     );

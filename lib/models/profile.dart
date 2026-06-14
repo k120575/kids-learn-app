@@ -15,10 +15,10 @@ class Profile {
   final int sort;
 
   Profile copyWith({String? name, String? emoji}) => Profile(
-        id: id,
-        name: name ?? this.name,
-        emoji: emoji ?? this.emoji,
-        createdAt: createdAt,
-        sort: sort,
-      );
+    id: id,
+    name: name ?? this.name,
+    emoji: emoji ?? this.emoji,
+    createdAt: createdAt,
+    sort: sort,
+  );
 }

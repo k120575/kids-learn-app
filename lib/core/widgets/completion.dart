@@ -25,31 +25,38 @@ Future<bool> showCompletionDialog(
     barrierDismissible: false,
     builder: (BuildContext context) {
       return Dialog(
-        insetPadding: const EdgeInsets.all(16),
+        insetPadding: EdgeInsets.all(context.s(16)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Sizes.radius),
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 520),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.s(24),
+              vertical: context.s(18),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Penguin(size: context.s(64)),
-                const SizedBox(height: 6),
+                SizedBox(height: context.s(6)),
                 Text(
                   '全部完成！',
                   style: TextStyle(
-                      fontSize: context.s(24), fontWeight: FontWeight.bold),
+                    fontSize: context.s(24),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                StarsRow(count: stars, size: context.s(32)),
-                const SizedBox(height: 8),
+                SizedBox(height: context.s(8)),
+                StarsRow(count: stars, size: 32), // StarsRow 內部已縮放
+                SizedBox(height: context.s(8)),
                 // 賺到的星星進星星罐
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.s(16),
+                    vertical: context.s(8),
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF8E1),
                     borderRadius: BorderRadius.circular(16),
@@ -57,50 +64,61 @@ Future<bool> showCompletionDialog(
                   child: Text(
                     '+$stars ⭐ 進星星罐　（共 $balance ⭐）',
                     style: TextStyle(
-                        fontSize: context.s(16), fontWeight: FontWeight.bold),
+                      fontSize: context.s(16),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (newAchievements.isNotEmpty) ...<Widget>[
-                  const SizedBox(height: 12),
-                  Text('🏆 解鎖新獎盃！',
-                      style: TextStyle(
-                          fontSize: context.s(16),
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
+                  SizedBox(height: context.s(12)),
+                  Text(
+                    '🏆 解鎖新獎盃！',
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: context.s(6)),
                   ...newAchievements.map((AchUnlock u) {
                     return TweenAnimationBuilder<double>(
                       tween: Tween<double>(begin: 0, end: 1),
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.elasticOut,
-                      builder:
-                          (BuildContext context, double t, Widget? child) {
+                      builder: (BuildContext context, double t, Widget? child) {
                         return Transform.scale(scale: t, child: child);
                       },
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
+                        margin: EdgeInsets.symmetric(vertical: context.s(4)),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.s(14),
+                          vertical: context.s(8),
+                        ),
                         decoration: BoxDecoration(
-                          color: Color(kTierColors[u.tier]).withValues(alpha: 0.18),
+                          color: Color(
+                            kTierColors[u.tier],
+                          ).withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                              color: Color(kTierColors[u.tier]), width: 2),
+                            color: Color(kTierColors[u.tier]),
+                            width: 2,
+                          ),
                         ),
                         child: Text(
                           '${u.achievement.emoji} ${u.achievement.name}・'
                           '${kTierNames[u.tier]}牌',
                           style: TextStyle(
-                              fontSize: context.s(16),
-                              fontWeight: FontWeight.bold),
+                            fontSize: context.s(16),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     );
                   }),
                 ],
-                const SizedBox(height: 18),
+                SizedBox(height: context.s(18)),
                 Wrap(
-                  spacing: Sizes.gap,
-                  runSpacing: 10,
+                  spacing: context.s(Sizes.gap),
+                  runSpacing: context.s(10),
                   alignment: WrapAlignment.center,
                   children: <Widget>[
                     ElevatedButton.icon(

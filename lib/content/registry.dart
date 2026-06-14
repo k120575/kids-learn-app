@@ -3,6 +3,7 @@ import '../games/count_tap_game.dart';
 import '../games/drag_match_game.dart';
 import '../games/find_same_game.dart';
 import '../games/jigsaw_game.dart';
+import '../games/listen_choose_game.dart';
 import '../games/maze_game.dart';
 import '../games/memory_game.dart';
 import '../games/multiplication_game.dart';
@@ -178,6 +179,35 @@ final List<GameDef> gameRegistry = <GameDef>[
       rounds: instrumentBank, // 5 樂器
     ),
   ),
+  GameDef(
+    id: 'tempo_34',
+    title: '快快慢慢',
+    emoji: '🐇',
+    domain: Domain.music,
+    ageBands: _age34,
+    builder: (_) => ListenChooseGame(
+      gameId: 'tempo_34',
+      title: '快快慢慢',
+      intro: '快快的聲音，點兔子；慢慢的聲音，點烏龜！',
+      choices: tempoChoices,
+      questions: tempoBank,
+    ),
+  ),
+  GameDef(
+    id: 'pitch_hilo_34',
+    title: '高高低低',
+    emoji: '🐦',
+    domain: Domain.music,
+    ageBands: _age34,
+    builder: (_) => ListenChooseGame(
+      gameId: 'pitch_hilo_34',
+      title: '高高低低',
+      intro: '高高的聲音，點小鳥；低低的聲音，點大象！',
+      choices: pitchHiLoChoices,
+      questions: pitchHiLoBank,
+      vertical: true, // 高在上、低在下，位置＝音高
+    ),
+  ),
   // （節奏跟打已移除）
 
   // ---------- 動腦 ----------
@@ -189,10 +219,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '👀',
     domain: Domain.brain,
     ageBands: _age34,
-    builder: (_) => const FindSameGame(
-      gameId: 'find_same_34',
-      title: '找一樣',
-    ),
+    builder: (_) => const FindSameGame(gameId: 'find_same_34', title: '找一樣'),
   ),
   GameDef(
     id: 'whats_missing_34',
@@ -200,10 +227,8 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🙈',
     domain: Domain.brain,
     ageBands: _age34,
-    builder: (_) => const WhatsMissingGame(
-      gameId: 'whats_missing_34',
-      title: '什麼不見了',
-    ),
+    builder: (_) =>
+        const WhatsMissingGame(gameId: 'whats_missing_34', title: '什麼不見了'),
   ),
   GameDef(
     id: 'next_in_row_34',
@@ -211,10 +236,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🚂',
     domain: Domain.brain,
     ageBands: _age34,
-    builder: (_) => const NextInRowGame(
-      gameId: 'next_in_row_34',
-      title: '接下去',
-    ),
+    builder: (_) => const NextInRowGame(gameId: 'next_in_row_34', title: '接下去'),
   ),
 
   // ==================== 4-5 歲 ====================
@@ -225,11 +247,8 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '➕',
     domain: Domain.logicMath,
     ageBands: _age45,
-    builder: (_) => const ArithmeticGame(
-      gameId: 'arithmetic',
-      title: '加減法',
-      maxValue: 20,
-    ),
+    builder: (_) =>
+        const ArithmeticGame(gameId: 'arithmetic', title: '加減法', maxValue: 20),
   ),
   GameDef(
     id: 'compare',
@@ -237,10 +256,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '⚖️',
     domain: Domain.logicMath,
     ageBands: _age45,
-    builder: (_) => const NumberCompareGame(
-      gameId: 'compare',
-      title: '比大小',
-    ),
+    builder: (_) => const NumberCompareGame(gameId: 'compare', title: '比大小'),
   ),
   GameDef(
     id: 'advanced_sort_45',
@@ -305,11 +321,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🃏',
     domain: Domain.brain,
     ageBands: _age45,
-    builder: (_) => const MemoryGame(
-      gameId: 'memory',
-      title: '記憶翻牌',
-      pairs: 6,
-    ),
+    builder: (_) => const MemoryGame(gameId: 'memory', title: '記憶翻牌', pairs: 6),
   ),
   GameDef(
     id: 'spot_diff',
@@ -329,10 +341,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🧩',
     domain: Domain.brain,
     ageBands: _age45,
-    builder: (_) => const PatternMatrixGame(
-      gameId: 'pattern',
-      title: '找規律',
-    ),
+    builder: (_) => const PatternMatrixGame(gameId: 'pattern', title: '找規律'),
   ),
   // ---------- 語文 ----------
   GameDef(
@@ -426,6 +435,34 @@ final List<GameDef> gameRegistry = <GameDef>[
       hard: true,
     ),
   ),
+  GameDef(
+    id: 'dynamics_45',
+    title: '大聲小聲',
+    emoji: '🦁',
+    domain: Domain.music,
+    ageBands: _age45,
+    builder: (_) => ListenChooseGame(
+      gameId: 'dynamics_45',
+      title: '大聲小聲',
+      intro: '大聲的，點獅子；小聲的，點老鼠！',
+      choices: dynamicsChoices,
+      questions: dynamicsBank,
+    ),
+  ),
+  GameDef(
+    id: 'duration_45',
+    title: '音的長短',
+    emoji: '🎵',
+    domain: Domain.music,
+    ageBands: _age45,
+    builder: (_) => ListenChooseGame(
+      gameId: 'duration_45',
+      title: '音的長短',
+      intro: '一個長長的音，點一個音符；兩個短短的音，點兩個音符！',
+      choices: durationChoices,
+      questions: durationBank,
+    ),
+  ),
 
   // ==================== 5-6 歲・魔法學院 ====================
   // ---------- 語文（咒語學院 📜）----------
@@ -501,10 +538,8 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '✖️',
     domain: Domain.logicMath,
     ageBands: _age56,
-    builder: (_) => const MultiplicationGame(
-      gameId: 'multiply_56',
-      title: '乘法魔法',
-    ),
+    builder: (_) =>
+        const MultiplicationGame(gameId: 'multiply_56', title: '乘法魔法'),
   ),
   GameDef(
     id: 'compare_56',
@@ -528,10 +563,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🦋',
     domain: Domain.spatial,
     ageBands: _age56,
-    builder: (_) => const SymmetryGame(
-      gameId: 'symmetry_56',
-      title: '對稱鏡像',
-    ),
+    builder: (_) => const SymmetryGame(gameId: 'symmetry_56', title: '對稱鏡像'),
   ),
   GameDef(
     id: 'puzzle_56',
@@ -552,10 +584,8 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🔄',
     domain: Domain.spatial,
     ageBands: _age56,
-    builder: (_) => const RotateMatchGame(
-      gameId: 'rotate_match_56',
-      title: '轉轉看',
-    ),
+    builder: (_) =>
+        const RotateMatchGame(gameId: 'rotate_match_56', title: '轉轉看'),
   ),
 
   // ---------- 音樂（音波魔法 🎶）----------
@@ -566,9 +596,38 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🎶',
     domain: Domain.music,
     ageBands: _age56,
-    builder: (_) => const SoundMemoryGame(
-      gameId: 'sound_memory_56',
-      title: '音波記憶',
+    builder: (_) =>
+        const SoundMemoryGame(gameId: 'sound_memory_56', title: '音波記憶'),
+  ),
+  GameDef(
+    id: 'direction_56',
+    title: '音往哪裡走',
+    emoji: '↕️', // 與「音波記憶」🎶 區隔；上下箭頭直接點出「音高方向」
+
+    domain: Domain.music,
+    ageBands: _age56,
+    builder: (_) => ListenChooseGame(
+      gameId: 'direction_56',
+      title: '音往哪裡走',
+      intro: '聲音往上爬，點上面的箭頭；往下溜，點下面的箭頭！',
+      choices: directionChoices,
+      questions: directionBank,
+      vertical: true,
+    ),
+  ),
+  GameDef(
+    id: 'tuning_56',
+    title: '這首對嗎',
+    emoji: '🎼',
+    domain: Domain.music,
+    ageBands: _age56,
+    builder: (_) => ListenChooseGame(
+      gameId: 'tuning_56',
+      title: '這首對嗎',
+      intro: '聽聽看這首歌，對的點笑臉，怪怪的點摀耳朵！',
+      choices: tuningChoices,
+      questions: tuningBank,
+      pickCount: 6,
     ),
   ),
 
@@ -603,9 +662,6 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🧮',
     domain: Domain.brain,
     ageBands: _age56,
-    builder: (_) => const SudokuGame(
-      gameId: 'sudoku_56',
-      title: '數獨小將',
-    ),
+    builder: (_) => const SudokuGame(gameId: 'sudoku_56', title: '數獨小將'),
   ),
 ];

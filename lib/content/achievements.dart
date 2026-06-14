@@ -37,7 +37,12 @@ class Achievement {
 }
 
 const List<String> kTierNames = <String>['', '銅', '銀', '金'];
-const List<int> kTierColors = <int>[0xFF9E9E9E, 0xFFCD7F32, 0xFFB0BEC5, 0xFFFFC107];
+const List<int> kTierColors = <int>[
+  0xFF9E9E9E,
+  0xFFCD7F32,
+  0xFFB0BEC5,
+  0xFFFFC107,
+];
 
 const List<Achievement> achievements = <Achievement>[
   Achievement(

@@ -151,8 +151,11 @@ class _DragMatchGameState extends State<DragMatchGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -179,7 +182,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
           Expanded(
             flex: 3,
             child: Padding(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: _isFigure ? _buildFigure() : _buildSlotRow(),
             ),
           ),
@@ -188,17 +191,20 @@ class _DragMatchGameState extends State<DragMatchGame> {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: Center(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: _remaining
-                        .map((DragPiece p) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: _buildDraggable(p),
-                            ))
+                        .map(
+                          (DragPiece p) => Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.s(10),
+                            ),
+                            child: _buildDraggable(p),
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
@@ -227,11 +233,10 @@ class _DragMatchGameState extends State<DragMatchGame> {
         final double slot = best.clamp(0.0, _slotSize);
         return Center(
           child: Wrap(
-            spacing: Sizes.bigGap,
-            runSpacing: Sizes.gap,
+            spacing: context.s(Sizes.bigGap),
+            runSpacing: context.s(Sizes.gap),
             alignment: WrapAlignment.center,
-            children:
-                List<Widget>.generate(n, (int i) => _buildSlot(i, slot)),
+            children: List<Widget>.generate(n, (int i) => _buildSlot(i, slot)),
           ),
         );
       },
@@ -247,7 +252,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             for (int i = 0; i < _slots.length; i++) ...<Widget>[
-              if (i > 0) const SizedBox(height: 6),
+              if (i > 0) SizedBox(height: context.s(6)),
               _buildSlot(i, _slotSize),
             ],
           ],
@@ -264,34 +269,32 @@ class _DragMatchGameState extends State<DragMatchGame> {
           !_lock && !full && d.data.category == slot.category,
       onAcceptWithDetails: (DragTargetDetails<DragPiece> d) =>
           _accept(i, d.data),
-      builder: (BuildContext context, List<DragPiece?> cand, List<dynamic> rej) {
-        final bool hover = cand.isNotEmpty;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: hover
-                ? slot.color.withValues(alpha: 0.35)
-                : slot.color.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(Sizes.radius),
-            border: Border.all(
-              color: slot.color,
-              width: hover ? 6 : 3,
-            ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              // 用 FittedBox 把內容縮進格子，避免溢出（黃黑警示線）。
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: _slotContent(slot, i),
+      builder:
+          (BuildContext context, List<DragPiece?> cand, List<dynamic> rej) {
+            final bool hover = cand.isNotEmpty;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: hover
+                    ? slot.color.withValues(alpha: 0.35)
+                    : slot.color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(Sizes.radius),
+                border: Border.all(color: slot.color, width: hover ? 6 : 3),
               ),
-            ),
-          ),
-        );
-      },
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(context.s(8)),
+                  // 用 FittedBox 把內容縮進格子，避免溢出（黃黑警示線）。
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: _slotContent(slot, i),
+                  ),
+                ),
+              ),
+            );
+          },
     );
   }
 
@@ -299,7 +302,11 @@ class _DragMatchGameState extends State<DragMatchGame> {
     // 容量 1 且已填：顯示填入的形狀。
     if (slot.capacity == 1 && _slotFill[i] >= 1) {
       if (slot.shape != null) {
-        return ShapeView(kind: slot.shape!, color: slot.color, size: context.s(96));
+        return ShapeView(
+          kind: slot.shape!,
+          color: slot.color,
+          size: context.s(96),
+        );
       }
       if (slot.emoji != null) {
         return Text(slot.emoji!, style: TextStyle(fontSize: context.s(64)));
@@ -308,17 +315,38 @@ class _DragMatchGameState extends State<DragMatchGame> {
     // 未填：顯示提示（形狀外框 / emoji / 文字標籤 + 計數）
     final List<Widget> bits = <Widget>[];
     if (slot.shape != null) {
-      bits.add(ShapeView(kind: slot.shape!, color: slot.color, size: context.s(96), filled: false));
+      bits.add(
+        ShapeView(
+          kind: slot.shape!,
+          color: slot.color,
+          size: context.s(96),
+          filled: false,
+        ),
+      );
     } else if (slot.emoji != null) {
       bits.add(Text(slot.emoji!, style: TextStyle(fontSize: context.s(56))));
     }
     if (slot.label.isNotEmpty) {
-      bits.add(Text(slot.label,
-          style: TextStyle(fontSize: context.s(16), fontWeight: FontWeight.bold)));
+      bits.add(
+        Text(
+          slot.label,
+          style: TextStyle(
+            fontSize: context.s(16),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
     }
     if (slot.capacity > 1 && _slotFill[i] > 0) {
-      bits.add(Text('×${_slotFill[i]}',
-          style: TextStyle(fontSize: context.s(18), fontWeight: FontWeight.bold)));
+      bits.add(
+        Text(
+          '×${_slotFill[i]}',
+          style: TextStyle(
+            fontSize: context.s(18),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
     }
     return Column(mainAxisSize: MainAxisSize.min, children: bits);
   }

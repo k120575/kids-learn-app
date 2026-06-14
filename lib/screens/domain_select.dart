@@ -50,7 +50,9 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
         .where((GameDef g) => g.matches(widget.band, d))
         .toList();
     final int got = games.fold<int>(
-        0, (int a, GameDef g) => a + ProgressStore.instance.starsFor(g.id));
+      0,
+      (int a, GameDef g) => a + ProgressStore.instance.starsFor(g.id),
+    );
     return (got, games.length * 3);
   }
 
@@ -59,7 +61,10 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
     final WorldTheme? world = _world;
     final bool dark = worldIsDark(widget.band);
     final List<Domain> domains = Domain.values
-        .where((Domain d) => gameRegistry.any((GameDef g) => g.matches(widget.band, d)))
+        .where(
+          (Domain d) =>
+              gameRegistry.any((GameDef g) => g.matches(widget.band, d)),
+        )
         .toList();
 
     return GameScaffold(
@@ -72,44 +77,47 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
       // 內容短時置中、站點多到超過可視高度時可往下捲（不要用 Center 包
       // SingleChildScrollView，否則超高會被裁切又捲不到——同扭蛋機曾犯的錯）。
       child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints c) => SingleChildScrollView(
-          padding: const EdgeInsets.all(Sizes.gap),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: c.maxHeight - Sizes.gap * 2),
-            child: Center(
-              child: Wrap(
-                spacing: Sizes.bigGap,
-                runSpacing: Sizes.bigGap,
-                alignment: WrapAlignment.center,
-                children: domains.map((Domain d) {
-              final Station st =
-                  world?.stationFor(d) ?? Station(d.label, d.emoji);
-              final (int, int) s = _stars(d);
-              final bool complete = s.$2 > 0 && s.$1 >= s.$2;
-              return _StationCard(
-                station: st,
-                color: d.color,
-                got: s.$1,
-                complete: complete,
-                onTap: () async {
-                  AudioService.instance.speak(st.name);
-                  await Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => GameListScreen(
-                        band: widget.band,
-                        domain: d,
-                        stationName: st.name,
-                      ),
-                    ),
-                  );
-                  if (mounted) setState(() {});
-                },
-              );
-                }).toList(),
+        builder: (BuildContext context, BoxConstraints c) =>
+            SingleChildScrollView(
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: c.maxHeight - Sizes.gap * 2,
+                ),
+                child: Center(
+                  child: Wrap(
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.bigGap),
+                    alignment: WrapAlignment.center,
+                    children: domains.map((Domain d) {
+                      final Station st =
+                          world?.stationFor(d) ?? Station(d.label, d.emoji);
+                      final (int, int) s = _stars(d);
+                      final bool complete = s.$2 > 0 && s.$1 >= s.$2;
+                      return _StationCard(
+                        station: st,
+                        color: d.color,
+                        got: s.$1,
+                        complete: complete,
+                        onTap: () async {
+                          AudioService.instance.speak(st.name);
+                          await Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => GameListScreen(
+                                band: widget.band,
+                                domain: d,
+                                stationName: st.name,
+                              ),
+                            ),
+                          );
+                          if (mounted) setState(() {});
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -158,8 +166,9 @@ class _StationCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: (visited ? color : Colors.black)
-                          .withValues(alpha: 0.4),
+                      color: (visited ? color : Colors.black).withValues(
+                        alpha: 0.4,
+                      ),
                       blurRadius: visited ? 18 : 10,
                       offset: const Offset(0, 5),
                     ),
@@ -167,23 +176,38 @@ class _StationCard extends StatelessWidget {
                 ),
                 child: ClipOval(child: _medallion(context, d)),
               ),
-              Positioned(top: -2, right: -2, child: _badge(context)),
+              Positioned(
+                top: context.s(-2),
+                right: context.s(-2),
+                child: _badge(context),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.s(8)),
           // 名稱條：白底，深淺背景上都清楚
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.s(14),
+              vertical: context.s(5),
+            ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(16),
               boxShadow: const <BoxShadow>[
-                BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
               ],
             ),
-            child: Text(station.name,
-                style: TextStyle(
-                    fontSize: context.s(19), fontWeight: FontWeight.bold)),
+            child: Text(
+              station.name,
+              style: TextStyle(
+                fontSize: context.s(19),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -210,22 +234,36 @@ class _StationCard extends StatelessWidget {
   Widget _badge(BuildContext context) {
     if (complete) {
       return Container(
-        padding: const EdgeInsets.all(4),
+        padding: EdgeInsets.all(context.s(4)),
         decoration: const BoxDecoration(
-            color: Color(0xFF4CAF50), shape: BoxShape.circle),
-        child: Icon(Icons.check_rounded, size: context.s(18), color: Colors.white),
+          color: Color(0xFF4CAF50),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.check_rounded,
+          size: context.s(18),
+          color: Colors.white,
+        ),
       );
     }
     if (got > 0) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.s(8),
+          vertical: context.s(3),
+        ),
         decoration: BoxDecoration(
           color: const Color(0xFFFFF8E1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFFFC107), width: 1.5),
         ),
-        child: Text('⭐$got',
-            style: TextStyle(fontSize: context.s(14), fontWeight: FontWeight.bold)),
+        child: Text(
+          '⭐$got',
+          style: TextStyle(
+            fontSize: context.s(14),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       );
     }
     return const SizedBox.shrink();

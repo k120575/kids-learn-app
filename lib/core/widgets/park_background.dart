@@ -26,10 +26,7 @@ class _ParkBackgroundState extends State<ParkBackground>
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _ParkPainter(_c),
-      size: Size.infinite,
-    );
+    return CustomPaint(painter: _ParkPainter(_c), size: Size.infinite);
   }
 }
 
@@ -38,12 +35,19 @@ class _ParkPainter extends CustomPainter {
   final Animation<double> t;
 
   static const List<Color> _cabinColors = <Color>[
-    Color(0xFFEF5350), Color(0xFFFFCA28), Color(0xFF66BB6A),
-    Color(0xFF42A5F5), Color(0xFFAB47BC), Color(0xFFFF7043),
+    Color(0xFFEF5350),
+    Color(0xFFFFCA28),
+    Color(0xFF66BB6A),
+    Color(0xFF42A5F5),
+    Color(0xFFAB47BC),
+    Color(0xFFFF7043),
   ];
   static const List<Color> _balloonColors = <Color>[
-    Color(0xFFEF5350), Color(0xFFFFEE58), Color(0xFF42A5F5),
-    Color(0xFFAB47BC), Color(0xFF66BB6A),
+    Color(0xFFEF5350),
+    Color(0xFFFFEE58),
+    Color(0xFF42A5F5),
+    Color(0xFFAB47BC),
+    Color(0xFF66BB6A),
   ];
 
   @override
@@ -63,8 +67,11 @@ class _ParkPainter extends CustomPainter {
 
     // 太陽
     final Offset sun = Offset(w * 0.86, h * 0.2);
-    canvas.drawCircle(sun, h * 0.13,
-        Paint()..color = const Color(0xFFFFE082).withValues(alpha: 0.5));
+    canvas.drawCircle(
+      sun,
+      h * 0.13,
+      Paint()..color = const Color(0xFFFFE082).withValues(alpha: 0.5),
+    );
     canvas.drawCircle(sun, h * 0.085, Paint()..color = const Color(0xFFFFD54F));
 
     // 雲（飄動）
@@ -94,8 +101,12 @@ class _ParkPainter extends CustomPainter {
       final double phase = (p * 0.6 + i / 5) % 1;
       final double by = h - phase * (h + 120) + 60;
       final double bx = w * (0.12 + i * 0.18) + sin(phase * 6.28 + i) * 12;
-      _balloon(canvas, Offset(bx, by), h * 0.035,
-          _balloonColors[i % _balloonColors.length]);
+      _balloon(
+        canvas,
+        Offset(bx, by),
+        h * 0.035,
+        _balloonColors[i % _balloonColors.length],
+      );
     }
   }
 
@@ -132,8 +143,13 @@ class _ParkPainter extends CustomPainter {
       if (i.isEven) c.drawPath(s, stripe);
     }
     // 旗子
-    c.drawLine(Offset(rx, ry - size * 0.9), Offset(rx, ry - size * 1.1),
-        Paint()..color = Colors.brown..strokeWidth = 2);
+    c.drawLine(
+      Offset(rx, ry - size * 0.9),
+      Offset(rx, ry - size * 1.1),
+      Paint()
+        ..color = Colors.brown
+        ..strokeWidth = 2,
+    );
   }
 
   void _ferrisWheel(Canvas c, Offset center, double r, double p) {
@@ -157,24 +173,47 @@ class _ParkPainter extends CustomPainter {
     for (int i = 0; i < n; i++) {
       final double a = ang + i * 2 * pi / n;
       final Offset edge = center + Offset(cos(a) * r, sin(a) * r);
-      c.drawLine(center, edge,
-          Paint()..color = const Color(0xFF9FA8DA)..strokeWidth = 3);
-      c.drawCircle(edge, r * 0.12,
-          Paint()..color = _cabinColors[i % _cabinColors.length]);
-      c.drawCircle(edge, r * 0.12,
-          Paint()..color = Colors.white..style = PaintingStyle.stroke..strokeWidth = 2);
+      c.drawLine(
+        center,
+        edge,
+        Paint()
+          ..color = const Color(0xFF9FA8DA)
+          ..strokeWidth = 3,
+      );
+      c.drawCircle(
+        edge,
+        r * 0.12,
+        Paint()..color = _cabinColors[i % _cabinColors.length],
+      );
+      c.drawCircle(
+        edge,
+        r * 0.12,
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
     }
     c.drawCircle(center, r * 0.08, Paint()..color = const Color(0xFF3949AB));
   }
 
   void _balloon(Canvas c, Offset o, double r, Color color) {
-    c.drawLine(o + Offset(0, r), o + Offset(0, r * 3),
-        Paint()..color = Colors.grey..strokeWidth = 1.2);
+    c.drawLine(
+      o + Offset(0, r),
+      o + Offset(0, r * 3),
+      Paint()
+        ..color = Colors.grey
+        ..strokeWidth = 1.2,
+    );
     c.drawOval(
-        Rect.fromCenter(center: o, width: r * 1.7, height: r * 2.1),
-        Paint()..color = color);
-    c.drawCircle(o - Offset(r * 0.3, r * 0.4), r * 0.25,
-        Paint()..color = Colors.white.withValues(alpha: 0.5));
+      Rect.fromCenter(center: o, width: r * 1.7, height: r * 2.1),
+      Paint()..color = color,
+    );
+    c.drawCircle(
+      o - Offset(r * 0.3, r * 0.4),
+      r * 0.25,
+      Paint()..color = Colors.white.withValues(alpha: 0.5),
+    );
   }
 
   @override

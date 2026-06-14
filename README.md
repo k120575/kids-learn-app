@@ -26,7 +26,7 @@
 
 ## 🎮 遊戲與領域
 
-依「年齡段 × 領域」自動過濾顯示，全部遊戲集中註冊於 [`lib/content/registry.dart`](lib/content/registry.dart)（新增遊戲只要加一筆 `GameDef`）。涵蓋聽音指圖、顏色／形狀分類、走迷宮、拼圖、加減乘法、比大小、找規律、記憶翻牌、找不同、對稱鏡像、數獨、注音開頭、認國字、量詞、反義詞、樂器辨音、音波記憶等。
+依「年齡段 × 領域」自動過濾顯示，全部遊戲集中註冊於 [`lib/content/registry.dart`](lib/content/registry.dart)（新增遊戲只要加一筆 `GameDef`）。涵蓋聽音指圖、顏色／形狀分類、走迷宮、拼圖、加減乘法、比大小、找規律、記憶翻牌、找不同、對稱鏡像、數獨、注音開頭、認國字、量詞、反義詞、樂器辨音、音波記憶，以及一系列聽辨音樂能力的遊戲（高高低低／快快慢慢／大聲小聲／音的長短／音往哪裡走／這首對嗎，依幼兒音樂發展研究排序）等。
 
 > 年齡段 enum 定義於 [`lib/models/age_band.dart`](lib/models/age_band.dart)；領域定義於 [`lib/models/domain.dart`](lib/models/domain.dart)。
 
@@ -48,7 +48,7 @@ lib/
   app.dart             # App 根 widget（標題「寶貝學習樂園」）
   models/              # AgeBand、Domain、GameDef 等資料模型
   content/             # 各遊戲題庫 / 關卡資料 + registry.dart 註冊表
-  games/               # 17 個遊戲 widget
+  games/               # 遊戲 widget（含共用引擎 PickGame / DragMatchGame / ListenChooseGame…）
   screens/             # 首頁、年齡選擇、地圖、收藏、獎盃、設定等 9 個畫面
   core/                # 服務層：audio_service、progress_store、db、
     widgets/           #   螢幕時間、家長關卡、共用 widget 與動畫背景
@@ -87,6 +87,7 @@ App 用到的語音、插圖、音樂、音效、圖示、字型都由 [`tool/`]
 | `gen_art.py` | `assets/images/` 探索地圖插圖（需 `GEMINI_API_KEY`） | 改地圖入口圖 / 背景時 |
 | `gen_bgm.py` | `assets/music/bgm.mp3` | 改背景音樂時（需 ffmpeg） |
 | `gen_sfx.py` | `assets/sfx/success.mp3` | 改答對音效時（需 ffmpeg） |
+| `gen_tones.py` | `assets/sfx/tone_*.mp3`、`melody_*.mp3`（音樂聽辨遊戲用） | 改音樂遊戲音效時（需 ffmpeg + numpy）。音色取自真實鋼琴錄音，經 FFT 諧波篩出單音再 pitch-shift；可用 `PIANO_SRC` 環境變數換來源、給命令列參數改輸出資料夾（先試聽）。 |
 | `gen_logo.py` | `assets/icon/app_icon*.png` | 改 LOGO 時，之後跑 `dart run flutter_launcher_icons` |
 | `subset_title_font.py` | `assets/fonts/title-*.otf` | **新增任何用 TitleFont 顯示的文字後必跑**，否則顯示成豆腐框 □ |
 

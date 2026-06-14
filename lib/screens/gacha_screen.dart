@@ -65,24 +65,30 @@ class _GachaScreenState extends State<GachaScreen>
       backgroundWidget: const RewardBackground(),
       child: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Sizes.bigGap),
+          padding: EdgeInsets.all(context.s(Sizes.bigGap)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               // 星星餘額
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.s(20),
+                  vertical: context.s(10),
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF8E1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: const Color(0xFFFFC107), width: 2),
                 ),
-                child: Text('⭐ ${_store.balance}',
-                    style: TextStyle(
-                        fontSize: context.s(26), fontWeight: FontWeight.bold)),
+                child: Text(
+                  '⭐ ${_store.balance}',
+                  style: TextStyle(
+                    fontSize: context.s(26),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               // 扭蛋機本體 + 結果（高度別吃滿 1.6×，否則平板上整欄會超出可視範圍、
               // 把下方「收藏室」按鈕擠出畫面外）
               SizedBox(
@@ -95,19 +101,23 @@ class _GachaScreenState extends State<GachaScreen>
                           fit: BoxFit.scaleDown,
                           child: ScaleTransition(
                             scale: CurvedAnimation(
-                                parent: _ctrl, curve: Curves.elasticOut),
+                              parent: _ctrl,
+                              curve: Curves.elasticOut,
+                            ),
                             child: _ResultView(result: _result!),
                           ),
                         ),
                 ),
               ),
-              const SizedBox(height: Sizes.bigGap),
+              SizedBox(height: context.s(Sizes.bigGap)),
               ElevatedButton.icon(
                 onPressed: canDraw ? _draw : null,
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(context.s(220), context.s(64)),
                   textStyle: TextStyle(
-                      fontSize: context.s(22), fontWeight: FontWeight.bold),
+                    fontSize: context.s(22),
+                    fontWeight: FontWeight.bold,
+                  ),
                   // 用對比強的紫底（暖色背景上才看得到黃色星星）；
                   // 停用時也保持實心紫，不要變半透明暖色。
                   backgroundColor: const Color(0xFF7C4DFF),
@@ -120,19 +130,27 @@ class _GachaScreenState extends State<GachaScreen>
               ),
               if (_store.balance < kGachaCost)
                 Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text('再多玩幾關賺星星就能轉囉！',
-                      style: TextStyle(fontSize: context.s(15), color: const Color(0xFF888888))),
+                  padding: EdgeInsets.only(top: context.s(10)),
+                  child: Text(
+                    '再多玩幾關賺星星就能轉囉！',
+                    style: TextStyle(
+                      fontSize: context.s(15),
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
                 ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               TextButton.icon(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                      builder: (_) => const CollectionScreen()),
+                    builder: (_) => const CollectionScreen(),
+                  ),
                 ),
                 icon: const Icon(Icons.collections_bookmark_rounded),
-                label: Text('我的收藏室（${_store.distinctToyCount}/${toyPool.length}）',
-                    style: TextStyle(fontSize: context.s(16))),
+                label: Text(
+                  '我的收藏室（${_store.distinctToyCount}/${toyPool.length}）',
+                  style: TextStyle(fontSize: context.s(16)),
+                ),
               ),
             ],
           ),
@@ -153,7 +171,7 @@ class _ResultView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(context.s(8)),
           decoration: BoxDecoration(
             color: toy.rarity.color.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(20),
@@ -161,15 +179,21 @@ class _ResultView extends StatelessWidget {
           ),
           child: Text(toy.id, style: TextStyle(fontSize: context.s(76))),
         ),
-        const SizedBox(height: 6),
-        Text('${toy.rarity.label}・${toy.name}',
-            style: TextStyle(
-                fontSize: context.s(18),
-                fontWeight: FontWeight.bold,
-                color: toy.rarity.color)),
+        SizedBox(height: context.s(6)),
+        Text(
+          '${toy.rarity.label}・${toy.name}',
+          style: TextStyle(
+            fontSize: context.s(18),
+            fontWeight: FontWeight.bold,
+            color: toy.rarity.color,
+          ),
+        ),
         Text(
           result.isNew ? '🎉 新玩具！' : '已有，退回 ${result.refund} ⭐',
-          style: TextStyle(fontSize: context.s(15), color: const Color(0xFF666666)),
+          style: TextStyle(
+            fontSize: context.s(15),
+            color: const Color(0xFF666666),
+          ),
         ),
       ],
     );

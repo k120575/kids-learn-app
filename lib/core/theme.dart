@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 ThemeData buildTheme() {
   final ThemeData base = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF42A5F5),
-    ),
+    colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF42A5F5)),
     scaffoldBackgroundColor: const Color(0xFFFFFDF6),
     // 把彩色 emoji 字型放全 App 字型 fallback：題目/關卡大量用 emoji，靠系統字型
     // 在部分裝置會缺字變空白方框，改用自帶字型確保各裝置一致顯示。

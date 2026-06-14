@@ -28,10 +28,7 @@ class _HomeBackgroundState extends State<HomeBackground>
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _HomePainter(_c),
-      size: Size.infinite,
-    );
+    return CustomPaint(painter: _HomePainter(_c), size: Size.infinite);
   }
 }
 
@@ -40,13 +37,20 @@ class _HomePainter extends CustomPainter {
   final Animation<double> t;
 
   static const List<Color> _flowerColors = <Color>[
-    Color(0xFFEF5350), Color(0xFFFFCA28), Color(0xFFAB47BC),
-    Color(0xFFFF7043), Color(0xFFEC407A),
+    Color(0xFFEF5350),
+    Color(0xFFFFCA28),
+    Color(0xFFAB47BC),
+    Color(0xFFFF7043),
+    Color(0xFFEC407A),
   ];
   // 花的相對位置（x, 在草地帶內的高度比例）
   static const List<List<double>> _flowers = <List<double>>[
-    <double>[0.08, 0.30], <double>[0.22, 0.62], <double>[0.40, 0.40],
-    <double>[0.58, 0.66], <double>[0.74, 0.34], <double>[0.90, 0.58],
+    <double>[0.08, 0.30],
+    <double>[0.22, 0.62],
+    <double>[0.40, 0.40],
+    <double>[0.58, 0.66],
+    <double>[0.74, 0.34],
+    <double>[0.90, 0.58],
   ];
 
   @override
@@ -105,27 +109,47 @@ class _HomePainter extends CustomPainter {
       final double by = h - phase * (h + 120) + 40;
       final double bx = w * (0.08 + i * 0.16) + sin(phase * 6.28 + i) * 16;
       final double r = h * (0.012 + (i % 3) * 0.006);
-      canvas.drawCircle(Offset(bx, by), r,
-          Paint()..color = Colors.white.withValues(alpha: 0.28));
-      canvas.drawCircle(Offset(bx, by), r,
-          Paint()
-            ..color = Colors.white.withValues(alpha: 0.55)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.5);
+      canvas.drawCircle(
+        Offset(bx, by),
+        r,
+        Paint()..color = Colors.white.withValues(alpha: 0.28),
+      );
+      canvas.drawCircle(
+        Offset(bx, by),
+        r,
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.55)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5,
+      );
     }
 
     // 草地（兩層小山，前深後淺，有層次）
     final double gy = h * 0.80;
-    canvas.drawCircle(Offset(w * 0.25, gy + h * 0.16), h * 0.22,
-        Paint()..color = const Color(0xFFAED581));
-    canvas.drawCircle(Offset(w * 0.80, gy + h * 0.15), h * 0.20,
-        Paint()..color = const Color(0xFFAED581));
-    canvas.drawRect(Rect.fromLTWH(0, gy, w, h - gy),
-        Paint()..color = const Color(0xFF9CCC65));
-    canvas.drawCircle(Offset(w * 0.55, gy + h * 0.12), h * 0.16,
-        Paint()..color = const Color(0xFF7CB342));
-    canvas.drawCircle(Offset(w * 0.10, gy + h * 0.14), h * 0.14,
-        Paint()..color = const Color(0xFF7CB342));
+    canvas.drawCircle(
+      Offset(w * 0.25, gy + h * 0.16),
+      h * 0.22,
+      Paint()..color = const Color(0xFFAED581),
+    );
+    canvas.drawCircle(
+      Offset(w * 0.80, gy + h * 0.15),
+      h * 0.20,
+      Paint()..color = const Color(0xFFAED581),
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(0, gy, w, h - gy),
+      Paint()..color = const Color(0xFF9CCC65),
+    );
+    canvas.drawCircle(
+      Offset(w * 0.55, gy + h * 0.12),
+      h * 0.16,
+      Paint()..color = const Color(0xFF7CB342),
+    );
+    canvas.drawCircle(
+      Offset(w * 0.10, gy + h * 0.14),
+      h * 0.14,
+      Paint()..color = const Color(0xFF7CB342),
+    );
 
     // 草地小花
     for (int i = 0; i < _flowers.length; i++) {
@@ -133,8 +157,12 @@ class _HomePainter extends CustomPainter {
       final Offset o = Offset(w * f[0], gy + (h - gy) * f[1]);
       // 微微搖擺
       final double sway = sin(p * 6.28 + i) * h * 0.004;
-      _flower(canvas, o.translate(sway, 0), h * 0.02,
-          _flowerColors[i % _flowerColors.length]);
+      _flower(
+        canvas,
+        o.translate(sway, 0),
+        h * 0.02,
+        _flowerColors[i % _flowerColors.length],
+      );
     }
 
     // 飛舞的蝴蝶
@@ -151,11 +179,17 @@ class _HomePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     for (int i = 0; i < 12; i++) {
       final double a = ang + i * pi / 6;
-      c.drawLine(o + Offset(cos(a) * r * 1.35, sin(a) * r * 1.35),
-          o + Offset(cos(a) * r * 1.75, sin(a) * r * 1.75), ray);
+      c.drawLine(
+        o + Offset(cos(a) * r * 1.35, sin(a) * r * 1.35),
+        o + Offset(cos(a) * r * 1.75, sin(a) * r * 1.75),
+        ray,
+      );
     }
-    c.drawCircle(o, r * 1.3,
-        Paint()..color = const Color(0xFFFFE082).withValues(alpha: 0.5));
+    c.drawCircle(
+      o,
+      r * 1.3,
+      Paint()..color = const Color(0xFFFFE082).withValues(alpha: 0.5),
+    );
     c.drawCircle(o, r, Paint()..color = const Color(0xFFFFD54F));
     // 笑臉
     final Paint face = Paint()
@@ -163,21 +197,33 @@ class _HomePainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    c.drawCircle(o.translate(-r * 0.35, -r * 0.15), r * 0.08,
-        Paint()..color = const Color(0xFFF9A825));
-    c.drawCircle(o.translate(r * 0.35, -r * 0.15), r * 0.08,
-        Paint()..color = const Color(0xFFF9A825));
+    c.drawCircle(
+      o.translate(-r * 0.35, -r * 0.15),
+      r * 0.08,
+      Paint()..color = const Color(0xFFF9A825),
+    );
+    c.drawCircle(
+      o.translate(r * 0.35, -r * 0.15),
+      r * 0.08,
+      Paint()..color = const Color(0xFFF9A825),
+    );
     final Path smile = Path()
       ..addArc(
-          Rect.fromCircle(center: o.translate(0, r * 0.05), radius: r * 0.45),
-          0.2 * pi, 0.6 * pi);
+        Rect.fromCircle(center: o.translate(0, r * 0.05), radius: r * 0.45),
+        0.2 * pi,
+        0.6 * pi,
+      );
     c.drawPath(smile, face);
   }
 
   void _rainbow(Canvas c, Offset center, double r) {
     const List<Color> bands = <Color>[
-      Color(0xFFEF5350), Color(0xFFFFA726), Color(0xFFFFEE58),
-      Color(0xFF66BB6A), Color(0xFF42A5F5), Color(0xFFAB47BC),
+      Color(0xFFEF5350),
+      Color(0xFFFFA726),
+      Color(0xFFFFEE58),
+      Color(0xFF66BB6A),
+      Color(0xFF42A5F5),
+      Color(0xFFAB47BC),
     ];
     final double bw = r * 0.05;
     for (int i = 0; i < bands.length; i++) {
@@ -204,25 +250,40 @@ class _HomePainter extends CustomPainter {
 
   void _flower(Canvas c, Offset o, double r, Color color) {
     // 莖
-    c.drawLine(o, o + Offset(0, r * 3),
-        Paint()..color = const Color(0xFF558B2F)..strokeWidth = 3);
+    c.drawLine(
+      o,
+      o + Offset(0, r * 3),
+      Paint()
+        ..color = const Color(0xFF558B2F)
+        ..strokeWidth = 3,
+    );
     // 花瓣
     for (int i = 0; i < 5; i++) {
       final double a = i * 2 * pi / 5 - pi / 2;
-      c.drawCircle(o + Offset(cos(a) * r * 0.7, sin(a) * r * 0.7), r * 0.5,
-          Paint()..color = color);
+      c.drawCircle(
+        o + Offset(cos(a) * r * 0.7, sin(a) * r * 0.7),
+        r * 0.5,
+        Paint()..color = color,
+      );
     }
     // 花心
     c.drawCircle(o, r * 0.45, Paint()..color = const Color(0xFFFFEB3B));
   }
 
   void _butterfly(
-      Canvas c, double w, double h, double p, double offset, Color color,
-      double yBase) {
+    Canvas c,
+    double w,
+    double h,
+    double p,
+    double offset,
+    Color color,
+    double yBase,
+  ) {
     // 沿緩和的正弦路徑飄移
     final double phase = (p + offset) % 1;
     final double x = phase * (w + 120) - 60;
-    final double y = h * (0.30 + yBase * 0.25) + sin(phase * 6.28 * 2) * h * 0.05;
+    final double y =
+        h * (0.30 + yBase * 0.25) + sin(phase * 6.28 * 2) * h * 0.05;
     final Offset o = Offset(x, y);
     // 翅膀拍動（寬度隨時間縮放）
     final double flap = 0.55 + 0.45 * (sin(p * 2 * pi * 8 + offset * 10).abs());
@@ -232,25 +293,31 @@ class _HomePainter extends CustomPainter {
     for (final double sign in <double>[-1, 1]) {
       // 上翅
       c.drawOval(
-          Rect.fromCenter(
-              center: o + Offset(sign * s * flap, -s * 0.4),
-              width: s * 1.6 * flap,
-              height: s * 1.5),
-          wing);
+        Rect.fromCenter(
+          center: o + Offset(sign * s * flap, -s * 0.4),
+          width: s * 1.6 * flap,
+          height: s * 1.5,
+        ),
+        wing,
+      );
       // 下翅
       c.drawOval(
-          Rect.fromCenter(
-              center: o + Offset(sign * s * 0.8 * flap, s * 0.6),
-              width: s * 1.2 * flap,
-              height: s * 1.1),
-          wingLight);
+        Rect.fromCenter(
+          center: o + Offset(sign * s * 0.8 * flap, s * 0.6),
+          width: s * 1.2 * flap,
+          height: s * 1.1,
+        ),
+        wingLight,
+      );
     }
     // 身體
     c.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromCenter(center: o, width: s * 0.3, height: s * 1.9),
-            Radius.circular(s * 0.15)),
-        Paint()..color = const Color(0xFF4E342E));
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: o, width: s * 0.3, height: s * 1.9),
+        Radius.circular(s * 0.15),
+      ),
+      Paint()..color = const Color(0xFF4E342E),
+    );
   }
 
   @override

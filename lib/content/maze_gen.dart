@@ -7,13 +7,18 @@ import '../games/maze_game.dart';
 MazeLevel genHardMaze(int size) {
   final Random rng = Random();
   final int dim = size * 2 + 1;
-  final List<List<bool>> wall =
-      List<List<bool>>.generate(dim, (_) => List<bool>.filled(dim, true));
+  final List<List<bool>> wall = List<List<bool>>.generate(
+    dim,
+    (_) => List<bool>.filled(dim, true),
+  );
 
   void carve(int r, int c) {
     wall[r][c] = false;
     final List<List<int>> dirs = <List<int>>[
-      <int>[-2, 0], <int>[2, 0], <int>[0, -2], <int>[0, 2],
+      <int>[-2, 0],
+      <int>[2, 0],
+      <int>[0, -2],
+      <int>[0, 2],
     ]..shuffle(rng);
     for (final List<int> d in dirs) {
       final int nr = r + d[0];

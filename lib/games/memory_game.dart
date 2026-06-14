@@ -36,9 +36,34 @@ class MemoryGame extends StatefulWidget {
 
 class _MemoryGameState extends State<MemoryGame> {
   static const List<String> _pool = <String>[
-    '🐶', '🐱', '🐰', '🐸', '🐵', '🐧', '🦊', '🐯', '🦁', '🐮',
-    '🐷', '🐔', '🦉', '🐢', '🦋', '🐝', '🍎', '🍌', '🍓', '🍇',
-    '⭐', '🌈', '🚗', '🚀', '⚽', '🎈', '🎁', '🍦',
+    '🐶',
+    '🐱',
+    '🐰',
+    '🐸',
+    '🐵',
+    '🐧',
+    '🦊',
+    '🐯',
+    '🦁',
+    '🐮',
+    '🐷',
+    '🐔',
+    '🦉',
+    '🐢',
+    '🦋',
+    '🐝',
+    '🍎',
+    '🍌',
+    '🍓',
+    '🍇',
+    '⭐',
+    '🌈',
+    '🚗',
+    '🚀',
+    '⚽',
+    '🎈',
+    '🎁',
+    '🍦',
   ];
 
   final Random _rng = Random();
@@ -67,9 +92,9 @@ class _MemoryGameState extends State<MemoryGame> {
   }
 
   void _deal() {
-    final List<String> pick = (List<String>.of(_pool)..shuffle(_rng))
-        .take(_pairs)
-        .toList();
+    final List<String> pick = (List<String>.of(
+      _pool,
+    )..shuffle(_rng)).take(_pairs).toList();
     _cards = <_Card>[
       for (final String e in pick) ...<_Card>[_Card(e), _Card(e)],
     ]..shuffle(_rng);
@@ -118,8 +143,11 @@ class _MemoryGameState extends State<MemoryGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(_deal);
@@ -136,10 +164,10 @@ class _MemoryGameState extends State<MemoryGame> {
       onReplay: () => AudioService.instance.speak('翻翻看，找出一樣的！'),
       child: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Sizes.gap),
+          padding: EdgeInsets.all(context.s(Sizes.gap)),
           child: Wrap(
-            spacing: 12,
-            runSpacing: 12,
+            spacing: context.s(12),
+            runSpacing: context.s(12),
             alignment: WrapAlignment.center,
             children: List<Widget>.generate(_cards.length, (int i) {
               final _Card c = _cards[i];

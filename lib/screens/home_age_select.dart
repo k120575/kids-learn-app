@@ -49,16 +49,19 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
         duration: const Duration(seconds: 4),
         content: Text(
           '🔥 連續 ${w.$2} 天！歡迎回來，送你 +${w.$1} ⭐',
-          style: TextStyle(fontSize: context.s(18), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: context.s(18),
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
 
   Future<void> _push(Widget page) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => page),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => page));
     if (mounted) setState(() {}); // 回來刷新星星 / 收藏數
   }
 
@@ -72,19 +75,31 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text('誰要玩呢？',
-                    style:
-                        TextStyle(fontSize: sheetContext.s(20), fontWeight: FontWeight.bold)),
+                padding: EdgeInsets.all(sheetContext.s(16)),
+                child: Text(
+                  '誰要玩呢？',
+                  style: TextStyle(
+                    fontSize: sheetContext.s(20),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               ...store.profiles.map((Profile p) {
                 final bool active = p.id == store.activeProfileId;
                 return ListTile(
-                  leading: Text(p.emoji, style: TextStyle(fontSize: sheetContext.s(30))),
-                  title: Text(p.name, style: TextStyle(fontSize: sheetContext.s(18))),
+                  leading: Text(
+                    p.emoji,
+                    style: TextStyle(fontSize: sheetContext.s(30)),
+                  ),
+                  title: Text(
+                    p.name,
+                    style: TextStyle(fontSize: sheetContext.s(18)),
+                  ),
                   trailing: active
-                      ? const Icon(Icons.check_circle_rounded,
-                          color: Color(0xFF4CAF50))
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: Color(0xFF4CAF50),
+                        )
                       : null,
                   onTap: () async {
                     await store.switchProfile(p.id);
@@ -95,7 +110,10 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.settings_rounded),
-                title: Text('管理孩子檔案', style: TextStyle(fontSize: sheetContext.s(16))),
+                title: Text(
+                  '管理孩子檔案',
+                  style: TextStyle(fontSize: sheetContext.s(16)),
+                ),
                 subtitle: const Text('新增／改名／刪除（需家長）'),
                 onTap: () => Navigator.of(sheetContext).pop('manage'),
               ),
@@ -145,153 +163,182 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
 
   Widget _buildMainColumn(ProgressStore store) {
     return Column(
-          children: <Widget>[
-            // 頂列：標題 + 連續天數 + 星星餘額 + 孩子 + 設定
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: <Widget>[
-                  const SizedBox(width: 4),
-                  CloudTitle(fontSize: context.s(30)),
-                  const Spacer(),
-                  if (store.streakCurrent > 0) ...<Widget>[
-                    _Pill(
-                      color: const Color(0xFFFFEBEE),
-                      child: Text('🔥 ${store.streakCurrent}',
-                          style: TextStyle(
-                              fontSize: context.s(16), fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  _Pill(
-                    color: const Color(0xFFFFF8E1),
-                    child: Text('⭐ ${store.balance}',
-                        style: TextStyle(
-                            fontSize: context.s(16), fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(width: 8),
-                  // 孩子切換
-                  Material(
-                    color: const Color(0xFFE3F2FD),
-                    borderRadius: BorderRadius.circular(26),
-                    elevation: 2,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(26),
-                      onTap: _showProfileSwitcher,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Text(store.activeProfile.emoji,
-                                style: TextStyle(fontSize: context.s(22))),
-                            const SizedBox(width: 4),
-                            Text(store.activeProfile.name,
-                                style: TextStyle(
-                                    fontSize: context.s(15), fontWeight: FontWeight.bold)),
-                            Icon(Icons.expand_more_rounded, size: context.s(18)),
-                          ],
-                        ),
-                      ),
+      children: <Widget>[
+        // 頂列：標題 + 連續天數 + 星星餘額 + 孩子 + 設定
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.s(12),
+            vertical: context.s(8),
+          ),
+          child: Row(
+            children: <Widget>[
+              SizedBox(width: context.s(4)),
+              CloudTitle(fontSize: context.s(30)),
+              const Spacer(),
+              if (store.streakCurrent > 0) ...<Widget>[
+                _Pill(
+                  color: const Color(0xFFFFEBEE),
+                  child: Text(
+                    '🔥 ${store.streakCurrent}',
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Material(
-                    color: Colors.white,
-                    shape: const CircleBorder(),
-                    elevation: 2,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () async {
-                        final bool ok = await showParentGate(context);
-                        if (ok && mounted) {
-                          await _push(const SettingsScreen());
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(Icons.settings_rounded,
-                            size: context.s(26), color: const Color(0xFF90A4AE)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      // 吉祥物企企（點一下會說話）
-                      GestureDetector(
-                        onTap: () => AudioService.instance.speak(_greeting),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: const <BoxShadow>[
-                                  BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2)),
-                                ],
-                              ),
-                              child: Text(
-                                _greeting,
-                                style: TextStyle(
-                                    fontSize: context.s(17), fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Penguin(size: context.s(96)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: Sizes.bigGap),
-                      Text(
-                        '我幾歲呢？',
-                        style: TextStyle(
-                            fontSize: context.s(24), fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: Sizes.gap),
-                      Wrap(
-                        spacing: Sizes.bigGap,
-                        runSpacing: Sizes.bigGap,
-                        alignment: WrapAlignment.center,
-                        children: AgeBand.values.map((AgeBand band) {
-                          return BigCard(
-                            emoji: band.emoji,
-                            label: band.enabled ? band.label : '即將推出',
-                            color: const Color(0xFF4DD0E1),
-                            solid: true, // 實心白底卡片，在背景上更跳、更好按
-                            dimmed: !band.enabled,
-                            onTap: () {
-                              if (!band.enabled) {
-                                AudioService.instance.speak('這個還在準備中喔');
-                                return;
-                              }
-                              AudioService.instance.speak(band.label);
-                              _push(DomainSelectScreen(band: band));
-                            },
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: Sizes.gap),
-                    ],
+                ),
+                SizedBox(width: context.s(8)),
+              ],
+              _Pill(
+                color: const Color(0xFFFFF8E1),
+                child: Text(
+                  '⭐ ${store.balance}',
+                  style: TextStyle(
+                    fontSize: context.s(16),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+              SizedBox(width: context.s(8)),
+              // 孩子切換
+              Material(
+                color: const Color(0xFFE3F2FD),
+                borderRadius: BorderRadius.circular(26),
+                elevation: 2,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(26),
+                  onTap: _showProfileSwitcher,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.s(12),
+                      vertical: context.s(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          store.activeProfile.emoji,
+                          style: TextStyle(fontSize: context.s(22)),
+                        ),
+                        SizedBox(width: context.s(4)),
+                        Text(
+                          store.activeProfile.name,
+                          style: TextStyle(
+                            fontSize: context.s(15),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(Icons.expand_more_rounded, size: context.s(18)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: context.s(8)),
+              Material(
+                color: Colors.white,
+                shape: const CircleBorder(),
+                elevation: 2,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () async {
+                    final bool ok = await showParentGate(context);
+                    if (ok && mounted) {
+                      await _push(const SettingsScreen());
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(context.s(10)),
+                    child: Icon(
+                      Icons.settings_rounded,
+                      size: context.s(26),
+                      color: const Color(0xFF90A4AE),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  // 吉祥物企企（點一下會說話）
+                  GestureDetector(
+                    onTap: () => AudioService.instance.speak(_greeting),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.s(18),
+                            vertical: context.s(10),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const <BoxShadow>[
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            _greeting,
+                            style: TextStyle(
+                              fontSize: context.s(17),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: context.s(4)),
+                        Penguin(size: context.s(96)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: context.s(Sizes.bigGap)),
+                  Text(
+                    '我幾歲呢？',
+                    style: TextStyle(
+                      fontSize: context.s(24),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: context.s(Sizes.gap)),
+                  Wrap(
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.bigGap),
+                    alignment: WrapAlignment.center,
+                    children: AgeBand.values.map((AgeBand band) {
+                      return BigCard(
+                        emoji: band.emoji,
+                        label: band.enabled ? band.label : '即將推出',
+                        color: const Color(0xFF4DD0E1),
+                        solid: true, // 實心白底卡片，在背景上更跳、更好按
+                        dimmed: !band.enabled,
+                        onTap: () {
+                          if (!band.enabled) {
+                            AudioService.instance.speak('這個還在準備中喔');
+                            return;
+                          }
+                          AudioService.instance.speak(band.label);
+                          _push(DomainSelectScreen(band: band));
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: context.s(Sizes.gap)),
+                ],
+              ),
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -303,7 +350,10 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.s(12),
+        vertical: context.s(8),
+      ),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(26),
@@ -389,7 +439,9 @@ class _SmallRewardButton extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(
-              horizontal: 12 * scale, vertical: 7 * scale),
+            horizontal: 12 * scale,
+            vertical: 7 * scale,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(radius),
@@ -400,11 +452,14 @@ class _SmallRewardButton extends StatelessWidget {
             children: <Widget>[
               Text(emoji, style: TextStyle(fontSize: 22 * scale)),
               SizedBox(width: 6 * scale),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.bold,
-                      color: color)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ],
           ),
         ),

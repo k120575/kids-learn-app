@@ -31,8 +31,7 @@ class WorldTheme {
   /// 場景背景圖鍵（`assets/images/{bg}.png`）。
   final String? bg;
 
-  Station stationFor(Domain d) =>
-      stations[d] ?? Station(d.label, d.emoji);
+  Station stationFor(Domain d) => stations[d] ?? Station(d.label, d.emoji);
 }
 
 /// 各年齡段的主題。沒設定的年齡段退回「素」領域名稱。

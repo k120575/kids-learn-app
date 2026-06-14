@@ -56,7 +56,9 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
     // 適性難度：簡單比 2 個（10 以內）、一般 3 個（20 以內）、挑戰 4 個（30 以內）。
     final int level = ProgressStore.instance.levelFor(widget.gameId);
     _count = level == 0 ? 2 : (level == 1 ? widget.count : widget.count + 1);
-    _maxValue = level == 0 ? 10 : (level == 1 ? widget.maxValue : widget.maxValue + 10);
+    _maxValue = level == 0
+        ? 10
+        : (level == 1 ? widget.maxValue : widget.maxValue + 10);
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => AudioService.instance.speakAfterVoice(_prompt),
@@ -102,8 +104,11 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
         });
         AudioService.instance.speak(_prompt); // 每題重唸（最大/最小會變）
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -135,17 +140,21 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
         children: <Widget>[
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(_pickMax ? '點最大的數字' : '點最小的數字',
-                      style: TextStyle(
-                          fontSize: context.s(22), fontWeight: FontWeight.bold)),
-                  const SizedBox(height: Sizes.bigGap),
+                  Text(
+                    _pickMax ? '點最大的數字' : '點最小的數字',
+                    style: TextStyle(
+                      fontSize: context.s(22),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: context.s(Sizes.bigGap)),
                   Wrap(
-                    spacing: Sizes.bigGap,
-                    runSpacing: Sizes.gap,
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.gap),
                     alignment: WrapAlignment.center,
                     children: List<Widget>.generate(_nums.length, (int idx) {
                       final int v = _nums[idx];
@@ -163,22 +172,26 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
                               color: win
                                   ? const Color(0xFFC8E6C9)
                                   : (hint
-                                      ? const Color(0xFFFFF8E1)
-                                      : Colors.white),
+                                        ? const Color(0xFFFFF8E1)
+                                        : Colors.white),
                               borderRadius: BorderRadius.circular(Sizes.radius),
                               border: Border.all(
                                 color: win
                                     ? const Color(0xFF4CAF50)
                                     : (hint
-                                        ? const Color(0xFFFFC107)
-                                        : Colors.grey.shade300),
+                                          ? const Color(0xFFFFC107)
+                                          : Colors.grey.shade300),
                                 width: win ? 6 : (hint ? 5 : 3),
                               ),
                             ),
                             child: Center(
-                              child: Text('$v',
-                                  style: TextStyle(
-                                      fontSize: context.s(56), fontWeight: FontWeight.bold)),
+                              child: Text(
+                                '$v',
+                                style: TextStyle(
+                                  fontSize: context.s(56),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),

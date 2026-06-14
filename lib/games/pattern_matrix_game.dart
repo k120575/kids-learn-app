@@ -33,7 +33,16 @@ class PatternMatrixGame extends StatefulWidget {
 
 class _PatternMatrixGameState extends State<PatternMatrixGame> {
   static const List<String> _pool = <String>[
-    '🔴', '🔵', '🟡', '🟢', '🟣', '🟠', '⭐', '❤️', '🔺', '⬛',
+    '🔴',
+    '🔵',
+    '🟡',
+    '🟢',
+    '🟣',
+    '🟠',
+    '⭐',
+    '❤️',
+    '🔺',
+    '⬛',
   ];
 
   final Random _rng = Random();
@@ -74,8 +83,9 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
 
   void _gen() {
     final int unit = 2 + _rng.nextInt(_unitMax - 1); // 2 或 3 個一組
-    final List<String> tokens =
-        (List<String>.of(_pool)..shuffle(_rng)).take(unit).toList();
+    final List<String> tokens = (List<String>.of(
+      _pool,
+    )..shuffle(_rng)).take(unit).toList();
     _seq = <String>[for (int i = 0; i < _len; i++) tokens[i % unit]];
     _hidden = _rng.nextInt(_len);
     _ans = _seq[_hidden];
@@ -105,8 +115,11 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
           _wrong.clear();
         });
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -136,14 +149,14 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
       child: Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(Sizes.gap),
+            padding: EdgeInsets.all(context.s(Sizes.gap)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // 規律序列
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: context.s(8),
+                  runSpacing: context.s(8),
                   alignment: WrapAlignment.center,
                   children: List<Widget>.generate(_seq.length, (int i) {
                     final bool hidden = i == _hidden;
@@ -162,25 +175,32 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
                       ),
                       child: Center(
                         child: hidden
-                            ? Icon(Icons.help_rounded,
+                            ? Icon(
+                                Icons.help_rounded,
                                 size: context.s(36),
-                                color: const Color(0xFFFFB300))
-                            : Text(_seq[i],
-                                style: TextStyle(fontSize: context.s(38))),
+                                color: const Color(0xFFFFB300),
+                              )
+                            : Text(
+                                _seq[i],
+                                style: TextStyle(fontSize: context.s(38)),
+                              ),
                       ),
                     );
                   }),
                 ),
-                const SizedBox(height: Sizes.bigGap),
-                Text('選一個補上空格',
-                    style: TextStyle(
-                        fontSize: context.s(18),
-                        color: const Color(0xFF888888))),
-                const SizedBox(height: 10),
+                SizedBox(height: context.s(Sizes.bigGap)),
+                Text(
+                  '選一個補上空格',
+                  style: TextStyle(
+                    fontSize: context.s(18),
+                    color: const Color(0xFF888888),
+                  ),
+                ),
+                SizedBox(height: context.s(10)),
                 // 選項
                 Wrap(
-                  spacing: Sizes.gap,
-                  runSpacing: Sizes.gap,
+                  spacing: context.s(Sizes.gap),
+                  runSpacing: context.s(Sizes.gap),
                   alignment: WrapAlignment.center,
                   children: List<Widget>.generate(_opts.length, (int idx) {
                     final String v = _opts[idx];
@@ -198,21 +218,23 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
                             color: win
                                 ? const Color(0xFFC8E6C9)
                                 : (hint
-                                    ? const Color(0xFFFFF8E1)
-                                    : Colors.white),
+                                      ? const Color(0xFFFFF8E1)
+                                      : Colors.white),
                             borderRadius: BorderRadius.circular(Sizes.radius),
                             border: Border.all(
                               color: win
                                   ? const Color(0xFF4CAF50)
                                   : (hint
-                                      ? const Color(0xFFFFC107)
-                                      : Colors.grey.shade300),
+                                        ? const Color(0xFFFFC107)
+                                        : Colors.grey.shade300),
                               width: win ? 6 : (hint ? 5 : 3),
                             ),
                           ),
                           child: Center(
-                            child:
-                                Text(v, style: TextStyle(fontSize: context.s(48))),
+                            child: Text(
+                              v,
+                              style: TextStyle(fontSize: context.s(48)),
+                            ),
                           ),
                         ),
                       ),

@@ -35,8 +35,10 @@ class PickRound {
 }
 
 /// 「找出X」題庫：(詞, emoji) 清單 → 每題念「找出 + 詞」、選項 = 正解 + 3 干擾。
-List<PickRound> buildListenRounds(List<(String, String)> vocab,
-    [String prefix = '找出']) {
+List<PickRound> buildListenRounds(
+  List<(String, String)> vocab, [
+  String prefix = '找出',
+]) {
   final Random rng = Random();
   final List<PickRound> bank = <PickRound>[];
   for (int i = 0; i < vocab.length; i++) {
@@ -49,11 +51,13 @@ List<PickRound> buildListenRounds(List<(String, String)> vocab,
       vocab[i].$2,
       for (final int j in others) vocab[j].$2,
     ]..shuffle(rng);
-    bank.add(PickRound(
-      prompt: '$prefix${vocab[i].$1}',
-      options: opts,
-      correctIndex: opts.indexOf(vocab[i].$2),
-    ));
+    bank.add(
+      PickRound(
+        prompt: '$prefix${vocab[i].$1}',
+        options: opts,
+        correctIndex: opts.indexOf(vocab[i].$2),
+      ),
+    );
   }
   return bank;
 }
@@ -68,15 +72,18 @@ List<PickRound> buildOddOneOut(List<List<String>> cats, {int count = 30}) {
     do {
       cj = rng.nextInt(cats.length);
     } while (cj == ci);
-    final List<String> picks =
-        (List<String>.of(cats[ci])..shuffle(rng)).take(3).toList();
+    final List<String> picks = (List<String>.of(
+      cats[ci],
+    )..shuffle(rng)).take(3).toList();
     final String odd = cats[cj][rng.nextInt(cats[cj].length)];
     final List<String> opts = <String>[...picks, odd]..shuffle(rng);
-    bank.add(PickRound(
-      prompt: '哪一個不一樣？',
-      options: opts,
-      correctIndex: opts.indexOf(odd),
-    ));
+    bank.add(
+      PickRound(
+        prompt: '哪一個不一樣？',
+        options: opts,
+        correctIndex: opts.indexOf(odd),
+      ),
+    );
   }
   return bank;
 }
@@ -84,8 +91,11 @@ List<PickRound> buildOddOneOut(List<List<String>> cats, {int count = 30}) {
 /// 從「(音檔, emoji)」清單建立題庫：每題播該音檔，選項 = 正解 emoji + [distractors] 個隨機干擾。
 /// 用於聲音尋寶、樂器配對等以真實音效出題的遊戲。
 /// [distractors] 預設 3（共 4 選項）；5-6 歲加難版可給 4（共 5 選項、更難辨）。
-List<PickRound> buildSoundRounds(List<(String, String)> items, String prompt,
-    {int distractors = 3}) {
+List<PickRound> buildSoundRounds(
+  List<(String, String)> items,
+  String prompt, {
+  int distractors = 3,
+}) {
   final Random rng = Random();
   final List<PickRound> bank = <PickRound>[];
   for (int i = 0; i < items.length; i++) {
@@ -98,12 +108,14 @@ List<PickRound> buildSoundRounds(List<(String, String)> items, String prompt,
       items[i].$2,
       for (final int j in others) items[j].$2,
     ]..shuffle(rng);
-    bank.add(PickRound(
-      prompt: prompt,
-      soundAsset: items[i].$1,
-      options: opts,
-      correctIndex: opts.indexOf(items[i].$2),
-    ));
+    bank.add(
+      PickRound(
+        prompt: prompt,
+        soundAsset: items[i].$1,
+        options: opts,
+        correctIndex: opts.indexOf(items[i].$2),
+      ),
+    );
   }
   return bank;
 }
@@ -161,7 +173,7 @@ class _PickGameState extends State<PickGame> {
     final String correct = r.options[r.correctIndex];
     final List<String> others = <String>[
       for (int i = 0; i < r.options.length; i++)
-        if (i != r.correctIndex) r.options[i]
+        if (i != r.correctIndex) r.options[i],
     ]..shuffle();
     final List<String> keep = others.take(cap - 1).toList()..add(correct);
     keep.shuffle();
@@ -185,8 +197,7 @@ class _PickGameState extends State<PickGame> {
     if (n != null && n < _rounds.length) {
       _rounds = _rounds.sublist(0, n); // 隨機抽 N 題
     }
-    _rounds =
-        _rounds.map((PickRound r) => _capOptions(r, cap)).toList();
+    _rounds = _rounds.map((PickRound r) => _capOptions(r, cap)).toList();
   }
 
   @override
@@ -207,12 +218,15 @@ class _PickGameState extends State<PickGame> {
     final PickRound r = _round;
     // 先等關卡名稱（剛進關卡時念的）或上一句念完，再放題目音效/提示，避免重疊。
     await AudioService.instance.waitUntilVoiceIdle();
+    if (!mounted) return; // 等待時若已離開關卡，別再播（避免退出後仍念到結束）
     if (r.soundAsset != null) {
       final bool ok = await AudioService.instance.playSfxAndWait(r.soundAsset!);
       if (ok) return; // 有真實音效就用音效（已等播完）
     }
-    await AudioService.instance
-        .speakForDuration(r.prompt, extra: const Duration(milliseconds: 250));
+    await AudioService.instance.speakForDuration(
+      r.prompt,
+      extra: const Duration(milliseconds: 250),
+    );
   }
 
   /// 念題期間鎖住互動（_speaking），念完才開放作答。
@@ -253,8 +267,11 @@ class _PickGameState extends State<PickGame> {
   }
 
   Future<void> _finish() async {
-    final bool again = await finishGame(context, widget.gameId,
-        mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -281,7 +298,7 @@ class _PickGameState extends State<PickGame> {
       child: Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(Sizes.gap),
+            padding: EdgeInsets.all(context.s(Sizes.gap)),
             child: Center(
               child: SingleChildScrollView(
                 // 念題中淡化選項，提示孩子「先聽，聽完再選」。
@@ -289,24 +306,26 @@ class _PickGameState extends State<PickGame> {
                   opacity: _speaking ? 0.4 : 1.0,
                   duration: const Duration(milliseconds: 200),
                   child: Wrap(
-                  spacing: Sizes.bigGap,
-                  runSpacing: Sizes.bigGap,
-                  alignment: WrapAlignment.center,
-                  children:
-                      List<Widget>.generate(round.options.length, (int idx) {
-                    final bool win = _success && idx == round.correctIndex;
-                    return Shaker(
-                      trigger: _wrong[idx] ?? 0,
-                      child: _OptionTile(
-                        emoji: round.options[idx],
-                        highlight: win,
-                        hint: !win &&
-                            idx == round.correctIndex &&
-                            _wrongCount >= 3,
-                        onTap: () => _onTap(idx),
-                      ),
-                    );
-                  }),
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.bigGap),
+                    alignment: WrapAlignment.center,
+                    children: List<Widget>.generate(round.options.length, (
+                      int idx,
+                    ) {
+                      final bool win = _success && idx == round.correctIndex;
+                      return Shaker(
+                        trigger: _wrong[idx] ?? 0,
+                        child: _OptionTile(
+                          emoji: round.options[idx],
+                          highlight: win,
+                          hint:
+                              !win &&
+                              idx == round.correctIndex &&
+                              _wrongCount >= 3,
+                          onTap: () => _onTap(idx),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),

@@ -70,17 +70,19 @@ class _GameScaffoldState extends State<GameScaffold> {
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.s(12),
+                    vertical: context.s(8),
+                  ),
                   child: Row(
                     children: <Widget>[
                       _RoundIconButton(
                         icon: Icons.arrow_back_rounded,
                         onTap: () => Navigator.of(context).maybePop(),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: context.s(8)),
                       Penguin(size: context.s(48)), // 企企陪玩
-                      const SizedBox(width: 8),
+                      SizedBox(width: context.s(8)),
                       // 品牌標題（與首頁同字型、同塗鴉風，描邊讓深淺背景都清楚）。
                       // 用 Flexible + FittedBox：長標題自動縮到放得下，不溢出也不被截斷。
                       Flexible(
@@ -95,15 +97,17 @@ class _GameScaffoldState extends State<GameScaffold> {
                       ),
                       if (widget.total > 0)
                         _ProgressDots(
-                            current: widget.current, total: widget.total),
+                          current: widget.current,
+                          total: widget.total,
+                        ),
                       if (widget.onReplay != null) ...<Widget>[
-                        const SizedBox(width: 12),
+                        SizedBox(width: context.s(12)),
                         _RoundIconButton(
                           icon: Icons.volume_up_rounded,
                           onTap: widget.onReplay!,
                         ),
                       ],
-                      const SizedBox(width: 8),
+                      SizedBox(width: context.s(8)),
                       _RoundIconButton(
                         icon: Icons.pause_rounded,
                         onTap: _pause,
@@ -140,8 +144,11 @@ class _PauseOverlay extends StatelessWidget {
           color: const Color(0xCC1A237E), // 深藍半透明，與宇宙/遊樂園色調一致
           child: Center(
             child: Container(
-              margin: const EdgeInsets.all(32),
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 28),
+              margin: EdgeInsets.all(context.s(32)),
+              padding: EdgeInsets.symmetric(
+                vertical: context.s(32),
+                horizontal: context.s(28),
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
@@ -150,36 +157,51 @@ class _PauseOverlay extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Penguin(size: context.s(88)),
-                  const SizedBox(height: 12),
-                  Text('休息一下',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: context.s(26), fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.s(12)),
+                  Text(
+                    '休息一下',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: context.s(26),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: context.s(24)),
                   ElevatedButton.icon(
                     onPressed: onResume,
                     icon: Icon(Icons.play_arrow_rounded, size: context.s(28)),
-                    label: Text('繼續玩',
-                        style: TextStyle(
-                            fontSize: context.s(20), fontWeight: FontWeight.bold)),
+                    label: Text(
+                      '繼續玩',
+                      style: TextStyle(
+                        fontSize: context.s(20),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 14, horizontal: 32),
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.s(14),
+                        horizontal: context.s(32),
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: context.s(12)),
                   TextButton(
                     onPressed: () {
                       onResume();
                       Navigator.of(context).maybePop();
                     },
-                    child: Text('回首頁',
-                        style: TextStyle(
-                            fontSize: context.s(16), color: const Color(0xFF888888))),
+                    child: Text(
+                      '回首頁',
+                      style: TextStyle(
+                        fontSize: context.s(16),
+                        color: const Color(0xFF888888),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -207,8 +229,12 @@ class _RoundIconButton extends StatelessWidget {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Icon(icon, size: context.s(28), color: const Color(0xFF5C6BC0)),
+          padding: EdgeInsets.all(context.s(12)),
+          child: Icon(
+            icon,
+            size: context.s(28),
+            color: const Color(0xFF5C6BC0),
+          ),
         ),
       ),
     );
@@ -226,7 +252,10 @@ class _ProgressDots extends StatelessWidget {
     // 關卡多（>6）時用文字膠囊，避免一排點點在窄螢幕擠爆頂列。
     if (total > 6) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.s(12),
+          vertical: context.s(6),
+        ),
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3CD),
           borderRadius: BorderRadius.circular(14),
@@ -234,9 +263,10 @@ class _ProgressDots extends StatelessWidget {
         child: Text(
           '$current / $total',
           style: TextStyle(
-              fontSize: context.s(16),
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFFB8860B)),
+            fontSize: context.s(16),
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFFB8860B),
+          ),
         ),
       );
     }
@@ -247,7 +277,7 @@ class _ProgressDots extends StatelessWidget {
         return Container(
           width: context.s(16),
           height: context.s(16),
-          margin: const EdgeInsets.symmetric(horizontal: 3),
+          margin: EdgeInsets.symmetric(horizontal: context.s(3)),
           decoration: BoxDecoration(
             color: done ? const Color(0xFFFFC107) : Colors.grey.shade300,
             shape: BoxShape.circle,

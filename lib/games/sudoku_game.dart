@@ -68,8 +68,7 @@ class _SudokuGameState extends State<SudokuGame> {
 
   void _gen() {
     _solution = _makeSolution();
-    _given =
-        List<List<bool>>.generate(_n, (_) => List<bool>.filled(_n, false));
+    _given = List<List<bool>>.generate(_n, (_) => List<bool>.filled(_n, false));
     _board = List<List<int>>.generate(_n, (_) => List<int>.filled(_n, -1));
     // 隨機挑 N 格當題目給定。
     final List<int> cells = List<int>.generate(_n * _n, (int k) => k)
@@ -201,8 +200,11 @@ class _SudokuGameState extends State<SudokuGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -222,29 +224,34 @@ class _SudokuGameState extends State<SudokuGame> {
       title: widget.title,
       current: _i,
       total: widget.rounds,
-      onReplay: () =>
-          AudioService.instance.speak('每一行、每一列都不能有一樣的！'),
+      onReplay: () => AudioService.instance.speak('每一行、每一列都不能有一樣的！'),
       child: Stack(
         children: <Widget>[
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(Sizes.gap),
+              padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text('每行、每列、每宮都不能重複',
-                      style: TextStyle(
-                          fontSize: context.s(18),
-                          color: const Color(0xFF888888))),
-                  const SizedBox(height: Sizes.gap),
+                  Text(
+                    '每行、每列、每宮都不能重複',
+                    style: TextStyle(
+                      fontSize: context.s(18),
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                  SizedBox(height: context.s(Sizes.gap)),
                   // 窄螢幕時整個盤面等比縮小，不會被裁切。
                   FittedBox(fit: BoxFit.scaleDown, child: _grid()),
-                  const SizedBox(height: Sizes.bigGap),
-                  Text('選一格，再點要填的符號',
-                      style: TextStyle(
-                          fontSize: context.s(16),
-                          color: const Color(0xFF888888))),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.s(Sizes.bigGap)),
+                  Text(
+                    '選一格，再點要填的符號',
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                  SizedBox(height: context.s(10)),
                   _palette(),
                 ],
               ),
@@ -258,7 +265,7 @@ class _SudokuGameState extends State<SudokuGame> {
 
   Widget _grid() {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(context.s(4)),
       decoration: BoxDecoration(
         color: const Color(0xFF7C4DFF),
         borderRadius: BorderRadius.circular(14),
@@ -276,10 +283,10 @@ class _SudokuGameState extends State<SudokuGame> {
               // 2×2 宮格分隔：較粗的外距。
               return Container(
                 margin: EdgeInsets.only(
-                  right: c == 1 ? 5 : 2,
-                  bottom: r == 1 ? 5 : 2,
-                  left: 2,
-                  top: 2,
+                  right: context.s(c == 1 ? 5 : 2),
+                  bottom: context.s(r == 1 ? 5 : 2),
+                  left: context.s(2),
+                  top: context.s(2),
                 ),
                 child: GestureDetector(
                   onTap: () => _selectCell(r, c),
@@ -290,17 +297,15 @@ class _SudokuGameState extends State<SudokuGame> {
                       color: wrong
                           ? const Color(0xFFFFCDD2)
                           : given
-                              ? const Color(0xFFEDE7F6)
-                              : (sel
-                                  ? const Color(0xFFFFF3CD)
-                                  : Colors.white),
+                          ? const Color(0xFFEDE7F6)
+                          : (sel ? const Color(0xFFFFF3CD) : Colors.white),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: wrong
                             ? const Color(0xFFE53935)
                             : sel
-                                ? const Color(0xFFFFC107)
-                                : Colors.transparent,
+                            ? const Color(0xFFFFC107)
+                            : Colors.transparent,
                         width: 3,
                       ),
                     ),
@@ -322,7 +327,7 @@ class _SudokuGameState extends State<SudokuGame> {
 
   Widget _palette() {
     return Wrap(
-      spacing: Sizes.gap,
+      spacing: context.s(Sizes.gap),
       alignment: WrapAlignment.center,
       children: List<Widget>.generate(_symbols.length, (int s) {
         return GestureDetector(
@@ -336,7 +341,10 @@ class _SudokuGameState extends State<SudokuGame> {
               border: Border.all(color: const Color(0xFF7C4DFF), width: 3),
             ),
             child: Center(
-              child: Text(_symbols[s], style: TextStyle(fontSize: context.s(36))),
+              child: Text(
+                _symbols[s],
+                style: TextStyle(fontSize: context.s(36)),
+              ),
             ),
           ),
         );

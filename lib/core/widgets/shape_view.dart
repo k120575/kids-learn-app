@@ -38,7 +38,11 @@ class ShapeView extends StatelessWidget {
 }
 
 class _ShapePainter extends CustomPainter {
-  _ShapePainter({required this.kind, required this.color, required this.filled});
+  _ShapePainter({
+    required this.kind,
+    required this.color,
+    required this.filled,
+  });
 
   final ShapeKind kind;
   final Color color;
@@ -72,8 +76,12 @@ class _ShapePainter extends CustomPainter {
         // 橫向橢圓，與正圓有明顯區別。
         p.addOval(Rect.fromLTWH(2, h * 0.24, w - 4, h * 0.52));
       case ShapeKind.square:
-        p.addRRect(RRect.fromRectAndRadius(
-            Rect.fromLTWH(8, 8, w - 16, h - 16), const Radius.circular(10)));
+        p.addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(8, 8, w - 16, h - 16),
+            const Radius.circular(10),
+          ),
+        );
       case ShapeKind.triangle:
         p
           ..moveTo(w / 2, 8)

@@ -67,18 +67,32 @@ class _GachaPainter extends CustomPainter {
 
   // 扭蛋球顏色（鮮豔、童趣）。
   static const List<Color> _caps = <Color>[
-    Color(0xFFFF6B6B), Color(0xFFFFA94D), Color(0xFFFFD43B),
-    Color(0xFF69DB7C), Color(0xFF4DABF7), Color(0xFF9775FA),
-    Color(0xFFFF8ED4), Color(0xFF3BC9DB), Color(0xFFFFC078),
-    Color(0xFF63E6BE), Color(0xFFFF6B9D),
+    Color(0xFFFF6B6B),
+    Color(0xFFFFA94D),
+    Color(0xFFFFD43B),
+    Color(0xFF69DB7C),
+    Color(0xFF4DABF7),
+    Color(0xFF9775FA),
+    Color(0xFFFF8ED4),
+    Color(0xFF3BC9DB),
+    Color(0xFFFFC078),
+    Color(0xFF63E6BE),
+    Color(0xFFFF6B9D),
   ];
 
   // 球的靜止位置（dome 半徑為單位，偏下方堆積）。
   static const List<Offset> _rest = <Offset>[
-    Offset(-0.45, 0.40), Offset(0.0, 0.50), Offset(0.45, 0.40),
-    Offset(-0.22, 0.18), Offset(0.24, 0.20), Offset(-0.50, 0.06),
-    Offset(0.52, 0.08), Offset(0.0, 0.14), Offset(-0.16, 0.42),
-    Offset(0.18, 0.40), Offset(0.02, -0.10),
+    Offset(-0.45, 0.40),
+    Offset(0.0, 0.50),
+    Offset(0.45, 0.40),
+    Offset(-0.22, 0.18),
+    Offset(0.24, 0.20),
+    Offset(-0.50, 0.06),
+    Offset(0.52, 0.08),
+    Offset(0.0, 0.14),
+    Offset(-0.16, 0.42),
+    Offset(0.18, 0.40),
+    Offset(0.02, -0.10),
   ];
 
   @override
@@ -92,19 +106,29 @@ class _GachaPainter extends CustomPainter {
     final Offset domeC = Offset(cx, h * 0.06 + domeR);
     final double bodyTop = domeC.dy + domeR * 0.52;
     final Rect bodyRect = Rect.fromLTRB(
-        cx - w * 0.40, bodyTop, cx + w * 0.40, h * 0.985);
+      cx - w * 0.40,
+      bodyTop,
+      cx + w * 0.40,
+      h * 0.985,
+    );
     final double capR = w * 0.082;
 
     // 地面陰影
     p.color = const Color(0x1A000000);
     canvas.drawOval(
-        Rect.fromCenter(
-            center: Offset(cx, h * 0.985), width: w * 0.72, height: h * 0.045),
-        p);
+      Rect.fromCenter(
+        center: Offset(cx, h * 0.985),
+        width: w * 0.72,
+        height: h * 0.045,
+      ),
+      p,
+    );
 
     // ---- 機身 ----
-    final RRect body =
-        RRect.fromRectAndRadius(bodyRect, Radius.circular(w * 0.11));
+    final RRect body = RRect.fromRectAndRadius(
+      bodyRect,
+      Radius.circular(w * 0.11),
+    );
     p.color = const Color(0xFFEF5350); // 紅機身
     canvas.drawRRect(body, p);
     // 機身下半較深（立體感）
@@ -112,22 +136,33 @@ class _GachaPainter extends CustomPainter {
     canvas.save();
     canvas.clipRRect(body);
     canvas.drawRect(
-        Rect.fromLTRB(bodyRect.left, bodyRect.center.dy + h * 0.02,
-            bodyRect.right, bodyRect.bottom),
-        p);
+      Rect.fromLTRB(
+        bodyRect.left,
+        bodyRect.center.dy + h * 0.02,
+        bodyRect.right,
+        bodyRect.bottom,
+      ),
+      p,
+    );
     canvas.restore();
 
     // 出蛋口（深色凹槽）
     final Rect trayR = Rect.fromCenter(
-        center: Offset(cx, bodyRect.bottom - h * 0.07),
-        width: w * 0.46,
-        height: h * 0.11);
+      center: Offset(cx, bodyRect.bottom - h * 0.07),
+      width: w * 0.46,
+      height: h * 0.11,
+    );
     p.color = const Color(0xFF7A1F1C);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(trayR, Radius.circular(w * 0.05)), p);
+      RRect.fromRectAndRadius(trayR, Radius.circular(w * 0.05)),
+      p,
+    );
 
     // 轉鈕（白圈 + 中心 + 旋轉指標；轉動時跟著轉）
-    final Offset knobC = Offset(cx, bodyRect.top + (trayR.top - bodyRect.top) * 0.45);
+    final Offset knobC = Offset(
+      cx,
+      bodyRect.top + (trayR.top - bodyRect.top) * 0.45,
+    );
     final double knobR = w * 0.11;
     p.color = const Color(0xFFFFF3E0);
     canvas.drawCircle(knobC, knobR, p);
@@ -140,11 +175,16 @@ class _GachaPainter extends CustomPainter {
     canvas.rotate(knobAng);
     p.color = const Color(0xFFEF6C00);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromCenter(
-                center: Offset.zero, width: knobR * 1.5, height: knobR * 0.42),
-            Radius.circular(knobR * 0.21)),
-        p);
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: knobR * 1.5,
+          height: knobR * 0.42,
+        ),
+        Radius.circular(knobR * 0.21),
+      ),
+      p,
+    );
     canvas.restore();
     p.color = const Color(0xFFEF6C00);
     canvas.drawCircle(knobC, knobR * 0.16, p);
@@ -166,7 +206,9 @@ class _GachaPainter extends CustomPainter {
 
     // 球（裁切在圓罩內）
     canvas.save();
-    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: domeC, radius: domeR - 1)));
+    canvas.clipPath(
+      Path()..addOval(Rect.fromCircle(center: domeC, radius: domeR - 1)),
+    );
     for (int i = 0; i < _rest.length; i++) {
       final Offset pos = _capPos(i, domeC, domeR);
       _drawCapsule(canvas, p, pos, capR, _caps[i % _caps.length], i);
@@ -188,8 +230,12 @@ class _GachaPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..isAntiAlias = true;
     canvas.drawArc(
-        Rect.fromCircle(center: domeC, radius: domeR * 0.78),
-        math.pi * 1.05, math.pi * 0.4, false, glare);
+      Rect.fromCircle(center: domeC, radius: domeR * 0.78),
+      math.pi * 1.05,
+      math.pi * 0.4,
+      false,
+      glare,
+    );
   }
 
   /// 球的位置：靜止時堆在底部；轉動時繞罩心打轉（每球速度/方向不同 → 翻滾感）。
@@ -208,7 +254,13 @@ class _GachaPainter extends CustomPainter {
 
   /// 單顆扭蛋：上半彩色、下半白（經典轉蛋雙色），加小高光。
   void _drawCapsule(
-      Canvas canvas, Paint p, Offset c, double r, Color color, int i) {
+    Canvas canvas,
+    Paint p,
+    Offset c,
+    double r,
+    Color color,
+    int i,
+  ) {
     final Rect box = Rect.fromCircle(center: c, radius: r);
     canvas.save();
     canvas.clipPath(Path()..addOval(box));

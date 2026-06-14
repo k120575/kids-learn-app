@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../responsive.dart';
 import '../theme.dart';
 
 /// 大型可點卡片：上方大 emoji，下方標題。按下有縮放回饋。
@@ -100,7 +101,11 @@ class _BigCardState extends State<BigCard> {
                   ),
                 ),
                 if (widget.badge != null)
-                  Positioned(top: 8, right: 10, child: widget.badge!),
+                  Positioned(
+                    top: context.s(8),
+                    right: context.s(10),
+                    child: widget.badge!,
+                  ),
               ],
             ),
           ),
@@ -112,7 +117,12 @@ class _BigCardState extends State<BigCard> {
 
 /// 星星列：顯示 0~max 的星數（已得實心、未得空心）。
 class StarsRow extends StatelessWidget {
-  const StarsRow({super.key, required this.count, this.max = 3, this.size = 22});
+  const StarsRow({
+    super.key,
+    required this.count,
+    this.max = 3,
+    this.size = 22,
+  });
 
   final int count;
   final int max;
@@ -127,7 +137,7 @@ class StarsRow extends StatelessWidget {
         return Icon(
           filled ? Icons.star_rounded : Icons.star_outline_rounded,
           color: filled ? const Color(0xFFFFC107) : Colors.grey,
-          size: size,
+          size: context.s(size), // size 視為設計基準 px，內部依裝置縮放
         );
       }),
     );

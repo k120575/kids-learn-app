@@ -24,8 +24,7 @@ final List<PickRound> hanziBank56 = buildListenRounds(hanziVocab56);
 
 // ───────────────── 注音開頭辨識（進階詞庫）─────────────────
 /// 聽一個詞，點出它「開頭的注音符號」。換一批新詞，涵蓋更多聲母。
-const List<(String, String, String)> zhuyinWords56 =
-    <(String, String, String)>[
+const List<(String, String, String)> zhuyinWords56 = <(String, String, String)>[
   ('班', '🏫', 'ㄅ'), ('盤', '🍽️', 'ㄆ'), ('門', '🚪', 'ㄇ'), ('飯', '🍚', 'ㄈ'),
   ('刀', '🔪', 'ㄉ'), ('湯', '🍲', 'ㄊ'), ('鳥', '🐦', 'ㄋ'), ('臉', '😀', 'ㄌ'),
   ('哥', '👦', 'ㄍ'), ('褲', '👖', 'ㄎ'), ('海', '🌊', 'ㄏ'), ('家', '🏠', 'ㄐ'),
@@ -44,8 +43,27 @@ const List<(String, String, String)> zhuyinWords56 =
 ];
 
 const List<String> _onsetPool = <String>[
-  'ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ',
-  'ㄐ', 'ㄑ', 'ㄒ', 'ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ', 'ㄙ',
+  'ㄅ',
+  'ㄆ',
+  'ㄇ',
+  'ㄈ',
+  'ㄉ',
+  'ㄊ',
+  'ㄋ',
+  'ㄌ',
+  'ㄍ',
+  'ㄎ',
+  'ㄏ',
+  'ㄐ',
+  'ㄑ',
+  'ㄒ',
+  'ㄓ',
+  'ㄔ',
+  'ㄕ',
+  'ㄖ',
+  'ㄗ',
+  'ㄘ',
+  'ㄙ',
 ];
 
 final List<PickRound> zhuyinOnsetBank56 = _buildZhuyin56();
@@ -60,11 +78,13 @@ List<PickRound> _buildZhuyin56() {
       opts.add(_onsetPool[rng.nextInt(_onsetPool.length)]);
     }
     final List<String> list = opts.toList()..shuffle(rng);
-    bank.add(PickRound(
-      prompt: '『${w.$1}』開頭的注音是哪一個？',
-      options: list,
-      correctIndex: list.indexOf(correct),
-    ));
+    bank.add(
+      PickRound(
+        prompt: '『${w.$1}』開頭的注音是哪一個？',
+        options: list,
+        correctIndex: list.indexOf(correct),
+      ),
+    );
   }
   return bank;
 }
@@ -87,9 +107,33 @@ const List<(String, String)> measureWords = <(String, String)>[
 ];
 
 const List<String> _measurePool = <String>[
-  '隻', '條', '棵', '朵', '輛', '本', '張', '枝', '頭', '艘',
-  '把', '座', '件', '間', '顆', '個',
-  '匹', '雙', '副', '份', '片', '根', '串', '頂', '封', '首', '幅',
+  '隻',
+  '條',
+  '棵',
+  '朵',
+  '輛',
+  '本',
+  '張',
+  '枝',
+  '頭',
+  '艘',
+  '把',
+  '座',
+  '件',
+  '間',
+  '顆',
+  '個',
+  '匹',
+  '雙',
+  '副',
+  '份',
+  '片',
+  '根',
+  '串',
+  '頂',
+  '封',
+  '首',
+  '幅',
 ];
 
 final List<PickRound> measureWordBank = _buildMeasure();
@@ -104,11 +148,13 @@ List<PickRound> _buildMeasure() {
       opts.add(_measurePool[rng.nextInt(_measurePool.length)]);
     }
     final List<String> list = opts.toList()..shuffle(rng);
-    bank.add(PickRound(
-      prompt: '${m.$1}，要用哪個量詞？',
-      options: list,
-      correctIndex: list.indexOf(correct),
-    ));
+    bank.add(
+      PickRound(
+        prompt: '${m.$1}，要用哪個量詞？',
+        options: list,
+        correctIndex: list.indexOf(correct),
+      ),
+    );
   }
   return bank;
 }

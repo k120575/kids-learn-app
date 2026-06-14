@@ -95,9 +95,11 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
       _step = 0;
     });
     await AudioService.instance.waitUntilVoiceIdle(); // 先讓關卡名稱念完
-    await AudioService.instance
-        .speakForDuration('仔細聽，記住順序！',
-            extra: const Duration(milliseconds: 500));
+    if (!mounted) return; // 等待時若已離開關卡，別再念（避免退出後仍念到結束）
+    await AudioService.instance.speakForDuration(
+      '仔細聽，記住順序！',
+      extra: const Duration(milliseconds: 500),
+    );
     if (!mounted) return;
     for (final int idx in _seq) {
       if (!mounted) return;
@@ -152,8 +154,11 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -179,12 +184,15 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
         children: <Widget>[
           Text(
             _demo ? '仔細聽…' : '換你照著點！',
-            style: TextStyle(fontSize: context.s(24), fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: context.s(24),
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: Sizes.bigGap),
+          SizedBox(height: context.s(Sizes.bigGap)),
           Wrap(
-            spacing: Sizes.bigGap,
-            runSpacing: Sizes.bigGap,
+            spacing: context.s(Sizes.bigGap),
+            runSpacing: context.s(Sizes.bigGap),
             alignment: WrapAlignment.center,
             children: List<Widget>.generate(_pads.length, (int idx) {
               final _Pad pad = _pads[idx];
@@ -199,9 +207,7 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
                     width: context.s(130),
                     height: context.s(130),
                     decoration: BoxDecoration(
-                      color: on
-                          ? pad.color
-                          : pad.color.withValues(alpha: 0.28),
+                      color: on ? pad.color : pad.color.withValues(alpha: 0.28),
                       borderRadius: BorderRadius.circular(Sizes.radius),
                       border: Border.all(color: pad.color, width: 5),
                       boxShadow: on
@@ -215,22 +221,25 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
                           : null,
                     ),
                     child: Center(
-                      child: Text(pad.emoji,
-                          style: TextStyle(fontSize: context.s(64))),
+                      child: Text(
+                        pad.emoji,
+                        style: TextStyle(fontSize: context.s(64)),
+                      ),
                     ),
                   ),
                 ),
               );
             }),
           ),
-          const SizedBox(height: Sizes.bigGap),
+          SizedBox(height: context.s(Sizes.bigGap)),
           // 進度：本回合已點對幾個 / 共幾個
           Text(
             '$_step / ${_seq.length}',
             style: TextStyle(
-                fontSize: context.s(20),
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF8E24AA)),
+              fontSize: context.s(20),
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF8E24AA),
+            ),
           ),
         ],
       ),

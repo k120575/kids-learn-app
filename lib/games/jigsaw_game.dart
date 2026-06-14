@@ -43,8 +43,22 @@ class _Pic {
 
 class _JigsawGameState extends State<JigsawGame> {
   static const List<String> _emojis = <String>[
-    '🦄', '🐉', '🏰', '🌈', '🦋', '🐙', '🐠', '🌻',
-    '🚀', '🦖', '🦁', '🐢', '🌸', '🍉', '🦉', '⭐',
+    '🦄',
+    '🐉',
+    '🏰',
+    '🌈',
+    '🦋',
+    '🐙',
+    '🐠',
+    '🌻',
+    '🚀',
+    '🦖',
+    '🦁',
+    '🐢',
+    '🌸',
+    '🍉',
+    '🦉',
+    '⭐',
   ];
   static const List<List<Color>> _grads = <List<Color>>[
     <Color>[Color(0xFFFFE082), Color(0xFFFF8A65), Color(0xFFE57373)],
@@ -100,8 +114,10 @@ class _JigsawGameState extends State<JigsawGame> {
     final List<int> d = _dims()[_rng.nextInt(_dims().length)];
     _rows = d[0];
     _cols = d[1];
-    _pic = _Pic(_emojis[_rng.nextInt(_emojis.length)],
-        _grads[_rng.nextInt(_grads.length)]);
+    _pic = _Pic(
+      _emojis[_rng.nextInt(_emojis.length)],
+      _grads[_rng.nextInt(_grads.length)],
+    );
     final int cells = _rows * _cols;
     _placed = List<bool>.filled(cells, false);
     _tray = List<int>.generate(cells, (int k) => k)..shuffle(_rng);
@@ -134,8 +150,11 @@ class _JigsawGameState extends State<JigsawGame> {
   }
 
   Future<void> _finish() async {
-    final bool again =
-        await finishGame(context, widget.gameId, mistakes: _mistakes);
+    final bool again = await finishGame(
+      context,
+      widget.gameId,
+      mistakes: _mistakes,
+    );
     if (!mounted) return;
     if (again) {
       setState(() {
@@ -198,14 +217,14 @@ class _JigsawGameState extends State<JigsawGame> {
     // 窄螢幕（手機直式）放在棋盤上方。
     final Size sz = MediaQuery.of(context).size;
     final bool wide = sz.width >= sz.height;
-    final double maxBox = (wide
-            ? min(sz.width * 0.5, sz.height * 0.54)
-            : min(sz.width * 0.84, sz.height * 0.46))
-        .clamp(180.0, 460.0);
+    final double maxBox =
+        (wide
+                ? min(sz.width * 0.5, sz.height * 0.54)
+                : min(sz.width * 0.84, sz.height * 0.46))
+            .clamp(180.0, 460.0);
     final int longSide = max(_rows, _cols);
     final double cell = (maxBox - (longSide - 1) * 4) / longSide;
-    final double refLong =
-        (maxBox * (wide ? 0.62 : 0.36)).clamp(96.0, 240.0);
+    final double refLong = (maxBox * (wide ? 0.62 : 0.36)).clamp(96.0, 240.0);
     // 完成圖維持與棋盤相同長寬比。
     final double refW = _cols >= _rows ? refLong : refLong * _cols / _rows;
     final double refH = _rows >= _cols ? refLong : refLong * _rows / _cols;
@@ -214,12 +233,15 @@ class _JigsawGameState extends State<JigsawGame> {
     final Widget reference = Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text('完成圖',
-            style: TextStyle(
-                fontSize: context.s(18),
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF7C4DFF))),
-        const SizedBox(height: 10),
+        Text(
+          '完成圖',
+          style: TextStyle(
+            fontSize: context.s(18),
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF7C4DFF),
+          ),
+        ),
+        SizedBox(height: context.s(10)),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
@@ -246,7 +268,7 @@ class _JigsawGameState extends State<JigsawGame> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               reference,
-              const SizedBox(width: 40),
+              SizedBox(width: context.s(40)),
               _board(cell),
             ],
           )
@@ -254,7 +276,7 @@ class _JigsawGameState extends State<JigsawGame> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               reference,
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               _board(cell),
             ],
           );
@@ -263,8 +285,7 @@ class _JigsawGameState extends State<JigsawGame> {
       title: widget.title,
       current: _i,
       total: widget.rounds,
-      onReplay: () =>
-          AudioService.instance.speak('看看完成圖，把每一塊拼回正確的位置！'),
+      onReplay: () => AudioService.instance.speak('看看完成圖，把每一塊拼回正確的位置！'),
       child: Stack(
         children: <Widget>[
           Column(
@@ -272,26 +293,29 @@ class _JigsawGameState extends State<JigsawGame> {
               // 上半：完成圖（寬螢幕在左、窄螢幕在上）＋ 拼圖板
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(Sizes.gap),
+                  padding: EdgeInsets.all(context.s(Sizes.gap)),
                   child: Center(child: top),
                 ),
               ),
               const Divider(height: 1),
               // 下半：打散的碎片托盤
               SizedBox(
-                height: tray + Sizes.gap * 2,
+                height: tray + context.s(Sizes.gap) * 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(Sizes.gap),
+                  padding: EdgeInsets.all(context.s(Sizes.gap)),
                   child: Center(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: _tray
-                            .map((int idx) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6),
-                                  child: _draggablePiece(idx, tray),
-                                ))
+                            .map(
+                              (int idx) => Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.s(6),
+                                ),
+                                child: _draggablePiece(idx, tray),
+                              ),
+                            )
                             .toList(),
                       ),
                     ),

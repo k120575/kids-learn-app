@@ -49,8 +49,9 @@ class _CountTapGameState extends State<CountTapGame> {
     // 適性難度：簡單只出 5 以內、一般 10 以內、挑戰不設限。
     final int level = ProgressStore.instance.levelFor(widget.gameId);
     final int cap = level == 0 ? 5 : (level == 1 ? 10 : 1 << 30);
-    List<CountRound> pool =
-        widget.rounds.where((CountRound r) => r.count <= cap).toList();
+    List<CountRound> pool = widget.rounds
+        .where((CountRound r) => r.count <= cap)
+        .toList();
     if (pool.isEmpty) pool = List<CountRound>.of(widget.rounds);
     _rounds = pool..shuffle();
     final int? n = widget.pickCount;
@@ -126,18 +127,21 @@ class _CountTapGameState extends State<CountTapGame> {
         children: <Widget>[
           // 已數到幾
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(context.s(8)),
             child: Text(
               '${_tapped.length} / ${round.count}',
-              style: TextStyle(fontSize: context.s(30), fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: context.s(30),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(
             child: Center(
               child: SingleChildScrollView(
                 child: Wrap(
-                  spacing: Sizes.bigGap,
-                  runSpacing: Sizes.bigGap,
+                  spacing: context.s(Sizes.bigGap),
+                  runSpacing: context.s(Sizes.bigGap),
                   alignment: WrapAlignment.center,
                   children: List<Widget>.generate(round.count, (int idx) {
                     final bool done = _tapped.contains(idx);
@@ -151,12 +155,17 @@ class _CountTapGameState extends State<CountTapGame> {
                           children: <Widget>[
                             Opacity(
                               opacity: done ? 0.5 : 1.0,
-                              child: Text(round.emoji,
-                                  style: TextStyle(fontSize: context.s(76))),
+                              child: Text(
+                                round.emoji,
+                                style: TextStyle(fontSize: context.s(76)),
+                              ),
                             ),
                             if (done)
-                              Icon(Icons.check_circle_rounded,
-                                  color: const Color(0xFF4CAF50), size: context.s(40)),
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: const Color(0xFF4CAF50),
+                                size: context.s(40),
+                              ),
                           ],
                         ),
                       ),

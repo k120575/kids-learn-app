@@ -60,7 +60,9 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
     super.initState();
     // 適性難度：簡單 10、一般 20、挑戰 30（不超過題目設定上限的 1.5 倍）。
     final int level = ProgressStore.instance.levelFor(widget.gameId);
-    _maxValue = level == 0 ? 10 : (level == 1 ? widget.maxValue : widget.maxValue + 10);
+    _maxValue = level == 0
+        ? 10
+        : (level == 1 ? widget.maxValue : widget.maxValue + 10);
     _q = _gen();
     WidgetsBinding.instance.addPostFrameCallback((_) => _readQuestion());
   }
@@ -76,7 +78,8 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
   Future<void> _readQuestion() async {
     final AudioService a = AudioService.instance;
     await a.waitUntilVoiceIdle(); // 先讓關卡名稱念完，再開始念算式
-    if (mounted) setState(() => _lock = true); // 念題中先鎖住，避免題目還沒念完就作答
+    if (!mounted) return; // 等待時若已離開關卡，別再念題（避免退出後仍念到結束）
+    setState(() => _lock = true); // 念題中先鎖住，避免題目還沒念完就作答
     a.speak('${_q.a}');
     await Future<void>.delayed(const Duration(milliseconds: 850));
     if (!mounted) return;
@@ -87,7 +90,9 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
     await Future<void>.delayed(const Duration(milliseconds: 850));
     if (!mounted) return;
     a.speak('等於多少？');
-    await Future<void>.delayed(const Duration(milliseconds: 950)); // 留尾巴，等最後一句念完
+    await Future<void>.delayed(
+      const Duration(milliseconds: 950),
+    ); // 留尾巴，等最後一句念完
     if (mounted) setState(() => _lock = false); // 念完才開放作答
   }
 
@@ -133,8 +138,11 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
         });
         _readQuestion();
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -167,7 +175,7 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
       child: Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(Sizes.gap),
+            padding: EdgeInsets.all(context.s(Sizes.gap)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -178,20 +186,23 @@ class _ArithmeticGameState extends State<ArithmeticGame> {
                     '${_q.text} ?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: context.s(56), fontWeight: FontWeight.bold),
+                      fontSize: context.s(56),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const SizedBox(height: Sizes.bigGap),
+                SizedBox(height: context.s(Sizes.bigGap)),
                 // 念題中（_lock 但尚未答對）淡化選項，提示「先聽完」。
                 AnimatedOpacity(
                   opacity: (_lock && !_success) ? 0.4 : 1.0,
                   duration: const Duration(milliseconds: 200),
                   child: Wrap(
-                    spacing: Sizes.bigGap,
-                    runSpacing: Sizes.gap,
+                    spacing: context.s(Sizes.bigGap),
+                    runSpacing: context.s(Sizes.gap),
                     alignment: WrapAlignment.center,
-                    children:
-                        List<Widget>.generate(_q.options.length, (int idx) {
+                    children: List<Widget>.generate(_q.options.length, (
+                      int idx,
+                    ) {
                       final int v = _q.options[idx];
                       final bool win = _success && v == _q.answer;
                       return Shaker(
@@ -250,9 +261,13 @@ class _NumTile extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Text('$value',
-              style:
-                  TextStyle(fontSize: context.s(52), fontWeight: FontWeight.bold)),
+          child: Text(
+            '$value',
+            style: TextStyle(
+              fontSize: context.s(52),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );

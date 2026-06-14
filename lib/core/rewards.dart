@@ -40,8 +40,10 @@ GachaResult? drawGacha() {
 
 Toy _randomToy() {
   // 先依稀有度權重抽稀有度，再從該稀有度玩具中均勻抽一個。
-  final int total = ToyRarity.values
-      .fold<int>(0, (int a, ToyRarity r) => a + r.weight);
+  final int total = ToyRarity.values.fold<int>(
+    0,
+    (int a, ToyRarity r) => a + r.weight,
+  );
   int roll = _rng.nextInt(total);
   ToyRarity picked = ToyRarity.common;
   for (final ToyRarity r in ToyRarity.values) {
@@ -51,8 +53,7 @@ Toy _randomToy() {
     }
     roll -= r.weight;
   }
-  final List<Toy> pool =
-      toyPool.where((Toy t) => t.rarity == picked).toList();
+  final List<Toy> pool = toyPool.where((Toy t) => t.rarity == picked).toList();
   return pool[_rng.nextInt(pool.length)];
 }
 

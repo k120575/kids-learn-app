@@ -87,13 +87,15 @@ class ScreenTimeManager with WidgetsBindingObserver {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Penguin(size: c.s(84)),
-              const SizedBox(height: 10),
+              SizedBox(height: c.s(10)),
               Text(
                 '休息一下吧！',
                 style: TextStyle(
-                    fontSize: c.s(24), fontWeight: FontWeight.bold),
+                  fontSize: c.s(24),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: c.s(8)),
               Text(
                 '我們已經玩了 $minutes 分鐘了，\n讓眼睛休息一下，動一動身體好嗎？',
                 textAlign: TextAlign.center,

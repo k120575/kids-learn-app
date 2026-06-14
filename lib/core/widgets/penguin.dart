@@ -105,16 +105,28 @@ class _PenguinPainter extends CustomPainter {
       canvas.translate(cx + sign * s * 0.37, s * 0.5);
       canvas.rotate(sign * 0.55);
       canvas.drawRRect(
-          RRect.fromRectAndRadius(
-              Rect.fromCenter(center: Offset.zero, width: s * 0.22, height: s * 0.52),
-              Radius.circular(s * 0.11)),
-          p);
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: s * 0.22,
+            height: s * 0.52,
+          ),
+          Radius.circular(s * 0.11),
+        ),
+        p,
+      );
       canvas.restore();
     }
 
     // 深色身體（頭罩＋背）
     canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx, s * 0.54), width: s * 0.8, height: s * 0.9), p);
+      Rect.fromCenter(
+        center: Offset(cx, s * 0.54),
+        width: s * 0.8,
+        height: s * 0.9,
+      ),
+      p,
+    );
 
     // 呆毛
     final Path tuft = Path()
@@ -127,16 +139,34 @@ class _PenguinPainter extends CustomPainter {
     // 白色臉＋肚子：大肚子 + 兩個圓臉頰（重疊處在眼睛中間留出深色「尖頭罩」）
     p.color = _white;
     canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx, s * 0.66), width: s * 0.64, height: s * 0.62), p); // 肚子
+      Rect.fromCenter(
+        center: Offset(cx, s * 0.66),
+        width: s * 0.64,
+        height: s * 0.62,
+      ),
+      p,
+    ); // 肚子
     canvas.drawCircle(Offset(cx - s * 0.15, s * 0.42), s * 0.165, p); // 左臉
     canvas.drawCircle(Offset(cx + s * 0.15, s * 0.42), s * 0.165, p); // 右臉
 
     // 臉頰（粉）
     p.color = _cheek;
     canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx - s * 0.24, s * 0.5), width: s * 0.14, height: s * 0.1), p);
+      Rect.fromCenter(
+        center: Offset(cx - s * 0.24, s * 0.5),
+        width: s * 0.14,
+        height: s * 0.1,
+      ),
+      p,
+    );
     canvas.drawOval(
-        Rect.fromCenter(center: Offset(cx + s * 0.24, s * 0.5), width: s * 0.14, height: s * 0.1), p);
+      Rect.fromCenter(
+        center: Offset(cx + s * 0.24, s * 0.5),
+        width: s * 0.14,
+        height: s * 0.1,
+      ),
+      p,
+    );
 
     // 眼睛（大、亮、會眨；中間是深色尖罩）
     final double eyeY = s * 0.43;
@@ -145,7 +175,13 @@ class _PenguinPainter extends CustomPainter {
       final Offset ec = Offset(cx + sign * eyeDx, eyeY);
       p.color = _eye;
       canvas.drawOval(
-          Rect.fromCenter(center: ec, width: s * 0.18, height: s * 0.21 * eyeOpen), p);
+        Rect.fromCenter(
+          center: ec,
+          width: s * 0.18,
+          height: s * 0.21 * eyeOpen,
+        ),
+        p,
+      );
       if (eyeOpen > 0.6) {
         p.color = _white;
         canvas.drawCircle(ec.translate(s * 0.035, -s * 0.04), s * 0.034, p);

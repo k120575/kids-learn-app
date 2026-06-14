@@ -24,18 +24,22 @@ class CollectionScreen extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text('已收集 $owned / ${toyPool.length}',
-                    style: TextStyle(
-                        fontSize: context.s(20), fontWeight: FontWeight.bold)),
+                padding: EdgeInsets.all(context.s(12)),
+                child: Text(
+                  '已收集 $owned / ${toyPool.length}',
+                  style: TextStyle(
+                    fontSize: context.s(20),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               Expanded(
                 // 依可用寬度自動決定每排格數（每格上限 ~150），窄手機少排、寬平板多排。
                 child: GridView.extent(
                   maxCrossAxisExtent: context.s(150),
-                  padding: const EdgeInsets.all(Sizes.gap),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
+                  padding: EdgeInsets.all(context.s(Sizes.gap)),
+                  mainAxisSpacing: context.s(12),
+                  crossAxisSpacing: context.s(12),
                   children: toyPool.map((Toy t) {
                     final int count = store.toyCount(t.id);
                     final bool has = count > 0;
@@ -54,27 +58,39 @@ class CollectionScreen extends StatelessWidget {
                         children: <Widget>[
                           Center(
                             child: has
-                                ? Text(t.id, style: TextStyle(fontSize: context.s(44)))
-                                : Text('❓',
+                                ? Text(
+                                    t.id,
+                                    style: TextStyle(fontSize: context.s(44)),
+                                  )
+                                : Text(
+                                    '❓',
                                     style: TextStyle(
-                                        fontSize: context.s(40), color: const Color(0xFFBDBDBD))),
+                                      fontSize: context.s(40),
+                                      color: const Color(0xFFBDBDBD),
+                                    ),
+                                  ),
                           ),
                           if (count > 1)
                             Positioned(
-                              right: 4,
-                              bottom: 4,
+                              right: context.s(4),
+                              bottom: context.s(4),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 1),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.s(6),
+                                  vertical: context.s(1),
+                                ),
                                 decoration: BoxDecoration(
                                   color: t.rarity.color,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text('×$count',
-                                    style: TextStyle(
-                                        fontSize: context.s(12),
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold)),
+                                child: Text(
+                                  '×$count',
+                                  style: TextStyle(
+                                    fontSize: context.s(12),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -85,21 +101,30 @@ class CollectionScreen extends StatelessWidget {
               ),
               // 稀有度圖例
               Padding(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(context.s(10)),
                 child: Wrap(
-                  spacing: 16,
+                  spacing: context.s(16),
                   alignment: WrapAlignment.center,
                   children: ToyRarity.values.map((ToyRarity r) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Container(width: 14, height: 14,
-                            decoration: BoxDecoration(
-                                color: r.color, shape: BoxShape.circle)),
-                        const SizedBox(width: 4),
-                        Text(r.label,
-                            style: TextStyle(
-                                fontSize: context.s(14), color: const Color(0xFF666666))),
+                        Container(
+                          width: context.s(14),
+                          height: context.s(14),
+                          decoration: BoxDecoration(
+                            color: r.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: context.s(4)),
+                        Text(
+                          r.label,
+                          style: TextStyle(
+                            fontSize: context.s(14),
+                            color: const Color(0xFF666666),
+                          ),
+                        ),
                       ],
                     );
                   }).toList(),

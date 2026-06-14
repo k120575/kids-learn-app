@@ -57,18 +57,20 @@ class _GameListScreenState extends State<GameListScreen> {
                 // 內容短時置中、關卡多到超過可視高度時可往下捲（不用 Center 包
                 // SingleChildScrollView，否則超高會被裁切又捲不到）。
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.all(Sizes.gap),
+                  padding: EdgeInsets.all(context.s(Sizes.gap)),
                   child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: c.maxHeight - Sizes.gap * 2),
+                    constraints: BoxConstraints(
+                      minHeight: c.maxHeight - Sizes.gap * 2,
+                    ),
                     child: Center(
                       child: Wrap(
-                        spacing: Sizes.bigGap,
-                        runSpacing: Sizes.bigGap,
+                        spacing: context.s(Sizes.bigGap),
+                        runSpacing: context.s(Sizes.bigGap),
                         alignment: WrapAlignment.center,
                         children: games.map((GameDef g) {
-                          final int stars =
-                              ProgressStore.instance.starsFor(g.id);
+                          final int stars = ProgressStore.instance.starsFor(
+                            g.id,
+                          );
                           return BigCard(
                             emoji: g.emoji,
                             label: g.title,

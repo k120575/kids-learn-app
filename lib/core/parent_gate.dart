@@ -17,7 +17,8 @@ Future<bool> showParentGate(BuildContext context) async {
   // 產生 4 個選項（含正解），干擾項貼近正解但不重複。
   final Set<int> opts = <int>{answer};
   while (opts.length < 4) {
-    final int d = answer + (rng.nextInt(2) == 0 ? -1 : 1) * (1 + rng.nextInt(9));
+    final int d =
+        answer + (rng.nextInt(2) == 0 ? -1 : 1) * (1 + rng.nextInt(9));
     if (d > 0) opts.add(d);
   }
   final List<int> options = opts.toList()..shuffle(rng);
@@ -37,18 +38,22 @@ Future<bool> showParentGate(BuildContext context) async {
             Text(
               '小朋友請找爸爸媽媽幫忙',
               style: TextStyle(
-                  fontSize: context.s(15), color: const Color(0xFF888888)),
+                fontSize: context.s(15),
+                color: const Color(0xFF888888),
+              ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.s(8)),
             Text(
               '$a × $b = ?',
               style: TextStyle(
-                  fontSize: context.s(40), fontWeight: FontWeight.bold),
+                fontSize: context.s(40),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: Sizes.gap),
+            SizedBox(height: context.s(Sizes.gap)),
             Wrap(
-              spacing: Sizes.gap,
-              runSpacing: Sizes.gap,
+              spacing: context.s(Sizes.gap),
+              runSpacing: context.s(Sizes.gap),
               alignment: WrapAlignment.center,
               children: options.map((int o) {
                 return ElevatedButton(

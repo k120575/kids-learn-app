@@ -56,8 +56,7 @@ class _RhythmGameState extends State<RhythmGame> {
     for (int i = 0; i < widget.rounds; i++) {
       int b;
       do {
-        b = widget.minBeats +
-            _rng.nextInt(_maxBeats - widget.minBeats + 1);
+        b = widget.minBeats + _rng.nextInt(_maxBeats - widget.minBeats + 1);
       } while (b == prev && _maxBeats > widget.minBeats);
       _counts.add(b);
       prev = b;
@@ -97,8 +96,10 @@ class _RhythmGameState extends State<RhythmGame> {
       _lock = true;
     });
     // 依「實際語音長度」等到念完（+0.6s 緩衝）才示範，鼓聲不會疊到語音。
-    await AudioService.instance.speakForDuration('聽聽看，這樣拍',
-        extra: const Duration(milliseconds: 600));
+    await AudioService.instance.speakForDuration(
+      '聽聽看，這樣拍',
+      extra: const Duration(milliseconds: 600),
+    );
     if (!mounted) return;
     for (int b = 0; b < _beats; b++) {
       if (!mounted) return;
@@ -166,9 +167,12 @@ class _RhythmGameState extends State<RhythmGame> {
           // （不顯示拍數，避免直接洩漏答案；靠耳朵聽示範）
           Text(
             _demo ? '仔細聽…' : '換你拍！',
-            style: TextStyle(fontSize: context.s(24), fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: context.s(24),
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: Sizes.bigGap),
+          SizedBox(height: context.s(Sizes.bigGap)),
           GestureDetector(
             onTap: _tapDrum,
             child: AnimatedScale(

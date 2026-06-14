@@ -39,12 +39,33 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
   // emoji → 名稱：記憶階段會逐一「念出」每個物件，替孩子做語音標記
   // （3-4 歲不會自己默念，幫他命名能大幅提升記得住的機率）。
   static const Map<String, String> _names = <String, String>{
-    '🐶': '小狗', '🐱': '小貓', '🐰': '兔子', '🐸': '青蛙', '🐵': '猴子',
-    '🐧': '企鵝', '🦊': '狐狸', '🐯': '老虎', '🦁': '獅子', '🐮': '牛',
-    '🍎': '蘋果', '🍌': '香蕉', '🍓': '草莓', '🍇': '葡萄', '🚗': '汽車',
-    '🚀': '火箭', '⚽': '足球', '🎈': '氣球', '🌈': '彩虹', '⭐': '星星',
-    '🌸': '花', '🍦': '冰淇淋', '🎁': '禮物', '🦋': '蝴蝶', '🐟': '魚',
-    '🍉': '西瓜', '🐝': '蜜蜂',
+    '🐶': '小狗',
+    '🐱': '小貓',
+    '🐰': '兔子',
+    '🐸': '青蛙',
+    '🐵': '猴子',
+    '🐧': '企鵝',
+    '🦊': '狐狸',
+    '🐯': '老虎',
+    '🦁': '獅子',
+    '🐮': '牛',
+    '🍎': '蘋果',
+    '🍌': '香蕉',
+    '🍓': '草莓',
+    '🍇': '葡萄',
+    '🚗': '汽車',
+    '🚀': '火箭',
+    '⚽': '足球',
+    '🎈': '氣球',
+    '🌈': '彩虹',
+    '⭐': '星星',
+    '🌸': '花',
+    '🍦': '冰淇淋',
+    '🎁': '禮物',
+    '🦋': '蝴蝶',
+    '🐟': '魚',
+    '🍉': '西瓜',
+    '🐝': '蜜蜂',
   };
   static final List<String> _pool = _names.keys.toList();
 
@@ -123,8 +144,11 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
     // 先等關卡名稱念完，再用「會等實際音檔播完」的方式念開場句，最後才開始逐一命名。
     // 不能用固定延遲猜長度——開場句較長時會被第一個物件的 speak() 切掉尾字。
     await AudioService.instance.waitUntilVoiceIdle();
-    await AudioService.instance.speakForDuration('看清楚，記住它們！',
-        extra: const Duration(milliseconds: 300));
+    if (!mounted) return; // 等待時若已離開關卡，別再念（避免退出後仍念到結束）
+    await AudioService.instance.speakForDuration(
+      '看清楚，記住它們！',
+      extra: const Duration(milliseconds: 300),
+    );
     if (!mounted) return;
     // 逐一高亮並念出每個物件——替孩子做語音標記，同時自然拉長觀看時間。
     for (int i = 0; i < _items.length; i++) {
@@ -165,8 +189,11 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
         });
         _runRound();
       } else {
-        final bool again =
-            await finishGame(context, widget.gameId, mistakes: _mistakes);
+        final bool again = await finishGame(
+          context,
+          widget.gameId,
+          mistakes: _mistakes,
+        );
         if (!mounted) return;
         if (again) {
           setState(() {
@@ -201,59 +228,71 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-              // 場上這排圖案。
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children:
-                      List<Widget>.generate(_items.length, (int idx) {
-                    return _Slot(
-                      missing: _phase == _Phase.ask && idx == _missingIdx,
-                      naming: _phase == _Phase.memorize && idx == _nameIdx,
-                      // 記憶階段全部亮出；蓋牌階段全部蓋住；
-                      // 出題階段除了「消失的那格」其餘亮出。
-                      child: switch (_phase) {
-                        _Phase.memorize => Text(_items[idx],
-                            style: TextStyle(fontSize: context.s(52))),
-                        _Phase.hide => Text('🟦',
-                            style: TextStyle(fontSize: context.s(52))),
-                        _Phase.ask => idx == _missingIdx
-                            ? Text('❓', style: TextStyle(fontSize: context.s(46)))
-                            : Text(_items[idx],
-                                style: TextStyle(fontSize: context.s(52))),
-                      },
-                    );
-                  }),
-                ),
-              ),
-              SizedBox(height: context.s(24)),
-              // 出題階段才顯示選項。
-              if (_phase == _Phase.ask)
-                Wrap(
-                  spacing: Sizes.bigGap,
-                  runSpacing: Sizes.gap,
-                  alignment: WrapAlignment.center,
-                  children: List<Widget>.generate(_options.length, (int idx) {
-                    final bool win = _success && idx == _correct;
-                    return Shaker(
-                      trigger: _wrong[idx] ?? 0,
-                      child: _Option(
-                        emoji: _options[idx],
-                        highlight: win,
-                        onTap: () => _onTap(idx),
+                  // 場上這排圖案。
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List<Widget>.generate(_items.length, (int idx) {
+                        return _Slot(
+                          missing: _phase == _Phase.ask && idx == _missingIdx,
+                          naming: _phase == _Phase.memorize && idx == _nameIdx,
+                          // 記憶階段全部亮出；蓋牌階段全部蓋住；
+                          // 出題階段除了「消失的那格」其餘亮出。
+                          child: switch (_phase) {
+                            _Phase.memorize => Text(
+                              _items[idx],
+                              style: TextStyle(fontSize: context.s(52)),
+                            ),
+                            _Phase.hide => Text(
+                              '🟦',
+                              style: TextStyle(fontSize: context.s(52)),
+                            ),
+                            _Phase.ask =>
+                              idx == _missingIdx
+                                  ? Text(
+                                      '❓',
+                                      style: TextStyle(fontSize: context.s(46)),
+                                    )
+                                  : Text(
+                                      _items[idx],
+                                      style: TextStyle(fontSize: context.s(52)),
+                                    ),
+                          },
+                        );
+                      }),
+                    ),
+                  ),
+                  SizedBox(height: context.s(24)),
+                  // 出題階段才顯示選項。
+                  if (_phase == _Phase.ask)
+                    Wrap(
+                      spacing: context.s(Sizes.bigGap),
+                      runSpacing: context.s(Sizes.gap),
+                      alignment: WrapAlignment.center,
+                      children: List<Widget>.generate(_options.length, (
+                        int idx,
+                      ) {
+                        final bool win = _success && idx == _correct;
+                        return Shaker(
+                          trigger: _wrong[idx] ?? 0,
+                          child: _Option(
+                            emoji: _options[idx],
+                            highlight: win,
+                            onTap: () => _onTap(idx),
+                          ),
+                        );
+                      }),
+                    )
+                  else
+                    Text(
+                      _phase == _Phase.memorize ? '看清楚喔…' : '',
+                      style: TextStyle(
+                        fontSize: context.s(22),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF888888),
                       ),
-                    );
-                  }),
-                )
-              else
-                Text(
-                  _phase == _Phase.memorize ? '看清楚喔…' : '',
-                  style: TextStyle(
-                      fontSize: context.s(22),
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF888888)),
-                ),
+                    ),
                 ],
               ),
             ),
@@ -287,14 +326,11 @@ class _Slot extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         width: context.s(78),
         height: context.s(78),
-        margin: const EdgeInsets.all(5),
+        margin: EdgeInsets.all(context.s(5)),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: border,
-            width: (naming || missing) ? 4 : 3,
-          ),
+          border: Border.all(color: border, width: (naming || missing) ? 4 : 3),
         ),
         child: Center(child: child),
       ),

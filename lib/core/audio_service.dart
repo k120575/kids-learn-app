@@ -50,6 +50,12 @@ class AudioService with WidgetsBindingObserver {
   /// 壓低時的音量倍率（相對使用者設定的背景音量）。
   static const double _duckFactor = 0.25;
 
+  /// 「離開關卡」計數：每次 stop() +1。用來讓「等待後才出聲」的流程（如
+  /// speakAfterVoice）自我取消——若在 await 期間發生過 stop()（玩家退出關卡），
+  /// 喚醒後比對 epoch 不同就不再出聲，避免「退出後語音仍念到結束」。
+  /// 用整數比較而非 Timer/旗標，純同步、測試安全（不會留 pending timer）。
+  int _stopEpoch = 0;
+
   Future<void> init() async {
     try {
       // audio context：所有播放器「混音、互不搶焦點」。
@@ -57,16 +63,16 @@ class AudioService with WidgetsBindingObserver {
       // 把背景音樂暫停掉 → 改用 mixWithOthers（Android focus none）由我們自己用
       // 音量做 ducking。必須「逐一」設定（這些播放器在 setAudioContext 前就建立，
       // 不會自動套用全域設定）。
-      final AudioContext ctx =
-          AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers)
-              .build();
+      final AudioContext ctx = AudioContextConfig(
+        focus: AudioContextConfigFocus.mixWithOthers,
+      ).build();
       await AudioPlayer.global.setAudioContext(ctx);
       for (final AudioPlayer pl in <AudioPlayer>[
         _voice,
         _sfx,
         _beat,
         _cheer,
-        _bgm
+        _bgm,
       ]) {
         await pl.setAudioContext(ctx);
       }
@@ -123,7 +129,7 @@ class AudioService with WidgetsBindingObserver {
           _voice,
           _sfx,
           _beat,
-          _cheer
+          _cheer,
         ]) {
           pl.stop().catchError((Object _) {});
         }
@@ -148,10 +154,7 @@ class AudioService with WidgetsBindingObserver {
     if (!ProgressStore.instance.musicEnabled) return;
     try {
       await _bgm.setReleaseMode(ReleaseMode.loop);
-      await _bgm.play(
-        AssetSource('music/bgm.mp3'),
-        volume: _targetBgmVolume(),
-      );
+      await _bgm.play(AssetSource('music/bgm.mp3'), volume: _targetBgmVolume());
       _bgmPlaying = true;
     } catch (_) {
       _bgmPlaying = false; // 缺檔：保持安靜，不影響其他功能
@@ -238,8 +241,9 @@ class AudioService with WidgetsBindingObserver {
 
   /// 等目前的語音（speak，例如剛進關卡時念的關卡名稱）播完才返回；
   /// 逾時保護避免卡住。用來確保題目/音效不會蓋過關卡名稱或上一句提示。
-  Future<void> waitUntilVoiceIdle(
-      {Duration timeout = const Duration(seconds: 5)}) async {
+  Future<void> waitUntilVoiceIdle({
+    Duration timeout = const Duration(seconds: 5),
+  }) async {
     final Completer<void>? gate = _voiceGate;
     if (gate == null || gate.isCompleted) return;
     try {
@@ -250,12 +254,15 @@ class AudioService with WidgetsBindingObserver {
   /// 念一段話，但先等目前的語音（通常是進場時念的關卡名稱）播完再念，
   /// 避免第一句題目/提示蓋掉關卡名稱。用於每個遊戲「進場後的第一句」。
   Future<void> speakAfterVoice(String text) async {
+    final int epoch = _stopEpoch;
     await waitUntilVoiceIdle();
+    if (epoch != _stopEpoch) return; // 等待期間玩家已離開關卡 → 不再念
     await speak(text);
   }
 
   Future<void> stop() async {
     _closeVoiceGate(); // 被打斷時也要放掉等待者，避免卡住
+    _stopEpoch++; // 標記「離開」：等待後才出聲的流程喚醒後會比對而自我取消
     for (final AudioPlayer pl in <AudioPlayer>[_voice, _sfx, _beat, _cheer]) {
       try {
         await pl.stop();
@@ -278,8 +285,10 @@ class AudioService with WidgetsBindingObserver {
     try {
       await _voice.stop();
       await _voice.play(AssetSource('voice/$key.mp3'));
-      await _voice.onPlayerComplete.first
-          .timeout(const Duration(seconds: 3), onTimeout: () {});
+      await _voice.onPlayerComplete.first.timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {},
+      );
     } catch (_) {
       _closeVoiceGate();
     }
@@ -287,8 +296,10 @@ class AudioService with WidgetsBindingObserver {
 
   /// 念一段話，並等「實際音檔長度 + [extra]」才返回（用 getDuration 取得真實長度，
   /// 不靠不可靠的完成事件）。節奏示範用：確保語音念完再敲鼓、不疊聲。
-  Future<void> speakForDuration(String text,
-      {Duration extra = const Duration(milliseconds: 500)}) async {
+  Future<void> speakForDuration(
+    String text, {
+    Duration extra = const Duration(milliseconds: 500),
+  }) async {
     if (!_enabled || text.isEmpty) {
       await Future<void>.delayed(const Duration(milliseconds: 800));
       return;
@@ -306,7 +317,8 @@ class AudioService with WidgetsBindingObserver {
       await _voice.resume();
       // 取不到長度時用保守的 2.8s 後備（最長提示語約 2.7s），避免鼓聲疊到語音。
       await Future<void>.delayed(
-          (d ?? const Duration(milliseconds: 2800)) + extra);
+        (d ?? const Duration(milliseconds: 2800)) + extra,
+      );
     } catch (_) {
       _closeVoiceGate();
       await Future<void>.delayed(const Duration(milliseconds: 2800));
@@ -343,8 +355,9 @@ class AudioService with WidgetsBindingObserver {
       final Duration? d = await _sfx.getDuration();
       await _sfx.resume();
       await Future<void>.delayed(
-          (d ?? const Duration(milliseconds: 1500)) +
-              const Duration(milliseconds: 300));
+        (d ?? const Duration(milliseconds: 1500)) +
+            const Duration(milliseconds: 300),
+      );
       return true;
     } catch (_) {
       return false;

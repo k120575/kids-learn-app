@@ -26,8 +26,14 @@ const Color _orange = Color(0xFFFF7043);
     (ShapeKind.triangle, 'triangle'),
     (ShapeKind.star, 'star'),
   ]..shuffle(rng);
-  final List<Color> palette = <Color>[_blue, _orange, _green, _yellow, _purple, _red]
-    ..shuffle(rng);
+  final List<Color> palette = <Color>[
+    _blue,
+    _orange,
+    _green,
+    _yellow,
+    _purple,
+    _red,
+  ]..shuffle(rng);
   final List<DropSlot> slots = <DropSlot>[];
   final List<DragPiece> pieces = <DragPiece>[];
   final List<(ShapeKind, String)> chosen = shapes.take(hard ? 5 : 4).toList();
@@ -39,7 +45,9 @@ const Color _orange = Color(0xFFFF7043);
     final Color slotColor = palette[i % palette.length];
     final Color pieceColor = hard ? palette[(i + shift) % n] : slotColor;
     slots.add(DropSlot(category: s.$2, shape: s.$1, color: slotColor));
-    pieces.add(DragPiece(id: s.$2, category: s.$2, shape: s.$1, color: pieceColor));
+    pieces.add(
+      DragPiece(id: s.$2, category: s.$2, shape: s.$1, color: pieceColor),
+    );
   }
   return (pieces, slots);
 }
@@ -60,27 +68,65 @@ const Color _orange = Color(0xFFFF7043);
   ];
   const List<List<ShapeKind>> hardFigures = <List<ShapeKind>>[
     // 火箭：星＋圓＋三角＋方
-    <ShapeKind>[ShapeKind.star, ShapeKind.circle, ShapeKind.triangle, ShapeKind.square],
+    <ShapeKind>[
+      ShapeKind.star,
+      ShapeKind.circle,
+      ShapeKind.triangle,
+      ShapeKind.square,
+    ],
     // 大樹：三層三角＋樹幹方
-    <ShapeKind>[ShapeKind.triangle, ShapeKind.triangle, ShapeKind.triangle, ShapeKind.square],
+    <ShapeKind>[
+      ShapeKind.triangle,
+      ShapeKind.triangle,
+      ShapeKind.triangle,
+      ShapeKind.square,
+    ],
     // 城堡：星＋方＋三角＋方
-    <ShapeKind>[ShapeKind.star, ShapeKind.square, ShapeKind.triangle, ShapeKind.square],
+    <ShapeKind>[
+      ShapeKind.star,
+      ShapeKind.square,
+      ShapeKind.triangle,
+      ShapeKind.square,
+    ],
     // 機器人：方＋圓＋方＋橢圓
-    <ShapeKind>[ShapeKind.square, ShapeKind.circle, ShapeKind.square, ShapeKind.oval],
+    <ShapeKind>[
+      ShapeKind.square,
+      ShapeKind.circle,
+      ShapeKind.square,
+      ShapeKind.oval,
+    ],
     // 高塔：星＋三角＋方＋方＋方
-    <ShapeKind>[ShapeKind.star, ShapeKind.triangle, ShapeKind.square, ShapeKind.square, ShapeKind.square],
+    <ShapeKind>[
+      ShapeKind.star,
+      ShapeKind.triangle,
+      ShapeKind.square,
+      ShapeKind.square,
+      ShapeKind.square,
+    ],
   ];
   final List<List<ShapeKind>> pool = hard ? hardFigures : figures;
   final List<ShapeKind> fig = pool[rng.nextInt(pool.length)];
-  final List<Color> palette = <Color>[_red, _yellow, _green, _blue, _orange, _purple]
-    ..shuffle(rng);
+  final List<Color> palette = <Color>[
+    _red,
+    _yellow,
+    _green,
+    _blue,
+    _orange,
+    _purple,
+  ]..shuffle(rng);
   final List<DropSlot> slots = <DropSlot>[];
   final List<DragPiece> pieces = <DragPiece>[];
   for (int i = 0; i < fig.length; i++) {
     final String cat = 'p$i';
     final Color color = palette[i % palette.length];
-    slots.add(DropSlot(
-        category: cat, shape: fig[i], color: color, at: Alignment.center));
+    slots.add(
+      DropSlot(
+        category: cat,
+        shape: fig[i],
+        color: color,
+        at: Alignment.center,
+      ),
+    );
     pieces.add(DragPiece(id: cat, category: cat, shape: fig[i], color: color));
   }
   return (pieces, slots);

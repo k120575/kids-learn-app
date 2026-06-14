@@ -5,11 +5,7 @@ import 'package:flutter/material.dart';
 /// 首頁標題「寶貝學習樂園」：蓬鬆白雲包裹 + 圓胖字型、每字不同粉彩色、
 /// 故意像蠟筆塗鴉一樣斜斜的。
 class CloudTitle extends StatelessWidget {
-  const CloudTitle({
-    super.key,
-    this.text = '寶貝學習樂園',
-    this.fontSize = 32,
-  });
+  const CloudTitle({super.key, this.text = '寶貝學習樂園', this.fontSize = 32});
 
   final String text;
   final double fontSize;
@@ -31,22 +27,24 @@ class CloudTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Widget> chars = <Widget>[];
     for (int i = 0; i < text.length; i++) {
-      chars.add(Transform.rotate(
-        angle: _tilt[i % _tilt.length] * math.pi / 180,
-        child: Text(
-          text[i],
-          textHeightBehavior: const TextHeightBehavior(
-            applyHeightToFirstAscent: false,
-            applyHeightToLastDescent: false,
-          ),
-          style: TextStyle(
-            fontFamily: 'TitleFont',
-            fontSize: fontSize,
-            color: _palette[i % _palette.length],
-            height: 1.0,
+      chars.add(
+        Transform.rotate(
+          angle: _tilt[i % _tilt.length] * math.pi / 180,
+          child: Text(
+            text[i],
+            textHeightBehavior: const TextHeightBehavior(
+              applyHeightToFirstAscent: false,
+              applyHeightToLastDescent: false,
+            ),
+            style: TextStyle(
+              fontFamily: 'TitleFont',
+              fontSize: fontSize,
+              color: _palette[i % _palette.length],
+              height: 1.0,
+            ),
           ),
         ),
-      ));
+      );
       if (i != text.length - 1) {
         chars.add(SizedBox(width: fontSize * 0.06));
       }
@@ -55,9 +53,7 @@ class CloudTitle extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
-        Positioned.fill(
-          child: CustomPaint(painter: _CloudPainter()),
-        ),
+        Positioned.fill(child: CustomPaint(painter: _CloudPainter())),
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: fontSize * 0.8,
@@ -89,11 +85,13 @@ class BrandTitle extends StatelessWidget {
     for (int i = 0; i < text.length; i++) {
       // 不逐字傾斜：頂列小標題擺正才整齊。傾斜（像首頁那樣）在大字 + 白雲框住時
       // 才耐看，縮到小字又沒雲，逐字斜會像剪貼字條一樣雜亂。
-      chars.add(_OutlinedChar(
-        char: text[i],
-        fontSize: fontSize,
-        color: CloudTitle._palette[i % CloudTitle._palette.length],
-      ));
+      chars.add(
+        _OutlinedChar(
+          char: text[i],
+          fontSize: fontSize,
+          color: CloudTitle._palette[i % CloudTitle._palette.length],
+        ),
+      );
       if (i != text.length - 1) {
         chars.add(SizedBox(width: fontSize * 0.06));
       }
@@ -106,7 +104,7 @@ class BrandTitle extends StatelessWidget {
   }
 }
 
-/// 單字：深色描邊層（背）+ 粉彩填色層（前），確保任何背景都有對比。
+/// 單字：粉彩填色 + 深色硬描邊（8 向硬陰影），確保任何背景都有對比、且渲染穩定。
 class _OutlinedChar extends StatelessWidget {
   const _OutlinedChar({
     required this.char,
@@ -122,45 +120,34 @@ class _OutlinedChar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const TextHeightBehavior thb = TextHeightBehavior(
-      applyHeightToFirstAscent: false,
-      applyHeightToLastDescent: false,
-    );
-    return Stack(
-      children: <Widget>[
-        // 描邊層（沿輪廓加粗，當作外框）
-        Text(
-          char,
-          textHeightBehavior: thb,
-          style: TextStyle(
-            fontFamily: 'TitleFontM',
-            fontSize: fontSize,
-            height: 1.0,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              // 小字級用 Medium 字重 + 極細邊框（0.04）：只負責跟背景分離，
-              // 不能再粗，否則密筆畫字內部會糊。對比主要靠下方陰影。
-              ..strokeWidth = fontSize * 0.04
-              ..strokeJoin = StrokeJoin.round
-              ..color = _stroke,
-          ),
-        ),
-        // 填色層（粉彩 + 柔和陰影，讓字更立體、淺底上更分明）
-        Text(
-          char,
-          textHeightBehavior: thb,
-          style: TextStyle(
-            fontFamily: 'TitleFontM',
-            fontSize: fontSize,
-            height: 1.0,
-            color: color,
-            shadows: const <Shadow>[
-              // 細邊框 + 這層較實的陰影一起撐住對比，淺色背景上也不融入。
-              Shadow(color: Color(0x80000000), blurRadius: 3, offset: Offset(0, 1.5)),
-            ],
-          ),
-        ),
-      ],
+    // 描邊改用「單一 Text + 8 向硬陰影(blurRadius 0)」疊出，取代舊的「描邊層+填色層
+    // 兩個 Text 疊 Stack」做法。原做法理論上兩層該完全重合，但 Impeller（Android
+    // 模擬器/部分裝置）算帶模糊的陰影/stroke 時會把某一層算歪、且有快取競態 → 描邊
+    // 與填色「時好時壞地錯開」。單一 Text 不可能讓填色與描邊分離；blurRadius=0 的硬
+    // 陰影也不觸發那條模糊路徑，渲染穩定。
+    final double w = fontSize * 0.05; // 描邊粗細＝硬陰影位移量
+    return Text(
+      char,
+      textHeightBehavior: const TextHeightBehavior(
+        applyHeightToFirstAscent: false,
+        applyHeightToLastDescent: false,
+      ),
+      style: TextStyle(
+        fontFamily: 'TitleFontM',
+        fontSize: fontSize,
+        height: 1.0,
+        color: color,
+        shadows: <Shadow>[
+          Shadow(color: _stroke, offset: Offset(-w, 0)),
+          Shadow(color: _stroke, offset: Offset(w, 0)),
+          Shadow(color: _stroke, offset: Offset(0, -w)),
+          Shadow(color: _stroke, offset: Offset(0, w)),
+          Shadow(color: _stroke, offset: Offset(-w, -w)),
+          Shadow(color: _stroke, offset: Offset(w, -w)),
+          Shadow(color: _stroke, offset: Offset(-w, w)),
+          Shadow(color: _stroke, offset: Offset(w, w)),
+        ],
+      ),
     );
   }
 }
@@ -186,17 +173,18 @@ class _CloudPainter extends CustomPainter {
 
     // 用 Path 聯集所有圓 + 中央橢圓，畫出單一柔和雲朵輪廓。
     final Path cloud = Path();
-    cloud.addOval(Rect.fromCenter(
-      center: Offset(w / 2, h / 2),
-      width: w * 0.92,
-      height: h * 0.64,
-    ));
+    cloud.addOval(
+      Rect.fromCenter(
+        center: Offset(w / 2, h / 2),
+        width: w * 0.92,
+        height: h * 0.64,
+      ),
+    );
     for (final List<double> b in _bumps) {
       final double r = h * b[2];
-      cloud.addOval(Rect.fromCircle(
-        center: Offset(w * b[0], h * b[1]),
-        radius: r,
-      ));
+      cloud.addOval(
+        Rect.fromCircle(center: Offset(w * b[0], h * b[1]), radius: r),
+      );
     }
 
     // 柔和陰影（drawShadow 在各平台與影像擷取下都穩定）。

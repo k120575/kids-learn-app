@@ -27,38 +27,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: ListView(
-            padding: const EdgeInsets.all(Sizes.bigGap),
+            padding: EdgeInsets.all(context.s(Sizes.bigGap)),
             children: <Widget>[
               Card(
                 child: ListTile(
-                  leading: Icon(Icons.star_rounded,
-                      color: const Color(0xFFFFC107), size: context.s(32)),
-                  title: Text('累積星星', style: TextStyle(fontSize: context.s(20))),
+                  leading: Icon(
+                    Icons.star_rounded,
+                    color: const Color(0xFFFFC107),
+                    size: context.s(32),
+                  ),
+                  title: Text(
+                    '累積星星',
+                    style: TextStyle(fontSize: context.s(20)),
+                  ),
                   trailing: Text(
                     '${_store.totalStars()} ⭐',
                     style: TextStyle(
-                        fontSize: context.s(22), fontWeight: FontWeight.bold),
+                      fontSize: context.s(22),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: SwitchListTile(
                   secondary: Icon(Icons.volume_up_rounded, size: context.s(32)),
-                  title: Text('聲音（語音／音效）',
-                      style: TextStyle(fontSize: context.s(20))),
+                  title: Text(
+                    '聲音（語音／音效）',
+                    style: TextStyle(fontSize: context.s(20)),
+                  ),
                   value: _store.soundEnabled,
                   onChanged: (bool v) =>
                       setState(() => _store.soundEnabled = v),
                 ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: Column(
                   children: <Widget>[
                     SwitchListTile(
-                      secondary: Icon(Icons.music_note_rounded, size: context.s(32)),
-                      title: Text('背景音樂', style: TextStyle(fontSize: context.s(20))),
+                      secondary: Icon(
+                        Icons.music_note_rounded,
+                        size: context.s(32),
+                      ),
+                      title: Text(
+                        '背景音樂',
+                        style: TextStyle(fontSize: context.s(20)),
+                      ),
                       value: _store.musicEnabled,
                       onChanged: (bool v) {
                         setState(() => _store.musicEnabled = v);
@@ -67,11 +83,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     if (_store.musicEnabled)
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        padding: EdgeInsets.fromLTRB(
+                          context.s(16),
+                          context.s(0),
+                          context.s(16),
+                          context.s(12),
+                        ),
                         child: Row(
                           children: <Widget>[
-                            const Icon(Icons.volume_down_rounded,
-                                color: Color(0xFF90A4AE)),
+                            const Icon(
+                              Icons.volume_down_rounded,
+                              color: Color(0xFF90A4AE),
+                            ),
                             Expanded(
                               child: Slider(
                                 value: _store.musicVolume,
@@ -83,67 +106,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 },
                               ),
                             ),
-                            const Icon(Icons.volume_up_rounded,
-                                color: Color(0xFF90A4AE)),
+                            const Icon(
+                              Icons.volume_up_rounded,
+                              color: Color(0xFF90A4AE),
+                            ),
                           ],
                         ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: ListTile(
-                  leading: Icon(Icons.insights_rounded,
-                      size: context.s(32), color: const Color(0xFF42A5F5)),
-                  title: Text('學習報告', style: TextStyle(fontSize: context.s(20))),
+                  leading: Icon(
+                    Icons.insights_rounded,
+                    size: context.s(32),
+                    color: const Color(0xFF42A5F5),
+                  ),
+                  title: Text(
+                    '學習報告',
+                    style: TextStyle(fontSize: context.s(20)),
+                  ),
                   subtitle: const Text('使用時間、各遊戲表現與常錯處'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
-                        builder: (_) => const DashboardScreen()),
+                      builder: (_) => const DashboardScreen(),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: ListTile(
-                  leading: Icon(Icons.people_rounded,
-                      size: context.s(32), color: const Color(0xFF66BB6A)),
-                  title: Text('孩子檔案', style: TextStyle(fontSize: context.s(20))),
-                  subtitle: Text('目前：${_store.activeProfile.emoji} '
-                      '${_store.activeProfile.name}'),
+                  leading: Icon(
+                    Icons.people_rounded,
+                    size: context.s(32),
+                    color: const Color(0xFF66BB6A),
+                  ),
+                  title: Text(
+                    '孩子檔案',
+                    style: TextStyle(fontSize: context.s(20)),
+                  ),
+                  subtitle: Text(
+                    '目前：${_store.activeProfile.emoji} '
+                    '${_store.activeProfile.name}',
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () async {
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                          builder: (_) => const ProfilesScreen()),
+                        builder: (_) => const ProfilesScreen(),
+                      ),
                     );
                     if (mounted) setState(() {});
                   },
                 ),
               ),
-              const SizedBox(height: Sizes.gap),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(context.s(16)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
                           Icon(Icons.timer_rounded, size: context.s(32)),
-                          const SizedBox(width: 12),
+                          SizedBox(width: context.s(12)),
                           Expanded(
-                            child: Text('休息提醒（分鐘）',
-                                style: TextStyle(fontSize: context.s(20))),
+                            child: Text(
+                              '休息提醒（分鐘）',
+                              style: TextStyle(fontSize: context.s(20)),
+                            ),
                           ),
                           Text(
                             _store.screenTimeMinutes == 0
                                 ? '關閉'
                                 : '${_store.screenTimeMinutes} 分',
                             style: TextStyle(
-                                fontSize: context.s(20), fontWeight: FontWeight.bold),
+                              fontSize: context.s(20),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -156,21 +201,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ? '關閉'
                             : '${_store.screenTimeMinutes} 分',
                         onChanged: (double v) => setState(
-                            () => _store.screenTimeMinutes = v.round()),
+                          () => _store.screenTimeMinutes = v.round(),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: Sizes.bigGap),
+              SizedBox(height: context.s(Sizes.bigGap)),
               OutlinedButton.icon(
                 onPressed: _confirmClear,
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(60),
+                  minimumSize: Size.fromHeight(context.s(60)),
                   foregroundColor: Colors.red,
                 ),
                 icon: const Icon(Icons.delete_outline_rounded),
-                label: Text('清除所有進度', style: TextStyle(fontSize: context.s(18))),
+                label: Text(
+                  '清除所有進度',
+                  style: TextStyle(fontSize: context.s(18)),
+                ),
               ),
             ],
           ),
