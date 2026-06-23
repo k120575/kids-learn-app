@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../content/access_policy.dart';
 import '../content/registry.dart';
 import '../core/audio_service.dart';
+import '../core/parent_gate.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
@@ -11,6 +13,7 @@ import '../core/widgets/theme_background.dart';
 import '../models/age_band.dart';
 import '../models/domain.dart';
 import '../models/game_def.dart';
+import 'paywall_screen.dart';
 
 /// 某（年齡段 × 領域）下的遊戲清單。資料來自 [gameRegistry]。
 class GameListScreen extends StatefulWidget {
@@ -94,22 +97,42 @@ class _GameListScreenState extends State<GameListScreen> {
       alignment: WrapAlignment.center,
       children: games.map((GameDef g) {
         final int stars = ProgressStore.instance.starsFor(g.id);
+        final bool locked = !AccessPolicy.isUnlocked(g, widget.band);
         return BigCard(
           emoji: g.emoji,
           label: g.title,
           color: widget.domain.color,
           size: cardSize,
           solid: true,
-          badge: stars > 0 ? StarsRow(count: stars) : null,
-          onTap: () async {
-            AudioService.instance.speak(g.title);
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: g.builder),
-            );
-            if (mounted) setState(() {}); // 回來刷新星星
-          },
+          dimmed: locked,
+          badge: locked
+              ? const Text('🔒', style: TextStyle(fontSize: 22))
+              : (stars > 0 ? StarsRow(count: stars) : null),
+          onTap: () =>
+              locked ? _onLockedTap(g) : _openGame(g),
         );
       }).toList(),
     );
+  }
+
+  Future<void> _openGame(GameDef g) async {
+    AudioService.instance.speak(g.title);
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: g.builder),
+    );
+    if (mounted) setState(() {}); // 回來刷新星星
+  }
+
+  /// 鎖住的關卡：給點觸感 → 家長鎖 → 通過才帶到付費牆。孩子單點不會誤入購買。
+  // TODO(billing): 可加一句「請爸爸媽媽幫你解鎖喔」語音；需先在 gen_voice.py
+  //   登錄該台詞並重烤，否則 speak() 對未烤台詞會靜音（見 docs/PLAN_billing_sync.md）。
+  Future<void> _onLockedTap(GameDef g) async {
+    AudioService.instance.tap();
+    final bool pass = await showParentGate(context);
+    if (!mounted || !pass) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const PaywallScreen()),
+    );
+    if (mounted) setState(() {}); // 購買後回來解除鎖定
   }
 }

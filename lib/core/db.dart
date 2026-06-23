@@ -21,7 +21,7 @@ class AppDb {
     final String dir = await getDatabasesPath();
     _db = await openDatabase(
       p.join(dir, 'kids_learn.db'),
-      version: 3,
+      version: 4,
       onCreate: _createLatest,
       onUpgrade: _upgrade,
     );
@@ -148,6 +148,11 @@ class AppDb {
         'COALESCE((SELECT SUM(stars) FROM stars s2 '
         'WHERE s2.profile_id = p.id), 0) FROM profiles p',
       );
+    }
+    if (oldVersion < 4) {
+      // v4：付費解鎖 + 跨裝置同步（見 docs/PLAN_billing_sync.md）。
+      // 兩者的狀態都存在既有的 settings 表（entitlement_full / sync_* / device_id），
+      // 不需新表或改 schema；此處保留版本遞增的接縫，未來若真要加表再補。
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'core/audio_service.dart';
+import 'core/entitlement_service.dart';
 import 'core/progress_store.dart';
 import 'core/screen_time.dart';
 
@@ -18,6 +19,7 @@ Future<void> main() async {
 
   await ProgressStore.instance.init();
   await ProgressStore.instance.dailyCheckIn(); // 連續天數 + 每日獎勵星星
+  await EntitlementService.instance.init(); // 付費解鎖：讀快取 + 與商店對帳（失敗不阻擋）
   await AudioService.instance.init();
   ScreenTimeManager.instance.start();
 

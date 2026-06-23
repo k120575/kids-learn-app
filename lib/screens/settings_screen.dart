@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/audio_service.dart';
+import '../core/entitlement_service.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
 import 'dashboard_screen.dart';
+import 'paywall_screen.dart';
 import 'profiles_screen.dart';
 
 /// 設定頁（由家長鎖進入）：音效、螢幕時間提醒、總星數、清除進度。
@@ -29,6 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: ListView(
             padding: EdgeInsets.all(context.s(Sizes.bigGap)),
             children: <Widget>[
+              _buildUnlockCard(context),
+              SizedBox(height: context.s(Sizes.gap)),
               Card(
                 child: ListTile(
                   leading: Icon(
@@ -226,6 +230,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  /// 完整版狀態卡：未解鎖→升級（設定頁已在家長鎖後，直接進付費牆）；已解鎖→顯示 + 還原。
+  Widget _buildUnlockCard(BuildContext context) {
+    final bool unlocked = EntitlementService.instance.isFullUnlocked;
+    if (unlocked) {
+      return Card(
+        color: const Color(0xFFFFF8E1),
+        child: ListTile(
+          leading: Icon(
+            Icons.verified_rounded,
+            color: const Color(0xFFFFB300),
+            size: context.s(32),
+          ),
+          title: Text('完整版已解鎖', style: TextStyle(fontSize: context.s(20))),
+          subtitle: const Text('謝謝你的支持 💛'),
+          trailing: TextButton(
+            onPressed: _restore,
+            child: const Text('還原購買'),
+          ),
+        ),
+      );
+    }
+    return Card(
+      color: const Color(0xFFFFF8E1),
+      child: ListTile(
+        leading: Icon(
+          Icons.lock_open_rounded,
+          color: const Color(0xFFFFB300),
+          size: context.s(32),
+        ),
+        title: Text('升級完整版', style: TextStyle(fontSize: context.s(20))),
+        subtitle: const Text('解鎖全部關卡與完整學習報告'),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const PaywallScreen()),
+          );
+          if (mounted) setState(() {});
+        },
+      ),
+    );
+  }
+
+  Future<void> _restore() async {
+    final bool ok = await EntitlementService.instance.restore();
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(content: Text(ok ? '已還原你的購買 ✅' : '目前沒有可還原的購買')),
+      );
   }
 
   Future<void> _confirmClear() async {
