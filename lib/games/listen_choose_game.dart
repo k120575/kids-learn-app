@@ -51,6 +51,7 @@ class ListenChooseGame extends StatefulWidget {
     required this.questions,
     this.pickCount = 8,
     this.vertical = false,
+    this.repeats = 1,
   });
 
   final String gameId;
@@ -70,6 +71,10 @@ class ListenChooseGame extends StatefulWidget {
 
   /// 答案卡是否縱向排列（高/低、上/下用縱向，強化「位置＝音高」）。
   final bool vertical;
+
+  /// 每題把聲音連播幾次（間隔約 0.7 秒）。高高低低、大聲小聲是「一顆短音」，
+  /// 幼兒一次可能聽不清，連播 3 次更容易聽辨；其他關（快慢/長短/方向）維持 1。
+  final int repeats;
 
   @override
   State<ListenChooseGame> createState() => _ListenChooseGameState();
@@ -128,7 +133,8 @@ class _ListenChooseGameState extends State<ListenChooseGame> {
     await _announceAndPlay();
   }
 
-  /// 先念歌名（若有）再播該題音檔。哪個音不對用：報歌名給孩子當參照。
+  /// 先念歌名（若有）再播該題音檔；依 [widget.repeats] 連播數次（間隔約 0.7 秒）。
+  /// 哪個音不對用：報歌名給孩子當參照。
   Future<void> _announceAndPlay() async {
     final String? name = _q.name;
     if (name != null) {
@@ -138,8 +144,14 @@ class _ListenChooseGameState extends State<ListenChooseGame> {
       );
       if (!mounted) return;
     }
-    await AudioService.instance.playSfxAndWait(_q.sfx);
-    if (!mounted) return;
+    for (int r = 0; r < widget.repeats; r++) {
+      if (r > 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+        if (!mounted) return;
+      }
+      await AudioService.instance.playSfxAndWait(_q.sfx);
+      if (!mounted) return;
+    }
     setState(() => _speaking = false);
   }
 

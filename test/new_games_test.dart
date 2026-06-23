@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:kids_learn_app/content/lang45_levels.dart';
 import 'package:kids_learn_app/core/progress_store.dart';
 import 'package:kids_learn_app/games/find_same_game.dart';
+import 'package:kids_learn_app/games/hanzi_picture_game.dart';
 import 'package:kids_learn_app/games/next_in_row_game.dart';
 import 'package:kids_learn_app/games/rotate_match_game.dart';
 import 'package:kids_learn_app/games/whats_missing_game.dart';
+import 'package:kids_learn_app/games/zhuyin_match_game.dart';
 
 /// 新增遊戲的煙霧測試：確保「能正常建構 + 跑過內部邏輯」不丟執行期斷言
 /// （analyze 抓不到的那類崩潰，例如 dispose 的 controller、隨機產生的幾何）。
@@ -88,6 +91,65 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
     }
     expect(find.text('❓'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('注音對對碰：建構 + 卡片出現 + 點兩張不崩', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: ZhuyinMatchGame(
+        gameId: 'test_zhuyin_match',
+        title: '注音對對碰',
+        pool: zhuyinMatchPool,
+      ),
+    ));
+    await tester.pump(); // postframe 引導語
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.takeException(), isNull);
+    // 卡片是可點的 GestureDetector（簡單 4 對 = 8 張）。
+    final Finder cards = find.byType(GestureDetector);
+    expect(cards, findsWidgets);
+    // 點兩張：走「選起→比對（成功念讀音／失敗抖動取消）」邏輯，任一分支都不該崩。
+    await tester.tap(cards.first);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(cards.at(1));
+    for (int i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('認國字看圖選字：建構 + 確定鈕 + 選字後可確定', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: HanziPictureGame(
+        gameId: 'test_hanzi_pic',
+        title: '認國字',
+        items: hanziPictureItems,
+      ),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.takeException(), isNull);
+    expect(find.text('確定'), findsOneWidget);
+    // 還沒選字時「確定」是停用的（onPressed 為 null）。
+    final ElevatedButton btn = tester.widget<ElevatedButton>(
+      find.ancestor(
+        of: find.text('確定'),
+        matching: find.byType(ElevatedButton),
+      ),
+    );
+    expect(btn.onPressed, isNull);
+    // 點一個字選項 → 念讀音（靜音後備）→ 按確定，對錯任一分支都不該崩。
+    final Finder option = find
+        .descendant(of: find.byType(Wrap), matching: find.byType(GestureDetector))
+        .first;
+    await tester.tap(option);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.ensureVisible(find.text('確定')); // 測試視窗較矮，先捲到鈕再點
+    await tester.pump();
+    await tester.tap(find.text('確定'));
+    for (int i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
     expect(tester.takeException(), isNull);
   });
 }

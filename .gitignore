@@ -45,6 +45,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Dev screenshots (ad-hoc captures, not assets)
+.*_shot.png
+
 # Symbolication / obfuscation
 app.*.symbols
 app.*.map.json

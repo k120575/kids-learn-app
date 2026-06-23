@@ -162,46 +162,75 @@ class _MemoryGameState extends State<MemoryGame> {
     return GameScaffold(
       title: widget.title,
       onReplay: () => AudioService.instance.speak('翻翻看，找出一樣的！'),
-      child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(context.s(Sizes.gap)),
-          child: Wrap(
-            spacing: context.s(12),
-            runSpacing: context.s(12),
-            alignment: WrapAlignment.center,
-            children: List<Widget>.generate(_cards.length, (int i) {
-              final _Card c = _cards[i];
-              final bool shown = c.up || c.matched;
-              return GestureDetector(
-                onTap: () => _tap(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: context.s(96),
-                  height: context.s(96),
-                  decoration: BoxDecoration(
-                    color: c.matched
-                        ? const Color(0xFFC8E6C9)
-                        : (shown ? Colors.white : const Color(0xFF26A69A)),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: c.matched
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFF1E8E80),
-                      width: 3,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          // 排成整齊矩形：固定 4 欄（8→4×2、12→4×3、16→4×4 都是滿格矩形），
+          // 卡片大小依寬度自動縮放以免溢出，最大維持原本 96。
+          const int cols = 4;
+          final double gap = context.s(12);
+          final double pad = context.s(Sizes.gap);
+          final double avail = constraints.maxWidth - pad * 2;
+          final double cell = (((avail - gap * (cols - 1)) / cols))
+              .clamp(40.0, context.s(96));
+          final int rows = (_cards.length / cols).ceil();
+          return Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(pad),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: List<Widget>.generate(rows, (int r) {
+                  final int start = r * cols;
+                  final int end = (start + cols).clamp(0, _cards.length);
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: r == rows - 1 ? 0 : gap),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        for (int i = start; i < end; i++) ...<Widget>[
+                          _buildCard(context, i, cell),
+                          if (i != end - 1) SizedBox(width: gap),
+                        ],
+                      ],
                     ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      shown ? c.emoji : '❓',
-                      style: TextStyle(
-                        fontSize: context.s(52),
-                        color: shown ? null : Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
+                  );
+                }),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCard(BuildContext context, int i, double cell) {
+    final _Card c = _cards[i];
+    final bool shown = c.up || c.matched;
+    return GestureDetector(
+      onTap: () => _tap(i),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: cell,
+        height: cell,
+        decoration: BoxDecoration(
+          color: c.matched
+              ? const Color(0xFFC8E6C9)
+              : (shown ? Colors.white : const Color(0xFF26A69A)),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: c.matched
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFF1E8E80),
+            width: 3,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            shown ? c.emoji : '❓',
+            style: TextStyle(
+              fontSize: cell * 0.54,
+              color: shown ? null : Colors.white,
+            ),
           ),
         ),
       ),

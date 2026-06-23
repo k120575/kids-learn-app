@@ -45,6 +45,54 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
     super.dispose();
   }
 
+  /// 站點排成上下平均的兩列（5 關 → 上 3 下 2），避免「上 4 下 1」看了煩。
+  /// 關卡 ≤3 時單列即可。每列用 Wrap，窄螢幕仍能優雅換行。
+  Widget _stationGrid(BuildContext context, List<Domain> domains) {
+    if (domains.length <= 3) return _stationRow(context, domains);
+    final int top = (domains.length / 2).ceil();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        _stationRow(context, domains.sublist(0, top)),
+        SizedBox(height: context.s(Sizes.bigGap)),
+        _stationRow(context, domains.sublist(top)),
+      ],
+    );
+  }
+
+  Widget _stationRow(BuildContext context, List<Domain> domains) {
+    return Wrap(
+      spacing: context.s(Sizes.bigGap),
+      runSpacing: context.s(Sizes.bigGap),
+      alignment: WrapAlignment.center,
+      children: domains.map((Domain d) {
+        final Station st = _world?.stationFor(d) ?? Station(d.label, d.emoji);
+        final (int, int) s = _stars(d);
+        final bool complete = s.$2 > 0 && s.$1 >= s.$2;
+        return _StationCard(
+          station: st,
+          color: d.color,
+          got: s.$1,
+          complete: complete,
+          onTap: () async {
+            AudioService.instance.speak(st.name);
+            await Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => GameListScreen(
+                  band: widget.band,
+                  domain: d,
+                  stationName: st.name,
+                ),
+              ),
+            );
+            if (mounted) setState(() {});
+          },
+        );
+      }).toList(),
+    );
+  }
+
   (int got, int total) _stars(Domain d) {
     final List<GameDef> games = gameRegistry
         .where((GameDef g) => g.matches(widget.band, d))
@@ -84,38 +132,7 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
                 constraints: BoxConstraints(
                   minHeight: c.maxHeight - Sizes.gap * 2,
                 ),
-                child: Center(
-                  child: Wrap(
-                    spacing: context.s(Sizes.bigGap),
-                    runSpacing: context.s(Sizes.bigGap),
-                    alignment: WrapAlignment.center,
-                    children: domains.map((Domain d) {
-                      final Station st =
-                          world?.stationFor(d) ?? Station(d.label, d.emoji);
-                      final (int, int) s = _stars(d);
-                      final bool complete = s.$2 > 0 && s.$1 >= s.$2;
-                      return _StationCard(
-                        station: st,
-                        color: d.color,
-                        got: s.$1,
-                        complete: complete,
-                        onTap: () async {
-                          AudioService.instance.speak(st.name);
-                          await Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => GameListScreen(
-                                band: widget.band,
-                                domain: d,
-                                stationName: st.name,
-                              ),
-                            ),
-                          );
-                          if (mounted) setState(() {});
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
+                child: Center(child: _stationGrid(context, domains)),
               ),
             ),
       ),

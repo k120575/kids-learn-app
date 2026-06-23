@@ -2,6 +2,7 @@ import '../games/arithmetic_game.dart';
 import '../games/count_tap_game.dart';
 import '../games/drag_match_game.dart';
 import '../games/find_same_game.dart';
+import '../games/hanzi_picture_game.dart';
 import '../games/jigsaw_game.dart';
 import '../games/listen_choose_game.dart';
 import '../games/maze_game.dart';
@@ -19,6 +20,7 @@ import '../games/spot_difference_game.dart';
 import '../games/sudoku_game.dart';
 import '../games/symmetry_game.dart';
 import '../games/whats_missing_game.dart';
+import '../games/zhuyin_match_game.dart';
 import '../models/age_band.dart';
 import '../models/domain.dart';
 import '../models/game_def.dart';
@@ -206,6 +208,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       choices: pitchHiLoChoices,
       questions: pitchHiLoBank,
       vertical: true, // 高在上、低在下，位置＝音高
+      repeats: 3, // 連播 3 次，幼兒比較聽得清
     ),
   ),
   // （節奏跟打已移除）
@@ -388,24 +391,25 @@ final List<GameDef> gameRegistry = <GameDef>[
     emoji: '🈶',
     domain: Domain.language,
     ageBands: _age45,
-    builder: (_) => PickGame(
+    // 4-5 還不太會認字：改成「看圖→選字」，點字念讀音、按確定才判對錯。
+    builder: (_) => const HanziPictureGame(
       gameId: 'hanzi_read',
       title: '認國字',
-      rounds: hanziBank, // 26 常見字（聽詞點字）
-      pickCount: 10,
+      items: hanziPictureItems, // 具體可圖像化的字（月🌙、山⛰️…）
+      pickCount: 8,
     ),
   ),
   GameDef(
     id: 'zhuyin_onset',
-    title: '注音開頭',
+    title: '注音對對碰',
     emoji: 'ㄅ',
     domain: Domain.language,
     ageBands: _age45,
-    builder: (_) => PickGame(
+    // 4-5 還沒學拼音：不考開頭音，改成「找一樣的注音」配對，配對成功念讀音。
+    builder: (_) => const ZhuyinMatchGame(
       gameId: 'zhuyin_onset',
-      title: '注音開頭',
-      rounds: zhuyinOnsetBank, // 聽詞辨開頭音（音韻覺識）
-      pickCount: 10,
+      title: '注音對對碰',
+      pool: zhuyinMatchPool, // 14 個聲母（顯示 ㄅ、念「ㄅㄛ」）
     ),
   ),
   GameDef(
@@ -447,6 +451,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '大聲的，點獅子；小聲的，點老鼠！',
       choices: dynamicsChoices,
       questions: dynamicsBank,
+      repeats: 3, // 連播 3 次，幼兒比較聽得清
     ),
   ),
   GameDef(
