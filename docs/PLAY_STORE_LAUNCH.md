@@ -338,13 +338,13 @@ keytool -list -v -keystore "D:\IdeaProject\kids-learn-app\keystore\kids-learn-re
 
 ### 4.1 Privacy policy（隱私政策）🧸 必填
 
-點 **應用程式內容 → 隱私政策**，貼上隱私政策網址（**目前還沒有，見下方「附錄 A：隱私政策」先把網頁架好**）：
+點 **應用程式內容 → 隱私政策**，貼上隱私政策網址（✅ **已上線、已驗證可開啟**）：
 
 ```
 https://k120575.github.io/kids-learn-app/privacy.html
 ```
 
-（網址依你 GitHub Pages 實際路徑調整）→ **Save**
+→ **Save**。此頁對應 **v1.0 離線零收集**版本；Phase 2 上 Drive 同步時需換成新版（見附錄 A 的 Phase 2 草稿 `docs/privacy-phase2-draft.html`）。
 
 ### 4.2 App access（App 存取限制）
 
@@ -714,7 +714,7 @@ https://k120575.github.io/kids-learn-app/privacy.html
 - [ ] 階段 5：主要商店資訊（文案 + **512 icon + 1024x500 feature graphic + ≥2 張截圖**）
 - [ ] 階段 6：解鎖 IAP（要等商家帳戶審核過）
 - [ ] 階段 7：實機跑完整 QA
-- [ ] 附錄 A：隱私政策網頁上線
+- [x] 附錄 A：隱私政策網頁上線 ✅ https://k120575.github.io/kids-learn-app/privacy.html
 
 ### 8.4 滿 14 天 + 12 人 → 申請發布正式版
 
@@ -773,7 +773,7 @@ https://k120575.github.io/kids-learn-app/privacy.html
 **素材（要你決定/製作）**
 
 - [ ] 512x512 商店圖示、1024x500 feature graphic、手機/平板截圖（附錄 B、C）
-- [ ] 隱私政策網頁上線（附錄 A）
+- [x] 隱私政策網頁上線（附錄 A）✅
 
 **Google Cloud Console（只有「要做 Drive 同步」才需要，目前 Phase 2 規劃中）**
 
@@ -835,13 +835,15 @@ https://k120575.github.io/kids-learn-app/privacy.html
 
 ---
 
-# 附錄 A：隱私政策網頁（兒童 App 必備，目前還沒有）🧸
+# 附錄 A：隱私政策網頁（兒童 App 必備）🧸 ✅ 已完成
 
-Play Console **強制要填隱私政策 URL**。本 App 還沒有，要先架一頁。最省事用 **GitHub Pages**（免費）：
+Play Console **強制要填隱私政策 URL**。✅ **已用 GitHub Pages 架好並驗證上線**：
 
-1. 在 GitHub repo（或新 repo）開啟 Settings → Pages，從某分支/資料夾發佈
-2. 放一個 `privacy.html`，網址會像 `https://k120575.github.io/kids-learn-app/privacy.html`
-3. 把這網址填回階段 4.1
+- **正式網址（v1.0 離線版，填這個）**：`https://k120575.github.io/kids-learn-app/privacy.html`
+- 原始檔在 repo：`docs/privacy.html`（push 到 main 即自動更新 Pages）
+- **Phase 2（Drive 同步版）草稿**：`docs/privacy-phase2-draft.html` —— 等帳號登入/雲端同步功能真的出貨那一版，再把它的內容換上正式網址，並同步把 Data safety 從情境 A 改成情境 B。
+
+> ⚠️ 鐵則：**線上政策必須對應實際出貨版本**。v1.0 還是離線就維持離線版；別提前換成 Drive 版，否則「申報 vs 實際」不符一樣被退。
 
 **兒童 App 隱私政策該寫什麼（重點，繁中即可，務必如實）：**
 
