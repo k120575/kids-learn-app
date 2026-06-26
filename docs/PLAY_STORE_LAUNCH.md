@@ -67,6 +67,42 @@
 
 ---
 
+<a id="phase2-checklist"></a>
+## 🚨 之後改版必改清單（Phase 2 / 開賣前務必逐項核對）
+
+> ⛔ **極重要，不能忘也不能弄錯。** v1.0 送的是「**離線零收集 + 全免費**」版本，所以問卷填的是
+> App access＝否、Data safety＝情境 A、數位購買＝No、隱私頁＝離線版。
+> **一旦下列任一功能上線，「程式」和「Play Console 問卷／隱私頁」必須成對一起改**——
+> 只改一邊 = 申報與實際不符 → **退件或下架**。每次送這類版本前，把對應那一軸逐格打勾。
+
+### 🅰️ 軸 A — 上 Phase 2 雲端同步（Google 登入 + Drive）
+**程式**
+- [ ] SyncService + `google_sign_in` + Drive(`drive.appdata`)；設定頁「雲端同步」卡，登入入口放家長閘門後的 `SettingsScreen`
+- [ ] Google Cloud：建 OAuth client + 啟用 Drive API + 填 release/debug SHA-1（release SHA-1 已記於本檔 0.6 / 記憶）
+
+**Play Console / 政策**
+- [ ] **Data safety：情境 A → 情境 B**（收集 Yes、類型 Files and docs、Collected、用途 App functionality、Optional、加密 Yes、可刪除 Yes）
+- [ ] **隱私政策網址：換成 Drive 版** —— 把 `docs/privacy-phase2-draft.html` 內容放上正式 `privacy.html`（補生效日），push 後 Pages 自動更新
+
+### 🅱️ 軸 B — 開賣付費（恢復付費鎖）
+**程式**
+- [ ] `lib/content/access_policy.dart` 的 **`kPaywallEnabled` 改回 `true`**
+- [ ] 接 `PlayBillingGateway`(`in_app_purchase`) 取代 StubGateway
+- [ ] Play Console 建 `full_unlock_family`（NT$350，非消耗型）+ License 測試帳號
+
+**Play Console / 政策**
+- [ ] **App access：否 → 是** + 提供審查員解鎖說明（managed product，可用 License 測試解鎖）
+- [ ] **Content ratings：數位購買 No → Yes**
+
+### 兩軸共通
+- [ ] `pubspec.yaml` **versionCode +1**（每次上傳都要比上次大）
+- [ ] 重打包簽好的 release AAB → 驗簽章指紋 = 你的 release key
+
+> 🔑 兩軸**彼此獨立**，可分開上線（例如先上同步、付費更晚）。但每一軸的鐵則都是
+> **「程式改了 → 對應問卷／隱私頁也要改」成對處理**，缺一邊就出事。
+
+---
+
 ## 名詞解釋（讀之前先看一下）
 
 | 名詞                          | 是什麼                                     | 在哪                                                                |
@@ -336,15 +372,16 @@ keytool -list -v -keystore "D:\IdeaProject\kids-learn-app\keystore\kids-learn-re
 > 📍 **位置（2026 zh-TW）**：左側選單 **「政策與計畫」→「應用程式內容」**。進去有「需要處理 / 已處理」兩分頁，把「需要處理」清空就對了。
 > ℹ️ 畫面上有什麼就填什麼，沒出現的就跳過。**🧸 兒童 App 三大關鍵：4.5 目標對象、4.8 Data safety、4.4 內容分級——填錯會下架/退件**。
 
-> ### ⚡ 速查表（情境 A・v1.0 離線版，照著點）
-> 邊填邊對照；每項細節見下方 4.1～4.7。⚠️ 對應 **離線零收集**，Phase 2 上同步後第 ⑥ 項改情境 B。
+> ### ⚡ 速查表（情境 A・v1.0 離線**＋全免費**版，照著點）
+> 邊填邊對照；每項細節見下方 4.1～4.7。⚠️ 此為 **離線零收集 + 付費鎖關閉(`kPaywallEnabled=false`)** 的版本。
+> 之後上同步/開賣要改哪些，**務必看下方 [「🚨 之後改版必改清單」](#phase2-checklist)**。
 >
 > | # | 問卷項目 | 點什麼 |
 > |---|---|---|
 > | ① | Privacy policy | 貼 `https://k120575.github.io/kids-learn-app/privacy.html` → 儲存 |
-> | ② | App access | **All functionality available without special access** |
+> | ② | App access | **All functionality available without special access**（＝否；全免費無受限） |
 > | ③ | Ads | **No, my app does not contain ads** |
-> | ④ | Content ratings | 類別 **Educational**；敏感題**全 No**；**數位購買→Yes** → Submit |
+> | ④ | Content ratings | 類別 **Educational**；敏感題**全 No**；**數位購買→No**(免費版買不到東西) → Submit |
 > | ⑤ | Target audience | 勾 **Ages 5 and under**(可加 6–8)；面向兒童 **Yes**；遵守 Families |
 > | ⑥ | Data safety | 收集資料 **No**；可要求刪除 **Yes**；**承諾 Families Policy → Yes** ⚠️ |
 > | ⑦ | Financial / Government / Health | 全部 **No / 沒有** |
@@ -365,10 +402,13 @@ https://k120575.github.io/kids-learn-app/privacy.html
 
 點 **應用程式內容 → App access**
 
-本 App 無帳號登入、全功能對所有人開放（付費關卡屬於「付費」不是「特殊存取」）：
+v1.0 是**全免費**（付費鎖 `kPaywallEnabled=false` 關閉、無帳號登入），所有內容對所有人開放、無受限：
 
-- 選 **All functionality is available without any special access**
+- 選 **All functionality is available without any special access**（＝「否」）
 - **Save**
+
+> ⚠️ 注意：2026 新版這題（「登入詳細資料」）會把**付費存取層級**也算成「受限」。所以**只有在全免費時**才選這個；
+> 一旦之後翻開 `kPaywallEnabled` 開賣付費鎖，這題要改「是」並提供審查解鎖說明（見下方「🚨 之後改版必改清單」）。
 
 ### 4.3 Ads（廣告）🧸
 
@@ -395,11 +435,11 @@ https://k120575.github.io/kids-learn-app/privacy.html
 | 使用者產生內容 / 線上互動 | No                            |
 | 分享使用者位置        | No                            |
 | 蒐集個資           | No（本 App 完全不蒐集）               |
-| 數位購買（App 內購買）  | **Yes**（有一個解鎖 IAP）→ 會問是否揭露，照實 |
+| 數位購買（App 內購買）  | **No**（v1.0 全免費、付費 UI 關閉、買不到任何東西）。⚠️ 之後開賣付費鎖才改 **Yes** |
 
 4. **Submit** → Google 自動評為 **IARC「適合所有人 / 3+」**等級
 
-> 💡 「App 內購買」那題據實答 Yes（本 App 有 `full_unlock_family`）；這不影響「適合所有人」分級，因為購買有家長鎖。
+> 💡 「App 內購買」那題：**v1.0 全免費版答 No**（付費鎖已用 `kPaywallEnabled=false` 關閉、無任何可購買項目）。等之後接 Billing 開賣再改 Yes（屆時不影響「適合所有人」分級，因為購買有家長鎖）。
 
 ### 4.5 Target audience and content（目標對象與內容）🧸🧸 **最關鍵**
 
