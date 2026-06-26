@@ -86,20 +86,21 @@
 
 ## 階段 0：本機準備 — 從零產生 Release Keystore + 設定簽署 ⬜
 
-> 在**本機**操作。**這是 Flutter 專案、目前 release 還在用 debug 金鑰簽署**（見 `android/app/build.gradle.kts` 第 32 行
-> `signingConfig = signingConfigs.getByName("debug")`），上架前**一定要換成自己的 release keystore**，否則之後永遠無法更新 App。
+> 在**本機**操作。✅ **此階段已完成**：keystore 已產於 `keystore/kids-learn-release.jks`、`android/key.properties` 已建、
+> `android/app/build.gradle.kts` 已接上 release 簽章，並已成功打出 release AAB。以下步驟保留作為紀錄／重建參考。
+> （簽章一旦設定，上架後**不能換金鑰**，否則永遠無法更新 App；務必備份 keystore 與密碼。）
 
 ### 0.1 產生 release keystore（一行 `keytool` 指令）
 
-開 **PowerShell**（或 Git Bash），先建資料夾再產金鑰。建議把 keystore 放在 **repo 之外**（避免不小心 commit 上 GitHub）：
+開 **PowerShell**（或 Git Bash），先建資料夾再產金鑰。金鑰放在專案內的 `keystore/` 資料夾，已用 `.gitignore` 的 `/keystore/` 整個擋住，不會 commit 上 GitHub：
 
 ```powershell
-# 1) 建一個放金鑰的資料夾（在專案外面，例如桌面下）
-New-Item -ItemType Directory -Force "D:\IdeaProject\keystores"
+# 1) 建一個放金鑰的資料夾（專案內 keystore/，已被 .gitignore 擋住）
+New-Item -ItemType Directory -Force "D:\IdeaProject\kids-learn-app\keystore"
 
 # 2) 產生 keystore（會問你密碼、姓名等，記下來）
 keytool -genkey -v `
-  -keystore "D:\IdeaProject\keystores\kids-learn-release.jks" `
+  -keystore "D:\IdeaProject\kids-learn-app\keystore\kids-learn-release.jks" `
   -keyalg RSA -keysize 2048 -validity 10000 `
   -alias kidslearn
 ```
@@ -114,7 +115,7 @@ keytool -genkey -v `
 - **名字 / 組織 / 城市 / 國家**：隨意填（CN 填 `Kevin`、Country code 填 `TW`）
 - **key 密碼**：可直接 Enter 沿用 keystore 密碼
 
-產出檔：`D:\IdeaProject\keystores\kids-learn-release.jks`
+產出檔：`D:\IdeaProject\kids-learn-app\keystore\kids-learn-release.jks`
 
 ### 0.2 建立 `android/key.properties`（告訴 Gradle 金鑰在哪）
 
@@ -124,7 +125,7 @@ keytool -genkey -v `
 storePassword=你的keystore密碼
 keyPassword=你的key密碼
 keyAlias=kidslearn
-storeFile=D:/IdeaProject/keystores/kids-learn-release.jks
+storeFile=D:/IdeaProject/kids-learn-app/keystore/kids-learn-release.jks
 ```
 
 > ⚠️ **路徑用正斜線 `/`**（Gradle 吃 `/`，反斜線會出事）。
@@ -242,7 +243,7 @@ flutter build appbundle --release
 ### 0.6 記錄金鑰指紋（之後對照用，可選）
 
 ```powershell
-keytool -list -v -keystore "D:\IdeaProject\keystores\kids-learn-release.jks" -alias kidslearn
+keytool -list -v -keystore "D:\IdeaProject\kids-learn-app\keystore\kids-learn-release.jks" -alias kidslearn
 ```
 
 把印出來的 **SHA-1 / SHA-256** 抄下來貼這裡（之後若要做 Google Drive 同步 OAuth，OAuth Client 要填 SHA-1）：
@@ -283,6 +284,10 @@ keytool -list -v -keystore "D:\IdeaProject\keystores\kids-learn-release.jks" -al
 | **Declarations** 兩個勾 | 都勾（內容政策同意 + 美國出口法規同意）                                  |
 
 > 💡 App 還是 Game？本 App 是「學習遊戲」。選哪個都可上架；選 **Game → Educational（教育）** 對到幼兒教育最自然。若你偏好被歸到「教育類 App」也可選 App。本文件後面以 **Game / Educational** 為例。
+
+> 📦 **套件名稱（package name）**：若這頁出現「套件名稱 / Package name」欄位，填 **`com.kevin.kids_learn_app`**（來自 `android/app/build.gradle.kts` 第 19 行 `applicationId`，全小寫、用底線）。
+> - 多數情況 Create app 表單**不會問**套件名稱——它會在**階段 3 第一次上傳 AAB 時自動讀出並鎖定**。看到要填就填上面那個值；沒看到就跳過，照樣往下走。
+> - ⚠️ **填了/上傳後就永久鎖死，不能改**。確認無誤再送出；之後上傳的 AAB 其 `applicationId` 必須與此**完全一致**，否則會被擋。
 
 3. 點 **Create app** → 進入 App 的 dashboard。
 
