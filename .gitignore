@@ -1,6 +1,8 @@
-# ===== Secrets (API keys) — never commit =====
+# ===== Secrets (API keys, signing keys) — never commit =====
 tool/secrets.env
 *.env
+# 上架簽章金鑰整個資料夾一律不進版控（比只擋 *.jks 更保險）
+/keystore/
 
 # ===== Claude Code (local session settings) =====
 .claude/settings.local.json
@@ -23,6 +25,16 @@ __pycache__/
 .svn/
 .swiftpm/
 migrate_working_dir/
+
+# ===== Python（tool/ 內的素材/語音/音效產生器）=====
+.venv/
+venv/
+tool/venv/
+tool/.venv/
+*.egg-info/
+.pytest_cache/
+# gen_voice.py 中斷時可能殘留的暫存試音檔
+assets/voice/_test.mp3
 
 # ===== IntelliJ / Android Studio =====
 *.iml
