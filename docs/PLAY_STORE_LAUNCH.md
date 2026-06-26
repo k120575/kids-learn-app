@@ -336,6 +336,21 @@ keytool -list -v -keystore "D:\IdeaProject\kids-learn-app\keystore\kids-learn-re
 > 📍 **位置（2026 zh-TW）**：左側選單 **「政策與計畫」→「應用程式內容」**。進去有「需要處理 / 已處理」兩分頁，把「需要處理」清空就對了。
 > ℹ️ 畫面上有什麼就填什麼，沒出現的就跳過。**🧸 兒童 App 三大關鍵：4.5 目標對象、4.8 Data safety、4.4 內容分級——填錯會下架/退件**。
 
+> ### ⚡ 速查表（情境 A・v1.0 離線版，照著點）
+> 邊填邊對照；每項細節見下方 4.1～4.7。⚠️ 對應 **離線零收集**，Phase 2 上同步後第 ⑥ 項改情境 B。
+>
+> | # | 問卷項目 | 點什麼 |
+> |---|---|---|
+> | ① | Privacy policy | 貼 `https://k120575.github.io/kids-learn-app/privacy.html` → 儲存 |
+> | ② | App access | **All functionality available without special access** |
+> | ③ | Ads | **No, my app does not contain ads** |
+> | ④ | Content ratings | 類別 **Educational**；敏感題**全 No**；**數位購買→Yes** → Submit |
+> | ⑤ | Target audience | 勾 **Ages 5 and under**(可加 6–8)；面向兒童 **Yes**；遵守 Families |
+> | ⑥ | Data safety | 收集資料 **No**；可要求刪除 **Yes**；**承諾 Families Policy → Yes** ⚠️ |
+> | ⑦ | Financial / Government / Health | 全部 **No / 沒有** |
+>
+> ⑥ 刪除說明欄（可選，貼英文）：`This app stores all data only on the device (local SQLite). It makes no network requests and collects no data. Uninstalling permanently deletes all data.`
+
 ### 4.1 Privacy policy（隱私政策）🧸 必填
 
 點 **應用程式內容 → 隱私政策**，貼上隱私政策網址（✅ **已上線、已驗證可開啟**）：
