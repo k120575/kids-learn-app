@@ -61,22 +61,33 @@ void main() {
   });
 
   group('isUnlocked（疊上付費狀態）', () {
-    test('未購買：鎖的關卡 isUnlocked = false', () async {
-      await _setEntitled(false);
-      expect(AccessPolicy.isUnlocked(_game('opposites'), AgeBand.age4_5),
-          isFalse);
-      // 免費試玩關仍可玩
-      expect(AccessPolicy.isUnlocked(_game('listen_point_45'), AgeBand.age4_5),
-          isTrue);
-    });
+    if (kPaywallEnabled) {
+      test('未購買：鎖的關卡 isUnlocked = false', () async {
+        await _setEntitled(false);
+        expect(AccessPolicy.isUnlocked(_game('opposites'), AgeBand.age4_5),
+            isFalse);
+        // 免費試玩關仍可玩
+        expect(
+            AccessPolicy.isUnlocked(_game('listen_point_45'), AgeBand.age4_5),
+            isTrue);
+      });
 
-    test('已購買：全部解鎖', () async {
-      await _setEntitled(true);
-      expect(AccessPolicy.isUnlocked(_game('opposites'), AgeBand.age4_5),
-          isTrue);
-      expect(AccessPolicy.isUnlocked(_game('compare'), AgeBand.age4_5),
-          isTrue);
-    });
+      test('已購買：全部解鎖', () async {
+        await _setEntitled(true);
+        expect(AccessPolicy.isUnlocked(_game('opposites'), AgeBand.age4_5),
+            isTrue);
+        expect(AccessPolicy.isUnlocked(_game('compare'), AgeBand.age4_5),
+            isTrue);
+      });
+    } else {
+      test('付費鎖關閉（v1.0 免費）：未購買也全部 isUnlocked = true', () async {
+        await _setEntitled(false);
+        expect(AccessPolicy.isUnlocked(_game('opposites'), AgeBand.age4_5),
+            isTrue);
+        expect(AccessPolicy.isUnlocked(_game('compare'), AgeBand.age4_5),
+            isTrue);
+      });
+    }
 
     // 還原預設狀態，避免污染其他測試的全域單例。
     tearDownAll(() => _setEntitled(false));

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../content/access_policy.dart';
 import '../core/audio_service.dart';
 import '../core/entitlement_service.dart';
 import '../core/progress_store.dart';
@@ -31,8 +32,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: ListView(
             padding: EdgeInsets.all(context.s(Sizes.bigGap)),
             children: <Widget>[
-              _buildUnlockCard(context),
-              SizedBox(height: context.s(Sizes.gap)),
+              // 付費鎖關閉（v1.0 免費）時不顯示升級/還原卡。
+              if (kPaywallEnabled) ...<Widget>[
+                _buildUnlockCard(context),
+                SizedBox(height: context.s(Sizes.gap)),
+              ],
               Card(
                 child: ListTile(
                   leading: Icon(
