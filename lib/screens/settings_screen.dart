@@ -5,6 +5,7 @@ import '../core/audio_service.dart';
 import '../core/entitlement_service.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
+import '../core/sync_service.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
 import 'dashboard_screen.dart';
@@ -35,6 +36,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // 付費鎖關閉（v1.0 免費）時不顯示升級/還原卡。
               if (kPaywallEnabled) ...<Widget>[
                 _buildUnlockCard(context),
+                SizedBox(height: context.s(Sizes.gap)),
+              ],
+              // 同步功能旗標關閉（v1.0 離線版）時不顯示雲端同步卡。
+              if (kSyncFeatureEnabled) ...<Widget>[
+                _buildSyncCard(context),
                 SizedBox(height: context.s(Sizes.gap)),
               ],
               Card(
@@ -276,6 +282,112 @@ class _SettingsScreenState extends State<SettingsScreen> {
         },
       ),
     );
+  }
+
+  /// 雲端同步卡（設定頁已在家長鎖後）：未開啟→開啟並登入；已開啟→帳號 + 立即同步 / 關閉。
+  Widget _buildSyncCard(BuildContext context) {
+    final SyncService sync = SyncService.instance;
+    if (!sync.enabled) {
+      return Card(
+        color: const Color(0xFFE3F2FD),
+        child: ListTile(
+          leading: Icon(
+            Icons.cloud_off_rounded,
+            color: const Color(0xFF42A5F5),
+            size: context.s(32),
+          ),
+          title: Text('雲端同步', style: TextStyle(fontSize: context.s(20))),
+          subtitle: const Text('換手機 / 平板也能接續進度（用家長 Google 帳號）'),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: _enableSync,
+        ),
+      );
+    }
+    final String when = sync.lastSyncAt > 0
+        ? _fmtTime(sync.lastSyncAt)
+        : '尚未同步';
+    final String sub = sync.status == SyncStatus.failed
+        ? '上次同步失敗，下次連線會自動重試'
+        : '${sync.account ?? '已登入'}・上次同步：$when';
+    return Card(
+      color: const Color(0xFFE3F2FD),
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            leading: Icon(
+              Icons.cloud_done_rounded,
+              color: const Color(0xFF1E88E5),
+              size: context.s(32),
+            ),
+            title: Text('雲端同步已開啟', style: TextStyle(fontSize: context.s(20))),
+            subtitle: Text(sub),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.s(16),
+              context.s(0),
+              context.s(16),
+              context.s(12),
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: sync.status == SyncStatus.syncing
+                        ? null
+                        : _syncNow,
+                    icon: const Icon(Icons.sync_rounded),
+                    label: const Text('立即同步'),
+                  ),
+                ),
+                SizedBox(width: context.s(12)),
+                TextButton(
+                  onPressed: _disableSync,
+                  child: const Text('關閉同步'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _enableSync() async {
+    final bool ok = await SyncService.instance.enable();
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(content: Text(ok ? '雲端同步已開啟 ☁️' : '目前無法登入，請稍後再試')),
+      );
+  }
+
+  Future<void> _syncNow() async {
+    await SyncService.instance.syncNow();
+    if (!mounted) return;
+    setState(() {});
+    final bool ok = SyncService.instance.status == SyncStatus.ok;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(content: Text(ok ? '同步完成 ✅' : '同步失敗，請檢查網路')),
+      );
+  }
+
+  Future<void> _disableSync() async {
+    await SyncService.instance.disable();
+    if (mounted) setState(() {});
+  }
+
+  static String _fmtTime(int epochMs) {
+    final DateTime t = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    final String mo = t.month.toString().padLeft(2, '0');
+    final String d = t.day.toString().padLeft(2, '0');
+    final String h = t.hour.toString().padLeft(2, '0');
+    final String mi = t.minute.toString().padLeft(2, '0');
+    return '$mo/$d $h:$mi';
   }
 
   Future<void> _restore() async {

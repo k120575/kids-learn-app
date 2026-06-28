@@ -1,6 +1,8 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
+import 'sync_models.dart';
+
 /// 本機 SQLite 持久層（唯一的「資料庫真相來源」）。
 ///
 /// v2 起資料以「孩子檔案（profile）」分流：星星、貼紙、遊玩紀錄、每日時間、
@@ -449,4 +451,136 @@ class AppDb {
     'current': current,
     'best': best,
   }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+  // ----- 跨裝置同步：整包匯出 / 匯入（見 docs/PLAN_billing_sync.md §3）-----
+
+  /// 每日使用時間「全部」（家長報告只取最近 14 天，同步要整包）。
+  Future<Map<String, int>> loadAllDailyTime(String profileId) async {
+    final List<Map<String, Object?>> rows = await _db!.query(
+      'daily_time',
+      where: 'profile_id = ?',
+      whereArgs: <Object?>[profileId],
+    );
+    return <String, int>{
+      for (final Map<String, Object?> r in rows)
+        r['day'] as String: r['seconds'] as int,
+    };
+  }
+
+  /// 匯出所有孩子的進度成一份快照（同步上傳用）。entitlement 不進快照。
+  Future<ProgressSnapshot> exportSnapshot(String deviceId, int updatedAt) async {
+    final List<Map<String, Object?>> rows = await loadProfiles();
+    final List<ProfileMeta> metas = <ProfileMeta>[];
+    final Map<String, ProfileData> data = <String, ProfileData>{};
+    for (final Map<String, Object?> r in rows) {
+      final String id = r['id'] as String;
+      metas.add(
+        ProfileMeta(
+          id: id,
+          name: r['name'] as String,
+          emoji: r['emoji'] as String,
+          createdAt: r['created_at'] as int,
+          sort: r['sort'] as int,
+        ),
+      );
+      final (int, int) wallet = await loadWallet(id);
+      final (String, int, int)? streak = await loadStreak(id);
+      data[id] = ProfileData(
+        stars: await loadStars(id),
+        stickers: (await loadStickers(id)).toSet(),
+        difficulty: await loadDifficulty(id),
+        balance: wallet.$1,
+        earnedTotal: wallet.$2,
+        toys: await loadToys(id),
+        achievements: await loadAchievements(id),
+        streakLast: streak?.$1 ?? '',
+        streakCurrent: streak?.$2 ?? 0,
+        streakBest: streak?.$3 ?? 0,
+        dailyTime: await loadAllDailyTime(id),
+      );
+    }
+    return ProgressSnapshot(
+      schema: kSnapshotSchema,
+      deviceId: deviceId,
+      updatedAt: updatedAt,
+      profiles: metas,
+      data: data,
+    );
+  }
+
+  /// 把（已合併好的）快照寫回本機，交易內覆蓋。值已是兩邊取 max 的結果，故直接 replace。
+  Future<void> importSnapshot(ProgressSnapshot snap) async {
+    await _db!.transaction((Transaction txn) async {
+      for (final ProfileMeta m in snap.profiles) {
+        await txn.insert('profiles', <String, Object?>{
+          'id': m.id,
+          'name': m.name,
+          'emoji': m.emoji,
+          'created_at': m.createdAt,
+          'sort': m.sort,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      for (final MapEntry<String, ProfileData> e in snap.data.entries) {
+        final String id = e.key;
+        final ProfileData d = e.value;
+        await txn.insert('wallet', <String, Object?>{
+          'profile_id': id,
+          'balance': d.balance,
+          'earned_total': d.earnedTotal,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        for (final MapEntry<String, int> s in d.stars.entries) {
+          await txn.insert('stars', <String, Object?>{
+            'profile_id': id,
+            'game_id': s.key,
+            'stars': s.value,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        for (final String sticker in d.stickers) {
+          await txn.insert('stickers', <String, Object?>{
+            'profile_id': id,
+            'sticker': sticker,
+            'earned_at': snap.updatedAt,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+        for (final MapEntry<String, int> diff in d.difficulty.entries) {
+          await txn.insert('difficulty', <String, Object?>{
+            'profile_id': id,
+            'game_id': diff.key,
+            'level': diff.value,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        for (final MapEntry<String, int> toy in d.toys.entries) {
+          await txn.insert('toys', <String, Object?>{
+            'profile_id': id,
+            'toy_id': toy.key,
+            'count': toy.value,
+            'earned_at': snap.updatedAt,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        for (final MapEntry<String, int> ach in d.achievements.entries) {
+          await txn.insert('achievements', <String, Object?>{
+            'profile_id': id,
+            'ach_id': ach.key,
+            'tier': ach.value,
+            'unlocked_at': snap.updatedAt,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        if (d.streakLast.isNotEmpty) {
+          await txn.insert('streak', <String, Object?>{
+            'profile_id': id,
+            'last_day': d.streakLast,
+            'current': d.streakCurrent,
+            'best': d.streakBest,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+        for (final MapEntry<String, int> dt in d.dailyTime.entries) {
+          await txn.insert('daily_time', <String, Object?>{
+            'profile_id': id,
+            'day': dt.key,
+            'seconds': dt.value,
+          }, conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+    });
+  }
 }

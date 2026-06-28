@@ -61,6 +61,13 @@ class ProgressStore {
     }
   }
 
+  /// 重新從 DB 載入孩子清單與目前孩子的進度（同步匯入後呼叫，讓 UI 反映新資料）。
+  Future<void> reload() async {
+    if (!AppDb.instance.ready) return;
+    await _reloadProfiles();
+    await _loadActiveData();
+  }
+
   void _persist(Future<void> Function() op) {
     if (AppDb.instance.ready) {
       op().catchError((Object _) {});
