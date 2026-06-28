@@ -262,80 +262,96 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
         Expanded(
           child: Center(
             child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(vertical: context.s(Sizes.gap)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  // 吉祥物企企（點一下會說話）
-                  GestureDetector(
-                    onTap: () => AudioService.instance.speak(_greeting),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.s(18),
-                            vertical: context.s(10),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: const <BoxShadow>[
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            _greeting,
-                            style: TextStyle(
-                              fontSize: context.s(17),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: context.s(4)),
-                        Penguin(size: context.s(96)),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: context.s(Sizes.bigGap)),
-                  Text(
-                    '我幾歲呢？',
-                    style: TextStyle(
-                      fontSize: context.s(24),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  _buildMascot(context),
                   SizedBox(height: context.s(Sizes.gap)),
-                  Wrap(
-                    spacing: context.s(Sizes.bigGap),
-                    runSpacing: context.s(Sizes.bigGap),
-                    alignment: WrapAlignment.center,
-                    children: AgeBand.values.map((AgeBand band) {
-                      return BigCard(
-                        emoji: band.emoji,
-                        label: band.enabled ? band.label : '即將推出',
-                        color: const Color(0xFF4DD0E1),
-                        solid: true, // 實心白底卡片，在背景上更跳、更好按
-                        dimmed: !band.enabled,
-                        onTap: () {
-                          if (!band.enabled) {
-                            AudioService.instance.speak('這個還在準備中喔');
-                            return;
-                          }
-                          AudioService.instance.speak(band.label);
-                          _push(DomainSelectScreen(band: band));
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  SizedBox(height: context.s(Sizes.gap)),
+                  _buildAgeChooser(context),
                 ],
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  /// 吉祥物企企（點一下會說話）：對話框 + 企鵝。
+  Widget _buildMascot(BuildContext context) {
+    return GestureDetector(
+      onTap: () => AudioService.instance.speak(_greeting),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.s(18),
+              vertical: context.s(10),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              _greeting,
+              style: TextStyle(
+                fontSize: context.s(17),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: context.s(4)),
+          Penguin(size: context.s(72)),
+        ],
+      ),
+    );
+  }
+
+  /// 「我幾歲呢？」+ 年齡段卡片。
+  Widget _buildAgeChooser(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          '我幾歲呢？',
+          style: TextStyle(
+            fontSize: context.s(24),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: context.s(Sizes.gap)),
+        Wrap(
+          spacing: context.s(Sizes.bigGap),
+          runSpacing: context.s(Sizes.bigGap),
+          alignment: WrapAlignment.center,
+          children: AgeBand.values.map((AgeBand band) {
+            return BigCard(
+              emoji: band.emoji,
+              // 卡片尺寸隨裝置縮放（原本寫死 160，手機放不下 3 張）。
+              size: context.s(108),
+              label: band.enabled ? band.label : '即將推出',
+              color: const Color(0xFF4DD0E1),
+              solid: true, // 實心白底卡片，在背景上更跳、更好按
+              dimmed: !band.enabled,
+              onTap: () {
+                if (!band.enabled) {
+                  AudioService.instance.speak('這個還在準備中喔');
+                  return;
+                }
+                AudioService.instance.speak(band.label);
+                _push(DomainSelectScreen(band: band));
+              },
+            );
+          }).toList(),
         ),
       ],
     );

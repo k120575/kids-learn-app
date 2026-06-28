@@ -46,51 +46,75 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
           builder:
               (BuildContext context, void Function(void Function()) setLocal) {
                 return AlertDialog(
+                  // 矮螢幕／鍵盤彈出時，標題+內容一起可捲，不會爆出黑黃溢出條。
+                  scrollable: true,
                   title: Text(profile == null ? '新增孩子' : '編輯'),
-                  // 包 SingleChildScrollView：鍵盤彈出時可用高度變小，emoji 較多時
-                  // AlertDialog content 預設不捲、底部 emoji 會被切。
-                  content: SingleChildScrollView(
+                  // App 鎖橫向：手機/小平板鍵盤彈出後可用高度很有限。
+                  // 故名字欄放大置頂始終可見，頭像改「單列水平捲動」省直向空間
+                  // （橫向時水平空間充足、直向稀缺）。
+                  content: SizedBox(
+                    width: context.s(360),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         TextField(
                           controller: name,
                           autofocus: true,
                           maxLength: 6,
-                          decoration: const InputDecoration(
+                          style: TextStyle(fontSize: context.s(22)),
+                          decoration: InputDecoration(
                             labelText: '名字',
+                            labelStyle: TextStyle(fontSize: context.s(16)),
                             hintText: '例如：小寶',
+                            hintStyle: TextStyle(fontSize: context.s(18)),
+                            counterText: '', // 省高度（仍限制 6 字）
+                          ),
+                        ),
+                        SizedBox(height: context.s(12)),
+                        Text(
+                          '選一個頭像',
+                          style: TextStyle(
+                            fontSize: context.s(14),
+                            color: const Color(0xFF888888),
                           ),
                         ),
                         SizedBox(height: context.s(8)),
-                        Wrap(
-                          spacing: context.s(8),
-                          runSpacing: context.s(8),
-                          children: kProfileEmojis.map((String e) {
-                            final bool sel = e == emoji;
-                            return GestureDetector(
-                              onTap: () => setLocal(() => emoji = e),
-                              child: Container(
-                                padding: EdgeInsets.all(context.s(6)),
-                                decoration: BoxDecoration(
-                                  color: sel
-                                      ? const Color(0xFFFFF3CD)
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
+                        SizedBox(
+                          height: context.s(60),
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: kProfileEmojis.length,
+                            separatorBuilder: (BuildContext _, int _) =>
+                                SizedBox(width: context.s(8)),
+                            itemBuilder: (BuildContext _, int i) {
+                              final String e = kProfileEmojis[i];
+                              final bool sel = e == emoji;
+                              return GestureDetector(
+                                onTap: () => setLocal(() => emoji = e),
+                                child: Container(
+                                  width: context.s(56),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                     color: sel
-                                        ? const Color(0xFFFFC107)
-                                        : Colors.grey.shade300,
-                                    width: sel ? 3 : 1,
+                                        ? const Color(0xFFFFF3CD)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: sel
+                                          ? const Color(0xFFFFC107)
+                                          : Colors.grey.shade300,
+                                      width: sel ? 3 : 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    e,
+                                    style: TextStyle(fontSize: context.s(30)),
                                   ),
                                 ),
-                                child: Text(
-                                  e,
-                                  style: TextStyle(fontSize: context.s(30)),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),

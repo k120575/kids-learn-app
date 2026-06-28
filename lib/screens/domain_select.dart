@@ -46,9 +46,14 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
   }
 
   /// 站點排成上下平均的兩列（5 關 → 上 3 下 2），避免「上 4 下 1」看了煩。
-  /// 關卡 ≤3 時單列即可。每列用 Wrap，窄螢幕仍能優雅換行。
-  Widget _stationGrid(BuildContext context, List<Domain> domains) {
-    if (domains.length <= 3) return _stationRow(context, domains);
+  /// 關卡 ≤3 或矮螢幕（手機橫向，[singleRow]）時排成一橫排，利用寬度、免上下捲。
+  /// 每列用 Wrap，窄螢幕仍能優雅換行。
+  Widget _stationGrid(
+    BuildContext context,
+    List<Domain> domains, {
+    bool singleRow = false,
+  }) {
+    if (singleRow || domains.length <= 3) return _stationRow(context, domains);
     final int top = (domains.length / 2).ceil();
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -62,9 +67,16 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
   }
 
   Widget _stationRow(BuildContext context, List<Domain> domains) {
+    final double spacing = context.s(Sizes.bigGap);
+    // 保證這一列 n 個站點都排得進可用寬度：算出每顆的直徑上限（多留 1 顆 spacing
+    // 當安全邊，避免邊界剛好相等而被 Wrap 擠到下一列）。寬螢幕時這個上限很大、
+    // 不會綁住（由 _StationCard 內的 context.s / 螢幕 1/6 決定），只在窄螢幕才生效。
+    final double availW =
+        MediaQuery.of(context).size.width - context.s(Sizes.gap) * 2;
+    final double maxD = (availW - spacing * domains.length) / domains.length;
     return Wrap(
-      spacing: context.s(Sizes.bigGap),
-      runSpacing: context.s(Sizes.bigGap),
+      spacing: spacing,
+      runSpacing: spacing,
       alignment: WrapAlignment.center,
       children: domains.map((Domain d) {
         final Station st = _world?.stationFor(d) ?? Station(d.label, d.emoji);
@@ -75,6 +87,7 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
           color: d.color,
           got: s.$1,
           complete: complete,
+          maxD: maxD,
           onTap: () async {
             AudioService.instance.speak(st.name);
             await Navigator.of(context).push(
@@ -132,7 +145,13 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
                 constraints: BoxConstraints(
                   minHeight: c.maxHeight - Sizes.gap * 2,
                 ),
-                child: Center(child: _stationGrid(context, domains)),
+                child: Center(
+                  child: _stationGrid(
+                    context,
+                    domains,
+                    singleRow: c.maxHeight < 460,
+                  ),
+                ),
               ),
             ),
       ),
@@ -149,6 +168,7 @@ class _StationCard extends StatelessWidget {
     required this.got,
     required this.complete,
     required this.onTap,
+    this.maxD,
   });
 
   final Station station;
@@ -156,6 +176,9 @@ class _StationCard extends StatelessWidget {
   final int got;
   final bool complete;
   final VoidCallback onTap;
+
+  /// 直徑上限（由整列依站點數與可用寬度算出，確保一列排得下）。null＝不額外限制。
+  final double? maxD;
 
   static const double _d = 176; // 徽章直徑（放大，讓站點 ICON 更顯眼好點）
 
@@ -167,7 +190,8 @@ class _StationCard extends StatelessWidget {
     // 確保一排約可容納 5 個站點而不溢出；手機（短邊小）多半仍取原尺寸。
     final double byScale = context.s(_d);
     final double byWidth = MediaQuery.of(context).size.width / 6;
-    final double d = byScale < byWidth ? byScale : byWidth;
+    double d = byScale < byWidth ? byScale : byWidth;
+    if (maxD != null && maxD! < d) d = maxD!;
     return GestureDetector(
       onTap: onTap,
       child: Column(
