@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Phase 2 跨裝置同步：Google 登入 + Drive appDataFolder 需要連網。
+         debug build 會自動合入此權限，release/profile 不會，故在主 manifest 明確宣告。 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="寶貝學習樂園"
         android:name="${applicationName}"

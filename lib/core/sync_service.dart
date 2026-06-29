@@ -19,13 +19,23 @@ import 'sync_models.dart';
 /// 並同時把 Play 問卷改情境 B、換隱私政策（見 docs/PLAY_STORE_LAUNCH.md「之後改版必改清單」）。
 
 /// 同步功能總開關。false＝整套同步 UI/行為隱藏（v1.0 離線版）。
-const bool kSyncFeatureEnabled = false;
+/// ⚠️ 目前為開發/驗證階段暫開（true）以實機測試 Drive 同步。
+/// 送審「B 版（含同步）」前務必照 docs/PLAY_STORE_LAUNCH.md「之後改版必改清單」成對處理
+/// （Data safety 情境 A→B、換隱私頁、versionCode +1）；不可把這個 true 直接覆蓋已上封測的 A 版。
+const bool kSyncFeatureEnabled = true;
 
 /// Drive 上的快照檔名（存在 appDataFolder 隱藏資料夾內）。
 const String kSnapshotFileName = 'progress.json';
 
 /// 最小權限 scope：只看得到本 App 自己的隱藏資料夾，看不到使用者其他檔案。
 const String kDriveAppDataScope = 'https://www.googleapis.com/auth/drive.appdata';
+
+/// Web 類型 OAuth client 的 client ID（結尾 `.apps.googleusercontent.com`）。
+/// google_sign_in 在 Android 上沒用 google-services.json 時，登入**必須**帶這個當
+/// serverClientId（見 docs/OAUTH_SETUP.md 步驟 4.5 與 drive_cloud_gateway.dart 註解）。
+/// （已填：Cloud Console 的 Web 類型 OAuth client，2026-06-29 建）
+const String kGoogleServerClientId =
+    '516765062293-qbujj1d4jbvv1ase1h0slf3svg8054o5.apps.googleusercontent.com';
 
 enum SyncStatus { idle, syncing, ok, failed }
 
@@ -90,6 +100,13 @@ class SyncService extends ChangeNotifier {
 
   /// 全域單例。預設用骨架閘道；接上真 Drive 後改這裡的 gateway。
   static SyncService instance = SyncService._(const StubCloudGateway());
+
+  /// 在 App 啟動（init 前）注入真實雲端閘道，例如 main 裡：
+  /// `if (kSyncFeatureEnabled) SyncService.useGateway(DriveCloudGateway());`
+  /// 預設骨架閘道永遠未連線；這樣 sync_service.dart 不必依賴 googleapis。
+  static void useGateway(CloudGateway gateway) {
+    instance = SyncService._(gateway);
+  }
 
   /// 測試用：注入假閘道並重置狀態。
   @visibleForTesting

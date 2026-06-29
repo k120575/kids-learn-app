@@ -7,6 +7,7 @@ import 'app.dart';
 import 'core/audio_service.dart';
 import 'core/entitlement_service.dart';
 import 'core/progress_store.dart';
+import 'core/drive_cloud_gateway.dart';
 import 'core/screen_time.dart';
 import 'core/sync_service.dart';
 
@@ -23,7 +24,11 @@ Future<void> main() async {
   await ProgressStore.instance.init();
   await ProgressStore.instance.dailyCheckIn(); // 連續天數 + 每日獎勵星星
   await EntitlementService.instance.init(); // 付費解鎖：讀快取 + 與商店對帳（失敗不阻擋）
-  await SyncService.instance.init(); // 跨裝置同步：載入設定 + device_id（v1.0 旗標關，不連網）
+  // 跨裝置同步：旗標開時接上真實 Drive 閘道（否則維持骨架，不連網）。
+  if (kSyncFeatureEnabled) {
+    SyncService.useGateway(DriveCloudGateway());
+  }
+  await SyncService.instance.init(); // 載入設定 + device_id
   if (kSyncFeatureEnabled && SyncService.instance.enabled) {
     // 背景拉取，不阻擋進首頁（失敗靜默降級為純本機）。
     unawaited(SyncService.instance.syncNow());

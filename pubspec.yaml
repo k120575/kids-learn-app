@@ -40,6 +40,11 @@ dependencies:
   crypto: ^3.0.6
   sqflite: ^2.4.1
   path: ^1.9.0
+  # Phase 2 跨裝置同步：Google 登入 + Drive appDataFolder（scope 只 drive.appdata）。
+  google_sign_in: ^7.0.0
+  googleapis: ^14.0.0
+  googleapis_auth: ^2.0.0
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
