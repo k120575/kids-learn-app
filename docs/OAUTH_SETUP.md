@@ -18,7 +18,7 @@
 | **Upload/Release** SHA-1（本機 release keystore `keystore/kids-learn-release.jks`，alias `kidslearn`） | `E3:35:CF:D6:CA:65:B2:B4:EC:A8:D2:9A:F5:21:BE:4F:A6:1C:54:53` |
 | **Play App Signing** SHA-1 | ⚠️ 去 Play 後台抓（見 §1 步驟 0） |
 | Drive scope（最小權限） | `https://www.googleapis.com/auth/drive.appdata` |
-| 測試使用者 | `k120575@gmail.com`（+ 任何要測同步的家人帳號） |
+| 測試使用者 | `<你的開發者 email>`（+ 任何要測同步的家人帳號） |
 
 ### ⚠️ 為什麼要三組 SHA-1？（google_sign_in 在 Play 上最常見的坑）
 上傳的是 AAB、Play 預設開「**Play App Signing**」，會用**另一把 App 簽署金鑰**重簽，使用者實際裝到的版本
@@ -62,14 +62,14 @@ https://console.cloud.google.com/ → 右上專案下拉 → 沿用 `kids-learn-
 
 #### 3a — 品牌 (Branding)
 - 應用程式名稱：**寶貝學習樂園**
-- 使用者支援電郵：`k120575@gmail.com`
-- 開發人員聯絡資訊：`k120575@gmail.com`
+- 使用者支援電郵：`<你的開發者 email>`
+- 開發人員聯絡資訊：`<你的開發者 email>`
 - Logo / 首頁網址可留空（要過正式驗證才需要）→ 儲存。
 
 #### 3b — 目標對象 (Audience)　← 舊版的「User type + 測試使用者」
 - 使用者類型：**外部 (External)**
 - 發布狀態：**保持「測試中 (Testing)」**——別按「發布應用程式 / 推送正式版」。
-- **測試使用者 (Test users)**：新增 `k120575@gmail.com`（+ 家人帳號）→ 儲存。
+- **測試使用者 (Test users)**：新增 `<你的開發者 email>`（+ 家人帳號）→ 儲存。
 - 💡 Testing 模式下 `drive.appdata` 這種敏感範圍最多 **100 位測試使用者免 Google 審查**，封測夠用。
 - ⚠️ 測試使用者的授權 **7 天會過期**，過期重登一次即可，不影響開發。
 
