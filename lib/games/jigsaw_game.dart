@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 真正的拼圖（jigsaw）：一張「圖」（彩色漸層底 + 大圖案）被切成 rows×cols 塊並打散，
@@ -290,13 +291,9 @@ class _JigsawGameState extends State<JigsawGame> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              // 上半：完成圖（寬螢幕在左、窄螢幕在上）＋ 拼圖板
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(context.s(Sizes.gap)),
-                  child: Center(child: top),
-                ),
-              ),
+              // 上半：完成圖（寬螢幕在左、窄螢幕在上）＋ 拼圖板。
+              // 用 FitBox 等比縮到放得下這塊區域，矮螢幕也不會把拼圖板下緣切掉。
+              Expanded(child: FitBox(child: top)),
               const Divider(height: 1),
               // 下半：打散的碎片托盤
               SizedBox(

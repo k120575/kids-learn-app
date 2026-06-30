@@ -62,10 +62,11 @@ void main() {
       for (int k = 0; k < game.ch.length; k++) {
         expect(find.byKey(ValueKey<String>('choice_$k')), findsOneWidget);
       }
-      // 點第一張卡：不論對錯都不應崩。點到正解會有 850ms 慶祝延遲 +
-      // 進下一題，pump 夠久把 timer 沖掉（避免 !timersPending）。
+      // 點第一張卡：不論對錯都不應崩。點到正解會進下一題、重念歌名（測試環境
+      // 取不到音檔長度 → 退回約 2.8 秒），pump 夠久把整串 timer 沖掉（避免
+      // !timersPending）。pump 總時長要蓋過「850ms 慶祝 + 念歌名 + 播音效」。
       await tester.tap(find.byKey(const ValueKey<String>('choice_0')));
-      for (int i = 0; i < 8; i++) {
+      for (int i = 0; i < 60; i++) {
         await tester.pump(const Duration(milliseconds: 200));
       }
       expect(tester.takeException(), isNull);

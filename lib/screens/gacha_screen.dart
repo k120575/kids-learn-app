@@ -6,6 +6,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/rewards.dart';
 import '../core/theme.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/gacha_machine.dart';
 import '../core/widgets/reward_background.dart';
@@ -63,9 +64,7 @@ class _GachaScreenState extends State<GachaScreen>
     return GameScaffold(
       title: '扭蛋機',
       backgroundWidget: const RewardBackground(),
-      child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(context.s(Sizes.bigGap)),
+      child: FitBox(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -154,7 +153,6 @@ class _GachaScreenState extends State<GachaScreen>
               ),
             ],
           ),
-        ),
       ),
     );
   }

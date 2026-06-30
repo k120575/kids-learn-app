@@ -383,6 +383,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       gameId: 'opposites',
       title: '反義詞',
       pairs: oppositePairs,
+      labels: oppositeLabels,
     ),
   ),
   GameDef(

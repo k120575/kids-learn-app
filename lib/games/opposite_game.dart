@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -18,12 +19,16 @@ class OppositeGame extends StatefulWidget {
     required this.gameId,
     required this.title,
     required this.pairs,
+    this.labels = const <String, String>{},
     this.rounds = 10,
   });
 
   final String gameId;
   final String title;
   final List<(String, String)> pairs; // 相反詞配對（emoji）
+
+  /// 每張圖（emoji）的「概念詞」，用來念「找出{概念詞}的相反」。缺對照時退回通用句。
+  final Map<String, String> labels;
   final int rounds;
 
   @override
@@ -47,12 +52,18 @@ class _OppositeGameState extends State<OppositeGame> {
   /// 本題累計答錯次數；達 3 次就輕輕高亮正解，避免孩子卡住。
   int get _wrongCount => _wrong.values.fold<int>(0, (int a, int b) => a + b);
 
+  /// 出題語音：念「找出{概念詞}的相反」（同時點出這張圖是什麼）；缺對照時退回通用句。
+  String get _line {
+    final String? w = widget.labels[_prompt];
+    return w == null ? '找出相反的！' : '找出$w的相反';
+  }
+
   @override
   void initState() {
     super.initState();
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => AudioService.instance.speakAfterVoice('找出相反的！'),
+      (_) => AudioService.instance.speakAfterVoice(_line),
     );
   }
 
@@ -98,6 +109,7 @@ class _OppositeGameState extends State<OppositeGame> {
           _gen();
           _wrong.clear();
         });
+        AudioService.instance.speak(_line); // 念出新題目（找出X的相反）
       } else {
         final bool again = await finishGame(
           context,
@@ -112,6 +124,7 @@ class _OppositeGameState extends State<OppositeGame> {
             _gen();
             _wrong.clear();
           });
+          AudioService.instance.speak(_line);
         } else {
           Navigator.of(context).maybePop();
         }
@@ -129,13 +142,12 @@ class _OppositeGameState extends State<OppositeGame> {
       title: widget.title,
       current: _i,
       total: widget.rounds,
-      onReplay: () => AudioService.instance.speak('找出相反的！'),
+      onReplay: () => AudioService.instance.speak(_line),
       child: Stack(
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(context.s(Sizes.gap)),
+          FitBox(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
                   padding: EdgeInsets.all(context.s(12)),

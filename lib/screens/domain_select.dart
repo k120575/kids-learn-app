@@ -45,35 +45,47 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
     super.dispose();
   }
 
-  /// 站點排成上下平均的兩列（5 關 → 上 3 下 2），避免「上 4 下 1」看了煩。
-  /// 關卡 ≤3 或矮螢幕（手機橫向，[singleRow]）時排成一橫排，利用寬度、免上下捲。
-  /// 每列用 Wrap，窄螢幕仍能優雅換行。
-  Widget _stationGrid(
-    BuildContext context,
-    List<Domain> domains, {
-    bool singleRow = false,
-  }) {
-    if (singleRow || domains.length <= 3) return _stationRow(context, domains);
-    final int top = (domains.length / 2).ceil();
+  /// 站點永遠排成「上下盡量平均的兩列」（5 站 → 上 3 下 2，絕不上 4 下 1），
+  /// 站點直徑會依**可用寬度與高度**一起算出上限，讓兩列都放得進手機橫向的矮螢幕、
+  /// 免上下捲也不破版。≤3 站時用單列。[maxH] 是可用高度（由 LayoutBuilder 給）。
+  Widget _stationGrid(BuildContext context, List<Domain> domains, double maxH) {
+    final bool twoRows = domains.length > 3;
+    final int top = twoRows ? (domains.length / 2).ceil() : domains.length;
+    final int rows = twoRows ? 2 : 1;
+
+    // 寬度上限：最寬的一列（top 顆）要排得進可用寬度（多留 1 顆 spacing 當安全邊，
+    // 避免邊界剛好相等被 Wrap 擠到下一列——這正是先前「上 4 下 1」的元兇）。
+    final double spacing = context.s(Sizes.bigGap);
+    final double availW =
+        MediaQuery.of(context).size.width - context.s(Sizes.gap) * 2;
+    final double byWidth = (availW - spacing * top) / top;
+
+    // 高度上限：rows 列、每列含名稱條（約 s(46)）與列距，都要塞進可用高度。
+    final double labelBlock = context.s(46);
+    final double availH = maxH - context.s(Sizes.gap) * 2;
+    final double byHeight =
+        (availH - spacing * (rows - 1)) / rows - labelBlock;
+
+    // 夾住下限，避免極矮螢幕算出負值或小到看不見。
+    final double cap = (byWidth < byHeight ? byWidth : byHeight).clamp(
+      56.0,
+      _StationCard._d,
+    );
+
+    if (!twoRows) return _stationRow(context, domains, cap);
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        _stationRow(context, domains.sublist(0, top)),
-        SizedBox(height: context.s(Sizes.bigGap)),
-        _stationRow(context, domains.sublist(top)),
+        _stationRow(context, domains.sublist(0, top), cap),
+        SizedBox(height: spacing),
+        _stationRow(context, domains.sublist(top), cap),
       ],
     );
   }
 
-  Widget _stationRow(BuildContext context, List<Domain> domains) {
+  Widget _stationRow(BuildContext context, List<Domain> domains, double maxD) {
     final double spacing = context.s(Sizes.bigGap);
-    // 保證這一列 n 個站點都排得進可用寬度：算出每顆的直徑上限（多留 1 顆 spacing
-    // 當安全邊，避免邊界剛好相等而被 Wrap 擠到下一列）。寬螢幕時這個上限很大、
-    // 不會綁住（由 _StationCard 內的 context.s / 螢幕 1/6 決定），只在窄螢幕才生效。
-    final double availW =
-        MediaQuery.of(context).size.width - context.s(Sizes.gap) * 2;
-    final double maxD = (availW - spacing * domains.length) / domains.length;
     return Wrap(
       spacing: spacing,
       runSpacing: spacing,
@@ -146,11 +158,7 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
                   minHeight: c.maxHeight - Sizes.gap * 2,
                 ),
                 child: Center(
-                  child: _stationGrid(
-                    context,
-                    domains,
-                    singleRow: c.maxHeight < 460,
-                  ),
+                  child: _stationGrid(context, domains, c.maxHeight),
                 ),
               ),
             ),

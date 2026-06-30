@@ -219,6 +219,16 @@ MEASURE_NOUNS = [
 ]
 MEASURE_LINES = [f"{n}，要用哪個量詞？" for n in MEASURE_NOUNS]
 
+# 反義詞：念出題目的「概念詞」並出題，例如「找出快的相反」。概念詞要與
+# lib/content/lang45_levels.dart 的 oppositeLabels 完全一致（emoji→概念詞）。
+OPPOSITE_WORDS = [
+    "開心", "難過", "白天", "晚上", "快", "慢", "上", "下", "左", "右",
+    "熱", "冷", "好", "壞", "大", "小", "年輕", "年老", "大聲", "小聲",
+    "動", "不動", "對", "錯", "白", "黑", "濕", "乾", "輕", "重",
+    "加", "減", "完整", "破掉", "關", "開",
+]
+OPPOSITE_LINES = [f"找出{w}的相反" for w in OPPOSITE_WORDS]
+
 # 動態變體
 NUMBERS = [str(i) for i in range(1, 101)]         # 1~100（大數加減 / 乘法念題）
 TOTALS = [f"一共 {n} 個！" for n in range(3, 16)]   # 3~15
@@ -226,7 +236,7 @@ TOTALS = [f"一共 {n} 個！" for n in range(3, 16)]   # 3~15
 LINES = (STATIC + LISTEN + LISTEN45 + NUMBERS + TOTALS
          + HANZI_LINES + ZHUYIN_LINES + READ_ALOUD
          + HANZI56_LINES + ZHUYIN56_LINES + MEASURE_LINES
-         + ZHUYIN_SYLLABLES + HANZI_PIC)
+         + ZHUYIN_SYLLABLES + HANZI_PIC + OPPOSITE_LINES)
 
 
 # 破音字修正：{雜湊/顯示用字 : 實際餵給 TTS 的同音字}。

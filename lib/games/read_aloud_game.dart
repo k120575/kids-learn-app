@@ -4,6 +4,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 跟我念（親子共學）：播放一句短語，孩子和家長一起跟著念，念完按「我念好了」。
@@ -96,9 +97,7 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
       current: _i,
       total: _items.length,
       onReplay: _speak,
-      child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(context.s(Sizes.bigGap)),
+      child: FitBox(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -167,7 +166,6 @@ class _ReadAloudGameState extends State<ReadAloudGame> {
               ),
             ],
           ),
-        ),
       ),
     );
   }

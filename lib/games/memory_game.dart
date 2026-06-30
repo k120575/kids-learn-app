@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 class _Card {
@@ -173,10 +174,9 @@ class _MemoryGameState extends State<MemoryGame> {
           final double cell = (((avail - gap * (cols - 1)) / cols))
               .clamp(40.0, context.s(96));
           final int rows = (_cards.length / cols).ceil();
-          return Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(pad),
-              child: Column(
+          // FitBox：8 對（4×4）在手機橫向也整盤縮到放得下，不會把下面幾排切掉。
+          return FitBox(
+            child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: List<Widget>.generate(rows, (int r) {
                   final int start = r * cols;
@@ -196,7 +196,6 @@ class _MemoryGameState extends State<MemoryGame> {
                   );
                 }),
               ),
-            ),
           );
         },
       ),

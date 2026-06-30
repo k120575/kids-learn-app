@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -297,37 +298,29 @@ class _PickGameState extends State<PickGame> {
       onReplay: _speakGated,
       child: Stack(
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(context.s(Sizes.gap)),
-            child: Center(
-              child: SingleChildScrollView(
-                // 念題中淡化選項，提示孩子「先聽，聽完再選」。
-                child: AnimatedOpacity(
-                  opacity: _speaking ? 0.4 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Wrap(
-                    spacing: context.s(Sizes.bigGap),
-                    runSpacing: context.s(Sizes.bigGap),
-                    alignment: WrapAlignment.center,
-                    children: List<Widget>.generate(round.options.length, (
-                      int idx,
-                    ) {
-                      final bool win = _success && idx == round.correctIndex;
-                      return Shaker(
-                        trigger: _wrong[idx] ?? 0,
-                        child: _OptionTile(
-                          emoji: round.options[idx],
-                          highlight: win,
-                          hint:
-                              !win &&
-                              idx == round.correctIndex &&
-                              _wrongCount >= 3,
-                          onTap: () => _onTap(idx),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
+          FitBox(
+            // 念題中淡化選項，提示孩子「先聽，聽完再選」。
+            child: AnimatedOpacity(
+              opacity: _speaking ? 0.4 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              // 選項排成上下平均的列（5 個 → 上 3 下 2），不要擠成上 4 下 1。
+              child: balancedTileRows(
+                context,
+                List<Widget>.generate(round.options.length, (int idx) {
+                  final bool win = _success && idx == round.correctIndex;
+                  return Shaker(
+                    trigger: _wrong[idx] ?? 0,
+                    child: _OptionTile(
+                      emoji: round.options[idx],
+                      highlight: win,
+                      hint:
+                          !win &&
+                          idx == round.correctIndex &&
+                          _wrongCount >= 3,
+                      onTap: () => _onTap(idx),
+                    ),
+                  );
+                }),
               ),
             ),
           ),

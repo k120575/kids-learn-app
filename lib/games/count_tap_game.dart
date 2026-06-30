@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -189,23 +190,20 @@ class _CountTapGameState extends State<CountTapGame> {
               // 上方：要數的東西（不能點，純展示）。上下兩列平均排
               // （8 個→上4下4、7 個→上4下3），看起來整齊不雜亂。
               Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(context.s(Sizes.gap)),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _emojiRow(context, round.emoji, (round.count / 2).ceil()),
-                        if (round.count > 1)
-                          SizedBox(height: context.s(Sizes.bigGap)),
-                        if (round.count > 1)
-                          _emojiRow(
-                            context,
-                            round.emoji,
-                            round.count - (round.count / 2).ceil(),
-                          ),
-                      ],
-                    ),
+                child: FitBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _emojiRow(context, round.emoji, (round.count / 2).ceil()),
+                      if (round.count > 1)
+                        SizedBox(height: context.s(Sizes.bigGap)),
+                      if (round.count > 1)
+                        _emojiRow(
+                          context,
+                          round.emoji,
+                          round.count - (round.count / 2).ceil(),
+                        ),
+                    ],
                   ),
                 ),
               ),

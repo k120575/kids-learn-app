@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 數獨小將（5-6）：4×4 圖案數獨。每一行、每一列、每個 2×2 宮格裡，
@@ -227,10 +228,9 @@ class _SudokuGameState extends State<SudokuGame> {
       onReplay: () => AudioService.instance.speak('每一行、每一列都不能有一樣的！'),
       child: Stack(
         children: <Widget>[
-          Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(context.s(Sizes.gap)),
-              child: Column(
+          // 整塊（提示＋盤面＋符號列）一起等比縮到放得下，矮螢幕不會把符號列切掉。
+          FitBox(
+            child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
@@ -255,7 +255,6 @@ class _SudokuGameState extends State<SudokuGame> {
                   _palette(),
                 ],
               ),
-            ),
           ),
           if (_success) const Positioned.fill(child: Celebration()),
         ],

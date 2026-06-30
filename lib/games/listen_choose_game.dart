@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -238,9 +239,8 @@ class _ListenChooseGameState extends State<ListenChooseGame> {
       onReplay: _replay,
       child: Stack(
         children: <Widget>[
-          Center(
-            child: SingleChildScrollView(
-              child: AnimatedOpacity(
+          FitBox(
+            child: AnimatedOpacity(
                 opacity: _speaking ? 0.4 : 1.0,
                 duration: const Duration(milliseconds: 200),
                 child: Column(
@@ -299,7 +299,6 @@ class _ListenChooseGameState extends State<ListenChooseGame> {
                       ),
                   ],
                 ),
-              ),
             ),
           ),
           if (_success) const Positioned.fill(child: Celebration()),
