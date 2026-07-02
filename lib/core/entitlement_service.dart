@@ -27,16 +27,11 @@ abstract class PurchaseGateway {
   Future<PurchaseResult> buy(String sku);
 }
 
-/// 預設骨架實作：商店一律不可用。換成真的 Play Billing 前的佔位。
+/// 骨架實作：商店一律不可用。當 `kPaywallEnabled=false`（全免費版）時仍是預設閘道。
 ///
-/// TODO(billing): 新增 `PlayBillingGateway implements PurchaseGateway`，以 in_app_purchase 實作：
-///   - isAvailable() → `InAppPurchase.instance.isAvailable()`
-///   - queryOwned()  → `restorePurchases()` + 監聽 `purchaseStream` 過濾 productID，
-///                     對每筆做 `_verify()`（PLAN §2.2 本機+Google 簽章驗證），再 `completePurchase()`
-///   - buy()         → `queryProductDetails({sku})` → `buyNonConsumable(...)` → 監聽 stream
-///   接上後把 [EntitlementService.instance] 的 gateway 換成它（見檔尾說明）。
-///   先決條件（Kevin 在 Play Console）：建好 managed product「full_unlock_family」NT$350、
-///   設定 License 測試帳號，否則 isAvailable() 會是 false、購買流程跑不動。
+/// 真正的 Play Billing 實作在 [PlayBillingGateway]（`play_billing_gateway.dart`）；
+/// `kPaywallEnabled=true` 時由 `main.dart` 呼叫 [EntitlementService.useGateway] 注入它，
+/// 本檔與所有 UI 都不依賴 in_app_purchase。
 class StubGateway implements PurchaseGateway {
   const StubGateway();
 
@@ -56,6 +51,13 @@ class EntitlementService extends ChangeNotifier {
 
   /// 全域單例。預設用骨架閘道；接上真 Billing 後改這裡的 gateway。
   static EntitlementService instance = EntitlementService._(const StubGateway());
+
+  /// 在 App 啟動（init 前）注入真實金流閘道，例如 main 裡：
+  /// `if (kPaywallEnabled) EntitlementService.useGateway(PlayBillingGateway());`
+  /// 預設骨架閘道永遠不可用；這樣 entitlement_service.dart 不必依賴 in_app_purchase。
+  static void useGateway(PurchaseGateway gateway) {
+    instance = EntitlementService._(gateway);
+  }
 
   /// 測試用：注入假閘道並重置狀態。
   @visibleForTesting

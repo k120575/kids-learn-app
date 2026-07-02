@@ -4,10 +4,13 @@ import '../models/domain.dart';
 import '../models/game_def.dart';
 import 'registry.dart';
 
-/// v1.0 上架先「全部免費」：Billing 尚未接（StubGateway 買不動），先把付費鎖整個關掉，
-/// 全關卡開放、不顯示任何付費 UI。等接好 PlayBillingGateway 要恢復付費分層時，改回 true 即可
-/// —— 付費邏輯（[isGameFree]/EntitlementService/PaywallScreen）全部留著，翻旗標就回來。
-const bool kPaywallEnabled = false;
+/// 付費分層總開關。true＝依 [isGameFree] 鎖付費關卡、顯示付費 UI，接 [PlayBillingGateway] 真實購買。
+///
+/// ⚠️ 送審／打包前必查（見 docs/PLAY_STORE_LAUNCH.md 軸 B 清單、[[play-phase2-must-change]]）：
+/// 這個 true 只能搭配「Play Console 已建好商品 [kFullUnlockSku]（NT$350 非消耗型、狀態有效）」
+/// 一起出貨，否則會「鎖了又買不了」。同時 Play 問卷要改：App access 否→是（附審查解鎖說明）、
+/// Content ratings 數位購買 No→Yes。付費只能在 Play 軌道（內部/封閉測試以上）測，本機 sideload 買不動。
+const bool kPaywallEnabled = true;
 
 /// 免費／付費內容切分的單一事實來源。完整設計見 docs/PLAN_billing_sync.md §2.3。
 ///

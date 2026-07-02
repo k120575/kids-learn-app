@@ -1,8 +1,11 @@
 # 技術規劃：付費解鎖 + 跨裝置進度同步
 
-> 狀態：規劃（未實作）。定價 **NT$350**，模式 **Freemium + 一次性買斷**。
+> 狀態：**軸 B 付費、軸 A 同步 App 端皆已實作（在 main）**。定價 **NT$350**，模式 **Freemium + 一次性買斷**。
 > 後端策略：**Google 原生**，零自建後端。
-> 本文件是實作前的單一事實來源；對應商業決策見對話紀錄。
+> - 軸 A 同步：`DriveCloudGateway` 已接、`kSyncFeatureEnabled=true`、實機驗收過（2026-06-29）。
+> - 軸 B 付費：`PlayBillingGateway`(`in_app_purchase`) 已接、`kPaywallEnabled=true`（2026-07-02）。
+>   **就差 Kevin 在 Play Console 建 `full_unlock_family`（NT$350 非消耗型）+ License 測試帳號**，
+>   才能在 Play 軌道跑真實購買驗收（見 docs/PLAY_STORE_LAUNCH.md 軸 B）。
 
 ---
 

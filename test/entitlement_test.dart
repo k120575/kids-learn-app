@@ -65,6 +65,14 @@ void main() {
     expect(EntitlementService.instance.isFullUnlocked, isFalse);
   });
 
+  test('useGateway 注入正式閘道：啟動對帳即解鎖（等同 main 的接線路徑）', () async {
+    EntitlementService.useGateway(
+      _FakeGateway(available: true, owned: <String>{kFullUnlockSku}),
+    );
+    await EntitlementService.instance.init();
+    expect(EntitlementService.instance.isFullUnlocked, isTrue);
+  });
+
   test('退款撤銷：再次對帳時商店已不擁有 → 取消解鎖', () async {
     // 先擁有並解鎖
     final _FakeGateway g =

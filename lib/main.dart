@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'content/access_policy.dart';
 import 'core/audio_service.dart';
 import 'core/entitlement_service.dart';
+import 'core/play_billing_gateway.dart';
 import 'core/progress_store.dart';
 import 'core/drive_cloud_gateway.dart';
 import 'core/screen_time.dart';
@@ -23,7 +25,11 @@ Future<void> main() async {
 
   await ProgressStore.instance.init();
   await ProgressStore.instance.dailyCheckIn(); // 連續天數 + 每日獎勵星星
-  await EntitlementService.instance.init(); // 付費解鎖：讀快取 + 與商店對帳（失敗不阻擋）
+  // 付費解鎖：旗標開時接上真實 Play Billing 閘道（否則維持骨架，不碰金流）。
+  if (kPaywallEnabled) {
+    EntitlementService.useGateway(PlayBillingGateway());
+  }
+  await EntitlementService.instance.init(); // 讀快取 + 與商店對帳（失敗不阻擋）
   // 跨裝置同步：旗標開時接上真實 Drive 閘道（否則維持骨架，不連網）。
   if (kSyncFeatureEnabled) {
     SyncService.useGateway(DriveCloudGateway());

@@ -13,21 +13,22 @@
 
 ### ⚠️ 一：要「真的能賣」＝ Play Console 建商品 **且** App 端串好 Billing，缺一不可
 
-本文件聚焦 **Play Console / 上架操作面**。但你要知道：目前 App 內的付費是**骨架（StubGateway）**——
+本文件聚焦 **Play Console / 上架操作面**。App 端的付費串接狀態：
 
-- `lib/core/entitlement_service.dart` 目前掛的是 `StubGateway`，`buy()` **永遠回傳「暫時無法購買」**。
-- `in_app_purchase` 套件**還沒加進 `pubspec.yaml`**，`PlayBillingGateway` 只是 TODO 註解。
-- `lib/screens/paywall_screen.dart` 付費牆 UI、`lib/content/access_policy.dart` 鎖關卡邏輯都已就緒，但**按下去不會真的完成購買**。
+- ✅ **App 端已串好真 Billing（2026-07-02）**：`lib/core/play_billing_gateway.dart` 以 `in_app_purchase 3.3.0` 實作，
+  `kPaywallEnabled=true`、`main.dart` 已注入 `PlayBillingGateway`。付費牆/鎖關卡/還原全部就緒。
+- ⬜ **就差 Play Console 這一半**：商品 `full_unlock_family` 尚未建立。App 端 `buy()` 會去 `queryProductDetails`，
+  找不到商品就回「暫時無法購買」。**所以商品沒建好前，付費牆按下去仍買不動。**
 
-👉 **結論：要真的賣出 `full_unlock_family`，必須兩邊都完成：**
+👉 **要真的賣出 `full_unlock_family`，剩下 Play Console 這半（本文件階段 6）：**
 
-| 要做的事                                                                                 | 在哪               | 本文件涵蓋？                                      |
-| ------------------------------------------------------------------------------------ | ---------------- | ------------------------------------------- |
-| ① 在 Play Console 建立 managed product、設 Active、設測試帳號                                   | Play Console（網站） | ✅ 階段 6                                      |
-| ② App 端把 `StubGateway` 換成真正的 `PlayBillingGateway`（加 `in_app_purchase` 依賴、實作購買/還原/對帳） | 本機（程式碼）          | ❌ 不在本文件，見 `docs/PLAN_billing_sync.md` §2、§7 |
+| 要做的事                                                                   | 在哪               | 狀態                          |
+| -------------------------------------------------------------------- | ---------------- | --------------------------- |
+| ① App 端串真 `PlayBillingGateway`（加 `in_app_purchase`、實作購買/還原/對帳）        | 本機（程式碼）          | ✅ 已完成（見軸 B 清單）              |
+| ② 在 Play Console 建立 managed product、設 Active、設 License 測試帳號           | Play Console（網站） | ⬜ **待 Kevin**（階段 6）         |
 
-> 你可以**先不含付費上架**（v1.0 全部關卡先免費或先只開放部分、付費牆暫時隱藏），之後版本再補 Billing；
-> 也可以等 ② 做完再一起上。但**只做 ① 不做 ②，使用者按付費牆只會看到「暫時無法購買」**。請先決定策略。
+> ⚠️ **關鍵順序**：②要先做好、商品生效，含 `kPaywallEnabled=true` 的這版才不會「鎖了又買不了」。
+> 付費**只能在 Play 軌道（內部/封閉測試以上）測**，本機 sideload 買不動。
 
 ### ⚠️ 二：新個人帳號的「正式版關卡」——封閉測試 12 人 / 14 天
 
@@ -108,15 +109,20 @@
 
 ### 🅱️ 軸 B — 開賣付費（恢復付費鎖）
 
-**程式**
+**程式**（✅ 2026-07-02 完成，在 main）
 
-- [ ] `lib/content/access_policy.dart` 的 **`kPaywallEnabled` 改回 `true`**
-- [ ] 接 `PlayBillingGateway`(`in_app_purchase`) 取代 StubGateway
-- [ ] Play Console 建 `full_unlock_family`（NT$350，非消耗型）+ License 測試帳號
+- [x] ✅ `lib/content/access_policy.dart` 的 **`kPaywallEnabled` 改為 `true`**
+- [x] ✅ 接 `PlayBillingGateway`(`in_app_purchase 3.3.0`) 取代 StubGateway：新檔 `lib/core/play_billing_gateway.dart`（用 completer 橋接 purchaseStream，實作 isAvailable/queryOwned/buy），`EntitlementService.useGateway()` 注入點，`main.dart` 在 `kPaywallEnabled` 時注入。`flutter analyze` 全綠、53 測全綠、debug APK 打包成功。
+- [x] ✅ `pubspec.yaml` versionCode +1（`1.0.2+4` → **`1.1.0+5`**）
+- [ ] ⬜ **Kevin：Play Console 建 `full_unlock_family`（NT$350，非消耗型 managed product、狀態設「有效」）**
+- [ ] ⬜ **Kevin：設定 License testing 帳號（自己的 Gmail），才能用測試卡免費跑購買/還原**
 
-**Play Console / 政策**
+> ⚠️ **關鍵順序**：商品要**先在 Play 建好且生效**，含 `kPaywallEnabled=true` 的這版才不會「鎖了又買不了」。
+> 付費**只能在 Play 軌道（內部/封閉測試以上）測**，本機 sideload 的 debug APK 買不動（`buy()` 會回 unavailable）。
 
-- [ ] **App access：否 → 是** + 提供審查員解鎖說明（managed product，可用 License 測試解鎖）
+**Play Console / 政策**（⬜ Kevin，等含付費的版本推上去那刻改）
+
+- [ ] **App access：否 → 是** + 提供審查員解鎖說明（managed product，可用 License 測試帳號解鎖）
 - [ ] **Content ratings：數位購買 No → Yes**
 
 ### 兩軸共通
