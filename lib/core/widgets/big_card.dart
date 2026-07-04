@@ -15,6 +15,7 @@ class BigCard extends StatefulWidget {
     this.badge,
     this.dimmed = false,
     this.solid = false,
+    this.labelScale = 1.0,
   });
 
   final String emoji;
@@ -22,6 +23,9 @@ class BigCard extends StatefulWidget {
   final Color color;
   final double size;
   final VoidCallback onTap;
+
+  /// 標題字級相對卡片的加成倍率（預設 1.0）。首頁年齡卡用較大值，讓「3-4 歲」在手機上看得清。
+  final double labelScale;
 
   /// 右上角小徽章（例如星星數）。
   final Widget? badge;
@@ -90,7 +94,7 @@ class _BigCardState extends State<BigCard> {
                               widget.label!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: widget.size * 0.13,
+                                fontSize: widget.size * 0.13 * widget.labelScale,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

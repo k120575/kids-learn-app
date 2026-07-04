@@ -338,6 +338,8 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
               emoji: band.emoji,
               // 卡片尺寸隨裝置縮放（原本寫死 160，手機放不下 3 張）。
               size: context.s(108),
+              // 年齡文字（3-4 歲…）在手機上太小，只放大字級、卡片與 emoji 不動。
+              labelScale: 1.5,
               label: band.enabled ? band.label : '即將推出',
               color: const Color(0xFF4DD0E1),
               solid: true, // 實心白底卡片，在背景上更跳、更好按

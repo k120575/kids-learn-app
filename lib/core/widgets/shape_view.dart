@@ -50,13 +50,15 @@ class _ShapePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // 描邊粗細隨尺寸縮放：大圖粗、小圖細，避免小形狀被粗框糊成一團。
+    final double stroke = (size.shortestSide * 0.07).clamp(3.0, 9.0);
     final Paint paint = Paint()
       ..color = filled ? color : color.withValues(alpha: 0.9)
       ..style = filled ? PaintingStyle.fill : PaintingStyle.stroke
-      ..strokeWidth = 8
+      ..strokeWidth = stroke
       ..strokeJoin = StrokeJoin.round;
 
-    final Path path = _path(size);
+    final Path path = _path(size, stroke);
     if (!filled) {
       // 外框模式：畫淡底 + 粗框，當作「洞」。
       final Paint bg = Paint()..color = color.withValues(alpha: 0.12);
@@ -65,34 +67,38 @@ class _ShapePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  Path _path(Size size) {
+  Path _path(Size size, double stroke) {
     final double w = size.width;
     final double h = size.height;
+    // 內縮量隨尺寸縮放，讓外框描邊不被裁切，且小圖不會整塊糊掉。
+    final double pad = stroke * 0.75 + w * 0.03;
     final Path p = Path();
     switch (kind) {
       case ShapeKind.circle:
-        p.addOval(Rect.fromLTWH(6, 6, w - 12, h - 12));
+        p.addOval(Rect.fromLTWH(pad, pad, w - 2 * pad, h - 2 * pad));
       case ShapeKind.oval:
         // 橫向橢圓，與正圓有明顯區別。
-        p.addOval(Rect.fromLTWH(2, h * 0.24, w - 4, h * 0.52));
+        p.addOval(Rect.fromLTWH(pad, h * 0.24, w - 2 * pad, h * 0.52));
       case ShapeKind.square:
+        // 圓角隨邊長等比 → 小方形也看得出是方形（不會被圓角磨成圓點）。
+        final double s = w - 2 * pad;
         p.addRRect(
           RRect.fromRectAndRadius(
-            Rect.fromLTWH(8, 8, w - 16, h - 16),
-            const Radius.circular(10),
+            Rect.fromLTWH(pad, pad, s, h - 2 * pad),
+            Radius.circular(s * 0.16),
           ),
         );
       case ShapeKind.triangle:
         p
-          ..moveTo(w / 2, 8)
-          ..lineTo(w - 8, h - 10)
-          ..lineTo(8, h - 10)
+          ..moveTo(w / 2, pad)
+          ..lineTo(w - pad, h - pad)
+          ..lineTo(pad, h - pad)
           ..close();
       case ShapeKind.star:
         const int points = 5;
         final double cx = w / 2;
         final double cy = h / 2;
-        final double outer = w / 2 - 6;
+        final double outer = w / 2 - pad;
         final double inner = outer * 0.42;
         for (int i = 0; i < points * 2; i++) {
           final double r = i.isEven ? outer : inner;

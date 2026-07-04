@@ -1,4 +1,5 @@
 import '../games/arithmetic_game.dart';
+import '../games/block_copy_game.dart';
 import '../games/count_tap_game.dart';
 import '../games/drag_match_game.dart';
 import '../games/find_same_game.dart';
@@ -19,6 +20,7 @@ import '../games/sound_memory_game.dart';
 import '../games/spot_difference_game.dart';
 import '../games/sudoku_game.dart';
 import '../games/symmetry_game.dart';
+import '../games/tangram_game.dart';
 import '../games/whats_missing_game.dart';
 import '../games/zhuyin_match_game.dart';
 import '../models/age_band.dart';
@@ -244,6 +246,22 @@ final List<GameDef> gameRegistry = <GameDef>[
 
   // ==================== 4-5 歲 ====================
   // ---------- 邏輯數學 ----------
+  // 免費試玩擺「進階分類」（3-4 已有的重複機制）當 taster，
+  // 把招牌關「加減法／比大小」留在付費區當 showcase（見 access_policy：領域第一關免費）。
+  GameDef(
+    id: 'advanced_sort_45',
+    title: '進階分類',
+    emoji: '🔷',
+    domain: Domain.logicMath,
+    ageBands: _age45,
+    builder: (_) => DragMatchGame(
+      gameId: 'advanced_sort_45',
+      title: '進階分類',
+      intro: '顏色和形狀都要一樣，才放得進去喔！',
+      generator: () => makeAdvancedSortBoard(hard: true), // 3色×2形=6格、每格1-4個
+      rounds: 4,
+    ),
+  ),
   GameDef(
     id: 'arithmetic',
     title: '加減法',
@@ -261,21 +279,10 @@ final List<GameDef> gameRegistry = <GameDef>[
     ageBands: _age45,
     builder: (_) => const NumberCompareGame(gameId: 'compare', title: '比大小'),
   ),
-  GameDef(
-    id: 'advanced_sort_45',
-    title: '進階分類',
-    emoji: '🔷',
-    domain: Domain.logicMath,
-    ageBands: _age45,
-    builder: (_) => DragMatchGame(
-      gameId: 'advanced_sort_45',
-      title: '進階分類',
-      intro: '顏色和形狀都要一樣，才放得進去喔！',
-      generator: () => makeAdvancedSortBoard(hard: true), // 3色×2形=6格、每格1-4個
-      rounds: 4,
-    ),
-  ),
   // ---------- 空間 ----------
+  // 免費 taster = 走迷宮（3-4 已有的重複機制）；招牌關「積木照樣蓋／拼出圖形」留付費區。
+  // 這兩關是 4-5 空間發展的核心：空間建構、形狀組合分解（比 3-4 的配對進階、
+  // 又還不到 5-6 的心像旋轉），且機制與全 App 其它遊戲零重疊。
   GameDef(
     id: 'maze_hard',
     title: '走迷宮',
@@ -291,31 +298,22 @@ final List<GameDef> gameRegistry = <GameDef>[
     ),
   ),
   GameDef(
-    id: 'shape_match_45',
-    title: '形狀配對',
-    emoji: '🔷',
+    id: 'block_copy_45',
+    title: '積木照樣蓋',
+    emoji: '🧱',
     domain: Domain.spatial,
     ageBands: _age45,
-    builder: (_) => DragMatchGame(
-      gameId: 'shape_match_45',
-      title: '形狀配對',
-      intro: '不要看顏色，把一樣形狀的放進洞洞裡！',
-      generator: () => makeShapeMatchBoard(hard: true), // 5 種形狀、全部同色（只能靠形狀）
-      rounds: 6,
-    ),
+    builder: (_) =>
+        const BlockCopyGame(gameId: 'block_copy_45', title: '積木照樣蓋', rounds: 8),
   ),
   GameDef(
-    id: 'house_puzzle_45',
-    title: '拼拼圖',
-    emoji: '🧩',
+    id: 'tangram_45',
+    title: '拼出圖形',
+    emoji: '🔺',
     domain: Domain.spatial,
     ageBands: _age45,
-    builder: (_) => const JigsawGame(
-      gameId: 'house_puzzle_45',
-      title: '拼拼圖',
-      minPieces: 9, // 9~16 片，行列隨機（可非正方形）
-      maxPieces: 16,
-    ),
+    builder: (_) =>
+        const TangramGame(gameId: 'tangram_45', title: '拼出圖形', rounds: 6),
   ),
   // ---------- 動腦 ----------
   GameDef(
@@ -563,14 +561,8 @@ final List<GameDef> gameRegistry = <GameDef>[
 
   // ---------- 空間（魔法陣 🔮）----------
   // （5-6 取消迷宮關卡：迷宮難度已下移到 3-4 / 4-5）
-  GameDef(
-    id: 'symmetry_56',
-    title: '對稱鏡像',
-    emoji: '🦋',
-    domain: Domain.spatial,
-    ageBands: _age56,
-    builder: (_) => const SymmetryGame(gameId: 'symmetry_56', title: '對稱鏡像'),
-  ),
+  // 免費試玩擺「拼圖高手」（重複機制、只是片數更多）當 taster，
+  // 把招牌關「對稱鏡像／轉轉看」留在付費區當 showcase（領域第一關免費）。
   GameDef(
     id: 'puzzle_56',
     title: '拼圖高手',
@@ -583,6 +575,14 @@ final List<GameDef> gameRegistry = <GameDef>[
       minPieces: 16, // 16~25 片，行列隨機（可非正方形）
       maxPieces: 25,
     ),
+  ),
+  GameDef(
+    id: 'symmetry_56',
+    title: '對稱鏡像',
+    emoji: '🦋',
+    domain: Domain.spatial,
+    ageBands: _age56,
+    builder: (_) => const SymmetryGame(gameId: 'symmetry_56', title: '對稱鏡像'),
   ),
   GameDef(
     id: 'rotate_match_56',

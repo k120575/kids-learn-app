@@ -45,9 +45,13 @@ void main() {
           isTrue);
       expect(AccessPolicy.isGameFree(_game('opposites'), AgeBand.age4_5),
           isFalse);
-      // 數學第一關 = arithmetic
-      expect(AccessPolicy.isGameFree(_game('arithmetic'), AgeBand.age4_5),
+      // 數學第一關 = advanced_sort_45（免費 taster 用重複關，招牌關留付費區）
+      expect(AccessPolicy.firstGameId(AgeBand.age4_5, Domain.logicMath),
+          'advanced_sort_45');
+      expect(AccessPolicy.isGameFree(_game('advanced_sort_45'), AgeBand.age4_5),
           isTrue);
+      expect(AccessPolicy.isGameFree(_game('arithmetic'), AgeBand.age4_5),
+          isFalse);
       expect(AccessPolicy.isGameFree(_game('compare'), AgeBand.age4_5),
           isFalse);
     });
@@ -57,6 +61,11 @@ void main() {
           AccessPolicy.firstGameId(AgeBand.age5_6, Domain.language);
       expect(first, isNotNull);
       expect(AccessPolicy.isGameFree(_game(first!), AgeBand.age5_6), isTrue);
+      // 空間第一關 = puzzle_56（免費 taster 用重複關，招牌關對稱鏡像/轉轉看留付費區）
+      expect(AccessPolicy.firstGameId(AgeBand.age5_6, Domain.spatial),
+          'puzzle_56');
+      expect(AccessPolicy.isGameFree(_game('symmetry_56'), AgeBand.age5_6),
+          isFalse);
     });
   });
 
