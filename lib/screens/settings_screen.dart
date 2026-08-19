@@ -376,9 +376,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
   }
 
+  /// 關閉同步：讓家長選「保留雲端備份」或「同時刪除雲端備份」
+  /// （隱私政策承諾可在 App 內刪除已同步的進度）。
   Future<void> _disableSync() async {
-    await SyncService.instance.disable();
-    if (mounted) setState(() {});
+    final bool? wipe = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('關閉雲端同步？'),
+        content: const Text(
+          '本機進度會保留。\n'
+          '雲端備份可以留著（換裝置還能取回），也可以一併刪除。',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('保留雲端備份'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('刪除雲端備份', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (wipe == null) return; // 取消
+    final bool wiped =
+        await SyncService.instance.disable(alsoWipeCloud: wipe);
+    if (!mounted) return;
+    setState(() {});
+    if (wipe) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              wiped ? '已關閉同步並刪除雲端備份 🗑️' : '已關閉同步，但雲端備份刪除失敗，請連網後再試一次',
+            ),
+          ),
+        );
+    }
   }
 
   static String _fmtTime(int epochMs) {
@@ -406,7 +446,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('清除所有進度？'),
-        content: const Text('星星紀錄會全部歸零，無法復原。'),
+        content: Text(
+          SyncService.instance.enabled
+              ? '星星紀錄會全部歸零，無法復原。\n雲端備份也會同步更新成清除後的狀態。'
+              : '星星紀錄會全部歸零，無法復原。',
+        ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -421,6 +465,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (yes ?? false) {
       await _store.clearProgress();
+      // 把清除後的本機狀態「整包覆蓋」上雲，否則下次同步雲端舊快照會把進度復活。
+      await SyncService.instance.pushLocalReplace();
       if (mounted) setState(() {});
     }
   }

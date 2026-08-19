@@ -143,6 +143,24 @@ class DriveCloudGateway implements CloudGateway {
     }
   }
 
+  @override
+  Future<void> wipe() async {
+    final drive.DriveApi? api = await _api();
+    if (api == null) {
+      throw StateError('drive unavailable'); // 未登入/無網路：讓呼叫端知道沒刪成
+    }
+    // appDataFolder 理論上只會有一份快照，但保險起見把同名檔全刪。
+    final drive.FileList list = await api.files.list(
+      spaces: 'appDataFolder',
+      q: "name = '$kSnapshotFileName'",
+      $fields: 'files(id)',
+    );
+    for (final drive.File f in list.files ?? const <drive.File>[]) {
+      final String? id = f.id;
+      if (id != null) await api.files.delete(id);
+    }
+  }
+
   /// 找 appDataFolder 內 [kSnapshotFileName] 的 fileId；沒有則 null。
   Future<String?> _findSnapshotId(drive.DriveApi api) async {
     final drive.FileList list = await api.files.list(

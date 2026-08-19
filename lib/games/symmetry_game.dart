@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 對稱鏡像（5-6）：左半邊有一個魔法圖案，沿著中間的鏡子把右半邊「對稱地」補出來。
@@ -186,69 +187,64 @@ class _SymmetryGameState extends State<SymmetryGame> {
       onReplay: () => AudioService.instance.speak('看著鏡子，把另一半補成一樣！'),
       child: Stack(
         children: <Widget>[
-          Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(context.s(Sizes.gap)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    '把右邊補成左邊的鏡像',
-                    style: TextStyle(
-                      fontSize: context.s(20),
-                      fontWeight: FontWeight.bold,
-                    ),
+          // 標題＋盤面整塊 FitBox 等比縮到放得下（挑戰難度 6 列在手機橫向會超高），
+          // 免捲動——舊的 Center > SingleChildScrollView 會把最後幾列藏到畫面外。
+          FitBox(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  '把右邊補成左邊的鏡像',
+                  style: TextStyle(
+                    fontSize: context.s(20),
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: context.s(Sizes.gap)),
-                  // 窄螢幕時整個鏡像盤面等比縮小，不會被裁切。
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Column(
+                ),
+                SizedBox(height: context.s(Sizes.gap)),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List<Widget>.generate(_rows, (int r) {
+                    return Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: List<Widget>.generate(_rows, (int r) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            // 左半（題目，固定）
-                            for (int c = 0; c < _half; c++)
-                              _Cell(filled: _left[r][c], given: true),
-                            // 鏡子
-                            Container(
-                              width: context.s(6),
-                              height: context.s(52),
-                              margin: EdgeInsets.symmetric(
-                                horizontal: context.s(4),
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: <Color>[
-                                    Color(0xFFB388FF),
-                                    Color(0xFF7C4DFF),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
+                      children: <Widget>[
+                        // 左半（題目，固定）
+                        for (int c = 0; c < _half; c++)
+                          _Cell(filled: _left[r][c], given: true),
+                        // 鏡子
+                        Container(
+                          width: context.s(6),
+                          height: context.s(52),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: context.s(4),
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: <Color>[
+                                Color(0xFFB388FF),
+                                Color(0xFF7C4DFF),
+                              ],
                             ),
-                            // 右半（玩家填）
-                            for (int j = 0; j < _half; j++)
-                              _Cell(
-                                filled: _right[r][j],
-                                given: false,
-                                hint:
-                                    hintCell != null &&
-                                    hintCell.$1 == r &&
-                                    hintCell.$2 == j,
-                                onTap: () => _tapRight(r, j),
-                              ),
-                          ],
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        // 右半（玩家填）
+                        for (int j = 0; j < _half; j++)
+                          _Cell(
+                            filled: _right[r][j],
+                            given: false,
+                            hint:
+                                hintCell != null &&
+                                hintCell.$1 == r &&
+                                hintCell.$2 == j,
+                            onTap: () => _tapRight(r, j),
+                          ),
+                      ],
+                    );
+                  }),
+                ),
+              ],
             ),
           ),
           if (_success) const Positioned.fill(child: Celebration()),

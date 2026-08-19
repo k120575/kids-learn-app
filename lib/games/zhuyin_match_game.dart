@@ -167,14 +167,19 @@ class _ZhuyinMatchGameState extends State<ZhuyinMatchGame> {
         children: <Widget>[
           LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              // 排成整齊矩形：固定 4 欄（8→4×2、12→4×3、16→4×4），卡片大小隨寬度縮放。
+              // 排成整齊矩形：固定 4 欄（8→4×2、12→4×3、16→4×4）。
+              // 卡片大小同時受「寬」和「高」限制——挑戰 8 對＝4 列，只看寬的話
+              // 手機橫向會超高、最後一列被裁到畫面外。
               const int cols = 4;
               final double gap = context.s(12);
               final double pad = context.s(Sizes.gap);
-              final double avail = constraints.maxWidth - pad * 2;
-              final double cell = (((avail - gap * (cols - 1)) / cols))
-                  .clamp(40.0, context.s(96));
               final int rows = (_cards.length / cols).ceil();
+              final double cellW =
+                  (constraints.maxWidth - pad * 2 - gap * (cols - 1)) / cols;
+              final double cellH =
+                  (constraints.maxHeight - pad * 2 - gap * (rows - 1)) / rows;
+              final double cell =
+                  min(cellW, cellH).clamp(40.0, context.s(96));
               return Center(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(pad),

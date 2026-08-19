@@ -58,6 +58,9 @@ abstract class CloudGateway {
 
   /// 上傳快照覆蓋 appDataFolder 的 [kSnapshotFileName]。
   Future<void> upload(ProgressSnapshot snapshot);
+
+  /// 刪除雲端快照（隱私政策承諾的「刪除已同步的進度」）。沒有檔案也視為成功。
+  Future<void> wipe();
 }
 
 /// 預設骨架實作：永遠未連線。換成真的 Drive 同步前的佔位。
@@ -92,6 +95,9 @@ class StubCloudGateway implements CloudGateway {
 
   @override
   Future<void> upload(ProgressSnapshot snapshot) async {}
+
+  @override
+  Future<void> wipe() async {}
 }
 
 /// 同步狀態的單一事實來源。UI 同步讀 [enabled]/[account]/[status]，變更後 notifyListeners。
@@ -120,12 +126,17 @@ class SyncService extends ChangeNotifier {
   static const String _kAccount = 'sync_account';
   static const String _kLastSync = 'last_sync_at';
   static const String _kDeviceId = 'device_id';
+  static const String _kPendingReplace = 'sync_pending_replace';
 
   bool _enabled = false;
   String? _account;
   int _lastSyncAt = 0;
   String _deviceId = '';
   SyncStatus _status = SyncStatus.idle;
+
+  /// 破壞性本機變更（清除進度／刪孩子）尚未成功覆蓋上雲：
+  /// 下次同步必須「整包覆蓋」而非合併，否則雲端舊快照會把剛刪掉的資料復活。
+  bool _pendingReplace = false;
 
   bool get enabled => _enabled;
   String? get account => _account;
@@ -140,6 +151,7 @@ class SyncService extends ChangeNotifier {
     _enabled = (s[_kEnabled] ?? '0') == '1';
     _account = s[_kAccount];
     _lastSyncAt = int.tryParse(s[_kLastSync] ?? '0') ?? 0;
+    _pendingReplace = (s[_kPendingReplace] ?? '0') == '1';
     _deviceId = s[_kDeviceId] ?? '';
     if (_deviceId.isEmpty) {
       _deviceId = _newDeviceId();
@@ -159,25 +171,70 @@ class SyncService extends ChangeNotifier {
     _account = await _gateway.signedInEmail();
     await _setSetting(_kEnabled, '1');
     if (_account != null) await _setSetting(_kAccount, _account!);
+    // 重新開啟＝使用者重新選擇連上雲端：回到「合併」語意，放掉舊的覆蓋意圖。
+    await _setPendingReplace(false);
     notifyListeners();
     await syncNow();
     return true;
   }
 
   /// 關閉同步並登出。本機進度永遠保留（訪客也存），只是不再上雲。
-  Future<void> disable() async {
+  /// [alsoWipeCloud] 為 true 時先刪除雲端快照（隱私政策承諾的「刪除已同步的進度」）。
+  /// 回傳雲端刪除是否成功（未要求刪除時恆為 true）；刪除失敗仍會登出關閉。
+  Future<bool> disable({bool alsoWipeCloud = false}) async {
+    bool wiped = true;
+    if (alsoWipeCloud) {
+      try {
+        wiped = await _gateway.isAvailable();
+        if (wiped) {
+          await _gateway.wipe();
+          await _setPendingReplace(false); // 雲端已空，覆蓋意圖一併了結
+        }
+      } catch (_) {
+        wiped = false;
+      }
+    }
     await _gateway.signOut();
     _enabled = false;
     _account = null;
     await _setSetting(_kEnabled, '0');
     await _setSetting(_kAccount, '');
     notifyListeners();
+    return wiped;
+  }
+
+  /// 破壞性本機變更（清除進度、刪除孩子）後呼叫：把本機現況「整包覆蓋」上雲，
+  /// 不做合併——否則下次同步時雲端舊快照會把剛刪掉的資料復活。
+  /// 失敗（離線等）時保留 pending 旗標，下次 [syncNow] 會改走覆蓋補做。
+  Future<void> pushLocalReplace() async {
+    if (!_enabled) return;
+    await _setPendingReplace(true);
+    _setStatus(SyncStatus.syncing);
+    try {
+      if (!await _gateway.isAvailable()) {
+        _setStatus(SyncStatus.failed);
+        return;
+      }
+      final ProgressSnapshot local = await _exportLocal();
+      await _gateway.upload(local);
+      _lastSyncAt = local.updatedAt;
+      await _setSetting(_kLastSync, '$_lastSyncAt');
+      await _setPendingReplace(false);
+      _setStatus(SyncStatus.ok);
+    } catch (_) {
+      _setStatus(SyncStatus.failed);
+    }
   }
 
   /// 立即同步：下載雲端 → 與本機合併（取 max）→ 寫回本機 → 上傳合併結果。
   /// 全程失敗靜默降級（純本機照常跑），只更新 [status] 供設定頁顯示。
+  /// 若有未完成的「覆蓋上雲」（見 [pushLocalReplace]），先補做覆蓋、不合併。
   Future<void> syncNow() async {
     if (!_enabled) return;
+    if (_pendingReplace) {
+      await pushLocalReplace();
+      return;
+    }
     _setStatus(SyncStatus.syncing);
     try {
       if (!await _gateway.isAvailable()) {
@@ -199,6 +256,11 @@ class SyncService extends ChangeNotifier {
     } catch (_) {
       _setStatus(SyncStatus.failed);
     }
+  }
+
+  Future<void> _setPendingReplace(bool v) async {
+    _pendingReplace = v;
+    await _setSetting(_kPendingReplace, v ? '1' : '0');
   }
 
   Future<ProgressSnapshot> _exportLocal() async {

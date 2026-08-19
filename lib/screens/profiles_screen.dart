@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
+import '../core/sync_service.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../models/profile.dart';
@@ -167,6 +168,8 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
     );
     if (yes ?? false) {
       await _store.deleteProfile(p.id);
+      // 覆蓋上雲，否則下次同步雲端舊快照會把刪掉的孩子復活。
+      await SyncService.instance.pushLocalReplace();
       if (mounted) setState(() {});
     }
   }

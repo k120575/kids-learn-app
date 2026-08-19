@@ -8,6 +8,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -188,27 +189,23 @@ class _FindSameGameState extends State<FindSameGame> {
                 ),
               ),
               const Divider(height: 1),
+              // 選項排「上下平均的列」再整塊等比縮到放得下（挑戰 5 個在窄螢幕
+              // 用 Wrap 會擠成上 4 下 1 且要捲動）。
               Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: context.s(Sizes.bigGap),
-                      runSpacing: context.s(Sizes.bigGap),
-                      alignment: WrapAlignment.center,
-                      children: List<Widget>.generate(_options.length, (
-                        int idx,
-                      ) {
-                        final bool win = _success && idx == _correct;
-                        return Shaker(
-                          trigger: _wrong[idx] ?? 0,
-                          child: _Tile(
-                            emoji: _options[idx],
-                            highlight: win,
-                            onTap: () => _onTap(idx),
-                          ),
-                        );
-                      }),
-                    ),
+                child: FitBox(
+                  child: balancedTileRows(
+                    context,
+                    List<Widget>.generate(_options.length, (int idx) {
+                      final bool win = _success && idx == _correct;
+                      return Shaker(
+                        trigger: _wrong[idx] ?? 0,
+                        child: _Tile(
+                          emoji: _options[idx],
+                          highlight: win,
+                          onTap: () => _onTap(idx),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),

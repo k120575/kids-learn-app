@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -178,12 +179,13 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
       onReplay: _readQuestion,
       child: Stack(
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(context.s(Sizes.gap)),
+          // 星星陣列＋算式＋選項總高會超過手機橫向可用高度（大題目在平板也會），
+          // 整塊包 FitBox 等比縮到放得下、免捲動。
+          FitBox(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                // 視覺化「a 組、每組 b 個」星星陣列（格子太多時改用文字，避免溢出）
+                // 視覺化「a 組、每組 b 個」星星陣列（格子太多時改用文字，避免縮到看不清）
                 if (_q.a * _q.b <= 30)
                   _ArrayView(rows: _q.a, cols: _q.b)
                 else
@@ -195,27 +197,20 @@ class _MultiplicationGameState extends State<MultiplicationGame> {
                     ),
                   ),
                 SizedBox(height: context.s(Sizes.gap)),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '${_q.a} × ${_q.b} ＝ ?',
-                    style: TextStyle(
-                      fontSize: context.s(48),
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  '${_q.a} × ${_q.b} ＝ ?',
+                  style: TextStyle(
+                    fontSize: context.s(48),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: context.s(Sizes.bigGap)),
                 AnimatedOpacity(
                   opacity: (_lock && !_success) ? 0.4 : 1.0,
                   duration: const Duration(milliseconds: 200),
-                  child: Wrap(
-                    spacing: context.s(Sizes.bigGap),
-                    runSpacing: context.s(Sizes.gap),
-                    alignment: WrapAlignment.center,
-                    children: List<Widget>.generate(_q.options.length, (
-                      int idx,
-                    ) {
+                  child: balancedTileRows(
+                    context,
+                    List<Widget>.generate(_q.options.length, (int idx) {
                       final int v = _q.options[idx];
                       final bool win = _success && v == _q.answer;
                       return Shaker(

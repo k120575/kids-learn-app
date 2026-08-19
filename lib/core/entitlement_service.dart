@@ -21,6 +21,8 @@ abstract class PurchaseGateway {
   Future<bool> isAvailable();
 
   /// 查詢目前 Google 帳號已擁有哪些 SKU（啟動對帳 / 還原用）。
+  /// ⚠️ 契約：回傳空集合＝「確定查過、真的沒擁有」（呼叫端會據此撤銷解鎖）；
+  /// 查不成（商店/網路暫時性失敗）必須丟例外，不可用空集合充當。
   Future<Set<String>> queryOwned(Set<String> skus);
 
   /// 發起購買。[PurchaseResult.purchased] 與 [alreadyOwned] 視為「已解鎖」。
@@ -81,14 +83,16 @@ class EntitlementService extends ChangeNotifier {
     await _reconcile();
   }
 
-  /// 與商店對帳：以商店為準（涵蓋換機還原與退款撤銷）。商店不可用時維持快取。
+  /// 與商店對帳：以商店為準（涵蓋換機還原與退款撤銷）。
+  /// 只有 [PurchaseGateway.queryOwned] **成功回傳**且真的沒擁有，才撤銷解鎖；
+  /// 商店不可用或查詢失敗（丟例外）一律維持本機快取，避免暫時性失敗誤鎖已付費的家長。
   Future<void> _reconcile() async {
     try {
       if (!await _gateway.isAvailable()) return;
       final Set<String> owned = await _gateway.queryOwned(<String>{kFullUnlockSku});
       await _setEntitled(owned.contains(kFullUnlockSku));
     } catch (_) {
-      // 離線 / 尚未設定 → 維持本機快取。
+      // 離線 / 尚未設定 / 查詢失敗 → 維持本機快取。
     }
   }
 

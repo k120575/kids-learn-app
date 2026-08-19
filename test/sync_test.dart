@@ -50,6 +50,7 @@ class _FakeCloud implements CloudGateway {
   ProgressSnapshot? remote;
   ProgressSnapshot? lastUploaded;
   bool signedIn = false;
+  bool wipeCalled = false;
 
   @override
   Future<bool> isAvailable() async => signedIn;
@@ -70,8 +71,16 @@ class _FakeCloud implements CloudGateway {
   Future<ProgressSnapshot?> download() async => remote;
 
   @override
-  Future<void> upload(ProgressSnapshot snapshot) async =>
-      lastUploaded = snapshot;
+  Future<void> upload(ProgressSnapshot snapshot) async {
+    lastUploaded = snapshot;
+    remote = snapshot;
+  }
+
+  @override
+  Future<void> wipe() async {
+    wipeCalled = true;
+    remote = null;
+  }
 }
 
 void main() {
@@ -236,7 +245,7 @@ void main() {
       expect(SyncService.instance.status, SyncStatus.ok);
     });
 
-    test('關閉同步 → enabled 變 false、登出', () async {
+    test('關閉同步 → enabled 變 false、登出、雲端保留', () async {
       final _FakeCloud cloud = _FakeCloud();
       SyncService.debugSetGateway(cloud);
       await SyncService.instance.init();
@@ -245,6 +254,58 @@ void main() {
       expect(SyncService.instance.enabled, isFalse);
       expect(SyncService.instance.account, isNull);
       expect(cloud.signedIn, isFalse);
+      expect(cloud.wipeCalled, isFalse); // 預設保留雲端備份
+    });
+
+    test('關閉同步並刪除雲端備份 → wipe 被呼叫、雲端清空（隱私政策承諾）', () async {
+      final _FakeCloud cloud = _FakeCloud();
+      SyncService.debugSetGateway(cloud);
+      await SyncService.instance.init();
+      await SyncService.instance.enable();
+      expect(cloud.remote, isNotNull); // 首次同步已上傳
+      final bool wiped =
+          await SyncService.instance.disable(alsoWipeCloud: true);
+      expect(wiped, isTrue);
+      expect(cloud.wipeCalled, isTrue);
+      expect(cloud.remote, isNull);
+      expect(SyncService.instance.enabled, isFalse);
+      expect(cloud.signedIn, isFalse);
+    });
+
+    test('破壞性變更後 pushLocalReplace：整包覆蓋上雲、不合併雲端舊資料', () async {
+      final _FakeCloud cloud = _FakeCloud();
+      // 雲端已有一個孩子的舊快照（模擬刪除前同步過）。
+      cloud.remote = _snap(
+        deviceId: 'dev-old',
+        updatedAt: 100,
+        profiles: <ProfileMeta>[
+          const ProfileMeta(
+            id: 'p-deleted',
+            name: '已刪除的孩子',
+            emoji: '🐧',
+            createdAt: 1,
+            sort: 0,
+          ),
+        ],
+        data: <String, ProfileData>{
+          'p-deleted': _data(stars: <String, int>{'g1': 3}, earnedTotal: 10),
+        },
+      );
+      SyncService.debugSetGateway(cloud);
+      await SyncService.instance.init();
+      await SyncService.instance.enable();
+      // 一般同步是合併：雲端舊孩子會出現在上傳結果（聯集）。
+      expect(
+        cloud.lastUploaded!.profiles.map((ProfileMeta p) => p.id),
+        contains('p-deleted'),
+      );
+      // 本機刪除後改走覆蓋：上傳的是本機現況（無平台＝空），舊孩子不得復活。
+      await SyncService.instance.pushLocalReplace();
+      expect(SyncService.instance.status, SyncStatus.ok);
+      expect(cloud.lastUploaded!.profiles, isEmpty);
+      // 之後的 syncNow 也不會把（已被覆蓋掉的）資料撈回來。
+      await SyncService.instance.syncNow();
+      expect(cloud.lastUploaded!.profiles, isEmpty);
     });
   });
 }

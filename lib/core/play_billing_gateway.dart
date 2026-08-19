@@ -27,6 +27,10 @@ class PlayBillingGateway implements PurchaseGateway {
   /// 本 session 內從 purchaseStream 收集到、已驗證擁有的 SKU。
   final Set<String> _owned = <String>{};
 
+  /// purchaseStream 在還原等待窗內出錯的旗標：此時「沒收到擁有事件」不可信，
+  /// [queryOwned] 必須以失敗（丟例外）收場，避免把暫時性錯誤當成「沒買過」。
+  bool _streamErrored = false;
+
   /// 進行中的購買：productID → 等待其終態的 completer。
   final Map<String, Completer<PurchaseResult>> _pendingBuys =
       <String, Completer<PurchaseResult>>{};
@@ -42,7 +46,10 @@ class PlayBillingGateway implements PurchaseGateway {
   void _ensureListening() {
     _sub ??= _iap.purchaseStream.listen(
       _onPurchases,
-      onError: (_) => _failAllPending(PurchaseResult.error),
+      onError: (_) {
+        _streamErrored = true;
+        _failAllPending(PurchaseResult.error);
+      },
     );
   }
 
@@ -103,17 +110,23 @@ class PlayBillingGateway implements PurchaseGateway {
     }
   }
 
+  /// 查詢已擁有的 SKU。⚠️ 回傳空集合＝「確定查過、真的沒有」（呼叫端據此撤銷解鎖）；
+  /// 任何查不成的情況（商店不可用、restorePurchases 失敗、等待窗內 stream 出錯）
+  /// 一律丟例外，讓 [EntitlementService._reconcile] 維持本機快取——
+  /// 否則暫時性失敗會被誤判成「沒買過」，把已付費的家長鎖回去。
   @override
   Future<Set<String>> queryOwned(Set<String> skus) async {
-    if (!await isAvailable()) return <String>{};
-    _ensureListening();
-    // restorePurchases() 把過去的購買重新丟上 purchaseStream；收一小段時間後回報。
-    try {
-      await _iap.restorePurchases();
-    } catch (_) {
-      return <String>{};
+    if (!await isAvailable()) {
+      throw StateError('billing unavailable');
     }
+    _ensureListening();
+    _streamErrored = false;
+    // restorePurchases() 把過去的購買重新丟上 purchaseStream；收一小段時間後回報。
+    await _iap.restorePurchases();
     await Future<void>.delayed(_restoreWindow);
+    if (_streamErrored) {
+      throw StateError('purchase stream errored during restore window');
+    }
     return _owned.intersection(skus);
   }
 
