@@ -19,24 +19,28 @@ class _Card {
 }
 
 /// 記憶翻牌：翻牌找出成對的圖案，記住位置。pairs 控制難度（卡數 = pairs×2）。
+/// [pool] 可換整副卡池（例如 5-6 魔法主題），null＝預設動物/生活卡池——
+/// 讓不同年齡段的同款遊戲卡面不互撞（4-5 與 5-6 都拿它當試玩關）。
 class MemoryGame extends StatefulWidget {
   const MemoryGame({
     super.key,
     required this.gameId,
     required this.title,
     this.pairs = 6,
+    this.pool,
   });
 
   final String gameId;
   final String title;
   final int pairs;
+  final List<String>? pool;
 
   @override
   State<MemoryGame> createState() => _MemoryGameState();
 }
 
 class _MemoryGameState extends State<MemoryGame> {
-  static const List<String> _pool = <String>[
+  static const List<String> _defaultPool = <String>[
     '🐶',
     '🐱',
     '🐰',
@@ -77,9 +81,12 @@ class _MemoryGameState extends State<MemoryGame> {
   @override
   void initState() {
     super.initState();
-    // 適性難度：簡單 4 對、一般依設定（6）、挑戰 8 對。
+    // 適性難度：以 [pairs] 為一般難度，簡單 -2、挑戰 +2
+    // （4-5：4/6/8；5-6：6/8/10——原本 5-6 的挑戰階與一般同為 8，沒天花板）。
     final int level = ProgressStore.instance.levelFor(widget.gameId);
-    _pairs = level == 0 ? 4 : (level == 1 ? widget.pairs : 8);
+    _pairs = level == 0
+        ? max(4, widget.pairs - 2)
+        : (level == 1 ? widget.pairs : widget.pairs + 2);
     _deal();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => AudioService.instance.speakAfterVoice('翻翻看，找出一樣的！'),
@@ -94,7 +101,7 @@ class _MemoryGameState extends State<MemoryGame> {
 
   void _deal() {
     final List<String> pick = (List<String>.of(
-      _pool,
+      widget.pool ?? _defaultPool,
     )..shuffle(_rng)).take(_pairs).toList();
     _cards = <_Card>[
       for (final String e in pick) ...<_Card>[_Card(e), _Card(e)],

@@ -15,9 +15,20 @@ final List<PickRound> instrumentBank = buildSoundRounds(
   '這是什麼樂器的聲音？',
 );
 
+/// 4-5 歲第二套樂器（合成，tool/gen_instruments.py；emoji 已驗過在 bundled
+/// NotoColorEmoji 內）。與 3-4 那套零重疊——instrument_45 是試玩關，原本跟
+/// 3-4 樂器配對共用同 5 個音檔，付費前後聽到一模一樣的內容（試玩關互撞）。
+const List<(String, String)> instruments45 = <(String, String)>[
+  ('inst_piano.mp3', '🎹'),
+  ('inst_guitar.mp3', '🎸'),
+  ('inst_conga.mp3', '🪘'),
+  ('inst_accordion.mp3', '🪗'),
+  ('inst_flute.mp3', '🪈'),
+];
+
 /// 4-5 歲加難版：每題多一個干擾項（共 5 選項＝全部樂器一起出），辨音更難。
 final List<PickRound> instrumentBank45 = buildSoundRounds(
-  instruments,
+  instruments45,
   '這是什麼樂器的聲音？',
   distractors: 4,
 );

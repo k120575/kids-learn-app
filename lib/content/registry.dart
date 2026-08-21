@@ -653,7 +653,13 @@ final List<GameDef> gameRegistry = <GameDef>[
     builder: (_) => const MemoryGame(
       gameId: 'memory_56',
       title: '記憶翻牌',
-      pairs: 8, // 8 對牌
+      pairs: 8, // 8 對牌（適性：簡單 6 / 挑戰 10）
+      // 5-6 專屬魔法學院卡池（emoji 已驗過在 bundled NotoColorEmoji 內）——
+      // 與 4-5 的動物/生活卡池零重疊：兩關都是試玩關，卡面不能互撞。
+      pool: <String>[
+        '🪄', '🧙', '🦄', '🐉', '🔮', '🧚', '🏰', '🗝️',
+        '📜', '⚗️', '🧪', '💎', '🕯️', '🎩', '⚡', '🍄',
+      ],
     ),
   ),
   GameDef(

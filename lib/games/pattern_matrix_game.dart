@@ -65,10 +65,14 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
   @override
   void initState() {
     super.initState();
-    // 適性難度：簡單（2 個一組、長 5）、一般（依設定）、挑戰（最多 3 個一組、長 8）。
+    // 適性難度：以 [length] 為一般難度，簡單 -1 且只 2 個一組、挑戰 +2 且最多
+    // 3 個一組（4-5：5/6/8；5-6：7/8/10——原本兩關挑戰階都固定 8，5-6 的挑戰
+    // 與 4-5 完全相同、也與自己的一般階沒差）。
     final int level = ProgressStore.instance.levelFor(widget.gameId);
     _unitMax = level == 0 ? 2 : 3;
-    _len = level == 0 ? 5 : (level == 1 ? widget.length : 8);
+    _len = level == 0
+        ? max(4, widget.length - 1)
+        : (level == 1 ? widget.length : widget.length + 2);
     _gen();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => AudioService.instance.speakAfterVoice('找出規律，補上空格！'),
