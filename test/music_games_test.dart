@@ -73,7 +73,7 @@ void main() {
     });
   }
 
-  test('每組題庫的正解索引都落在選項範圍內', () {
+  test('每組題庫（含 hard 池）的正解索引都落在選項範圍內', () {
     void check(List<SoundChoice> ch, List<SoundQuestion> q) {
       for (final SoundQuestion x in q) {
         expect(x.answer, inInclusiveRange(0, ch.length - 1));
@@ -87,5 +87,58 @@ void main() {
     check(durationChoices, durationBank);
     check(directionChoices, directionBank);
     check(tuningChoices, tuningBank);
+    check(pitchHiLoChoices, pitchHiLoBankHard);
+    check(tempoChoices, tempoBankHard);
+    check(dynamicsChoices, dynamicsBankHard);
+    check(durationChoices, durationBankHard);
+    check(directionChoices, directionBankHard);
+    check(tuningChoices, tuningBankHard);
+  });
+
+  test('hard 池用的是 *_h clip（「對的」melody_ok 沿用除外）', () {
+    for (final List<SoundQuestion> bank in <List<SoundQuestion>>[
+      pitchHiLoBankHard,
+      tempoBankHard,
+      dynamicsBankHard,
+      durationBankHard,
+      directionBankHard,
+    ]) {
+      for (final SoundQuestion q in bank) {
+        expect(q.sfx, contains('_h'));
+      }
+    }
+    for (final SoundQuestion q in tuningBankHard) {
+      expect(q.sfx, q.answer == 1 ? contains('_h') : startsWith('melody_ok'));
+    }
+  });
+
+  testWidgets('適性難度：挑戰階（level 2）改抽 hard 題池', (WidgetTester tester) async {
+    // 全對一局 → 難度 1→2。
+    await ProgressStore.instance.recordOutcome('m_adaptive', 0);
+    expect(ProgressStore.instance.levelFor('m_adaptive'), 2);
+    // base 題沒有歌名、hard 題掛歌名「挑戰」→ 畫面出現歌名牌＝抽到 hard 池。
+    final List<SoundQuestion> base = <SoundQuestion>[
+      const SoundQuestion('tone_hi1.mp3', 0),
+    ];
+    final List<SoundQuestion> hard = <SoundQuestion>[
+      const SoundQuestion('tone_hi_h1.mp3', 0, name: '挑戰'),
+    ];
+    await tester.pumpWidget(MaterialApp(
+      home: ListenChooseGame(
+        gameId: 'm_adaptive',
+        title: '適性測試',
+        intro: '引導',
+        choices: pitchHiLoChoices,
+        questions: base,
+        hardQuestions: hard,
+      ),
+    ));
+    await settle(tester);
+    expect(find.textContaining('挑戰'), findsOneWidget);
+    // 念歌名的靜音後備約 2.8s → 多 pump 把整串 timer 沖掉（避免 !timersPending）。
+    for (int i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(tester.takeException(), isNull);
   });
 }

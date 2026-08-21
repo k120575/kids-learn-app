@@ -195,6 +195,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '快快的聲音，點兔子；慢慢的聲音，點烏龜！',
       choices: tempoChoices,
       questions: tempoBank,
+      hardQuestions: tempoBankHard,
     ),
   ),
   GameDef(
@@ -209,6 +210,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '高高的聲音，點小鳥；低低的聲音，點大象！',
       choices: pitchHiLoChoices,
       questions: pitchHiLoBank,
+      hardQuestions: pitchHiLoBankHard,
       vertical: true, // 高在上、低在下，位置＝音高
       repeats: 3, // 連播 3 次，幼兒比較聽得清
     ),
@@ -450,6 +452,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '大聲的，點獅子；小聲的，點老鼠！',
       choices: dynamicsChoices,
       questions: dynamicsBank,
+      hardQuestions: dynamicsBankHard,
       repeats: 3, // 連播 3 次，幼兒比較聽得清
     ),
   ),
@@ -465,6 +468,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '一個長長的音，點一個音符；兩個短短的音，點兩個音符！',
       choices: durationChoices,
       questions: durationBank,
+      hardQuestions: durationBankHard,
     ),
   ),
 
@@ -618,6 +622,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '聲音往上爬，點上面的箭頭；往下溜，點下面的箭頭！',
       choices: directionChoices,
       questions: directionBank,
+      hardQuestions: directionBankHard,
       vertical: true,
     ),
   ),
@@ -633,6 +638,7 @@ final List<GameDef> gameRegistry = <GameDef>[
       intro: '聽聽看這首歌，對的點笑臉，怪怪的點摀耳朵！',
       choices: tuningChoices,
       questions: tuningBank,
+      hardQuestions: tuningBankHard,
       pickCount: 6,
     ),
   ),

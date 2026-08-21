@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../core/audio_service.dart';
 import '../core/game_complete.dart';
+import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
@@ -50,6 +51,7 @@ class ListenChooseGame extends StatefulWidget {
     required this.intro,
     required this.choices,
     required this.questions,
+    this.hardQuestions,
     this.pickCount = 8,
     this.vertical = false,
     this.repeats = 1,
@@ -66,6 +68,11 @@ class ListenChooseGame extends StatefulWidget {
 
   /// 題庫：每題播一段 sfx，正解對應某張答案卡。
   final List<SoundQuestion> questions;
+
+  /// 挑戰題庫（適性難度 [ProgressStore.levelFor]==2 時取代 [questions]）：
+  /// 同一批答案卡、但聲音對比縮小（較小音程/較近速度差/微離調…）。
+  /// null＝此關不分難度。
+  final List<SoundQuestion>? hardQuestions;
 
   /// 每局抽幾題。
   final int pickCount;
@@ -98,7 +105,14 @@ class _ListenChooseGameState extends State<ListenChooseGame> {
 
   void _prepare() {
     _mistakes = 0;
-    _qs = List<SoundQuestion>.of(widget.questions)..shuffle(_rng);
+    // 適性難度：挑戰階（連續全對爬上來）改用 hard 題池（對比縮小）。
+    // 錯 ≥3 會自動降級，下一局回到 base 池。
+    final List<SoundQuestion>? hard = widget.hardQuestions;
+    final List<SoundQuestion> pool =
+        (hard != null && ProgressStore.instance.levelFor(widget.gameId) == 2)
+        ? hard
+        : widget.questions;
+    _qs = List<SoundQuestion>.of(pool)..shuffle(_rng);
     if (widget.pickCount < _qs.length) {
       _qs = _qs.sublist(0, widget.pickCount);
     }
