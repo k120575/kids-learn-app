@@ -64,13 +64,18 @@ def fade(x, fi=0.004, fo=0.03):
     return x
 
 
-# ---------- 鋼琴：取樣器（同 gen_tones bootstrap 來源） ----------
+# ---------- 鋼琴：取樣器（真實鋼琴單音） ----------
+# 首選 tool/piano_src/Piano.mf.C5.aiff（University of Iowa MIS，
+# 「used for any projects, without restrictions」，查證 2026-08-21）——
+# 原汁原味、不經諧波篩也不經 mp3 二次編碼。備援：tone_loud1.mp3。
 
 def _load_piano_c5():
-    boot = os.path.join(ROOT, "assets", "sfx", "tone_loud1.mp3")
+    aiff = os.path.join(ROOT, "tool", "piano_src", "Piano.mf.C5.aiff")
+    src = aiff if os.path.exists(aiff) else os.path.join(
+        ROOT, "assets", "sfx", "tone_loud1.mp3")
     tmp = os.path.join(OUT_DIR, "_p.wav")
     os.makedirs(OUT_DIR, exist_ok=True)
-    subprocess.run([FFMPEG, "-y", "-i", boot, "-ac", "1", "-ar", str(SR), tmp],
+    subprocess.run([FFMPEG, "-y", "-i", src, "-ac", "1", "-ar", str(SR), tmp],
                    check=True, stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL)
     w = wave.open(tmp, "rb")
@@ -78,6 +83,9 @@ def _load_piano_c5():
            .astype(np.float64) / 32768.0)
     w.close()
     os.remove(tmp)
+    peak = max(1e-9, float(np.abs(seg).max()))
+    onset = int(np.argmax(np.abs(seg) > 0.1 * peak))  # 單音檔前面的靜音切掉
+    seg = seg[onset:onset + int(1.4 * SR)]
     seg /= max(1e-9, np.abs(seg).max())
     F = np.fft.rfft(seg * np.hanning(len(seg)))
     fr = np.fft.rfftfreq(len(seg), 1 / SR)

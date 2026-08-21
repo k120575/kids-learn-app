@@ -51,15 +51,21 @@ FFMPEG = os.environ.get(
 
 SR = 44100
 
-# 真實鋼琴音來源（可用環境變數覆蓋）。預設：桌面那首 Bach C 大調前奏曲。
+# 真實鋼琴音來源（可用環境變數覆蓋）。
+# 預設（2026-08-21 起）：University of Iowa MIS 的 Piano.mf.C5.aiff——
+# 一顆乾淨的真實鋼琴 C5 單音（theremin.music.uiowa.edu，授權聲明
+# 「may be downloaded and used for any projects, without restrictions」，
+# 查證 2026-08-21）。已入庫 tool/piano_src/，來源不會再弄丟。
+# 單音來源用 onset 自動偵測取窗，不需手調 T0/T1。
+SRC_NOTE_AIFF = os.path.join(ROOT, "tool", "piano_src", "Piano.mf.C5.aiff")
+# 舊來源（桌面 Bach C 大調前奏曲，已刪；留路徑當歷史紀錄/後備）。
 SRC_MP3 = os.environ.get(
     "PIANO_SRC",
     os.path.join(os.path.expanduser("~"), "Desktop",
                  "背景音樂 無版權音樂 免費音樂 BGM音樂下載 歌名_ C Major Prelude "
                  "作者_ Bach  古典樂  開心音樂.mp3"))
-# 取一段「剛敲下、含起音」的和弦窗（前面有 0.75s 前奏；0.97s 是一個起音點）。
-# ⚠️ 只取「單一次敲擊」：曲中 C5 約每 0.66s 重敲一次（下一個 onset 在 1.63s），
-# 窗若跨過會含兩次敲擊 → 長音聽起來變兩個音。故 T1 設在第二次敲擊之前。
+# Bach 路徑用：取一段「剛敲下、含起音」的和弦窗（0.97s 是一個起音點）。
+# ⚠️ 只取「單一次敲擊」：曲中 C5 約每 0.66s 重敲一次，窗跨過會含兩次敲擊。
 SRC_T0, SRC_T1 = 0.97, 1.55
 
 
@@ -107,9 +113,51 @@ def _bootstrap_source():
     return seg, f0, None
 
 
+def _sieve_c5(seg):
+    """對一段含 C5 的音訊窗做諧波篩＋鎚擊瞬態抽取 → (note, f0, attack)。
+    （與原 Bach 流程相同：保留 n*f0 泛音、高次加成提亮、起音高頻補回。）"""
+    F = np.fft.rfft(seg * np.hanning(len(seg)))
+    fr = np.fft.rfftfreq(len(seg), 1 / SR)
+    band = (fr > 500) & (fr < 545)
+    f0 = float(fr[band][np.argmax(np.abs(F)[band])])
+    F = np.fft.rfft(seg)
+    fr = np.fft.rfftfreq(len(seg), 1 / SR)
+    F2 = np.zeros_like(F)
+    for n in range(1, 19):
+        c = n * f0
+        b = np.abs(fr - c) < max(5.0, 0.012 * c)
+        F2[b] = F[b] * (1.0 + 0.14 * (n - 1))
+    note = np.fft.irfft(F2, len(seg))
+    note /= max(1e-9, np.abs(note).max())
+    raw = seg[:int(0.022 * SR)].copy()
+    Fa = np.fft.rfft(raw)
+    fra = np.fft.rfftfreq(len(raw), 1 / SR)
+    Fa[fra < 1200] = 0
+    attack = np.fft.irfft(Fa, len(raw))
+    attack *= np.linspace(1, 0, len(attack)) ** 2
+    attack /= max(1e-9, np.abs(attack).max())
+    return note, f0, attack
+
+
+def _prepare_from_single_note(path):
+    """乾淨的鋼琴 C5 單音檔（Iowa MIS / 使用者自錄）：onset 自動偵測取窗。"""
+    seg = _load_wav_mono(path)
+    peak = max(1e-9, float(np.abs(seg).max()))
+    onset = int(np.argmax(np.abs(seg) > 0.1 * peak))
+    seg = seg[onset:onset + int(0.58 * SR)]
+    seg = seg / max(1e-9, np.abs(seg).max())
+    return _sieve_c5(seg)
+
+
 def _prepare_source():
-    """從鋼琴錄音切窗 → 諧波篩出乾淨的 C5 單音 → 回傳 (samples, f0, attack)。
-    原始錄音不存在 → bootstrap（見 _bootstrap_source）。"""
+    """來源優先序：PIANO_SRC 環境變數（單音檔）→ tool/piano_src 的 Iowa C5
+    單音 → 桌面 Bach 錄音（歷史路徑）→ bootstrap 自 tone_loud1.mp3。
+    回傳 (samples, f0, attack)。"""
+    env = os.environ.get("PIANO_SRC")
+    if env and os.path.exists(env):
+        return _prepare_from_single_note(env)
+    if os.path.exists(SRC_NOTE_AIFF):
+        return _prepare_from_single_note(SRC_NOTE_AIFF)
     if not os.path.exists(SRC_MP3):
         return _bootstrap_source()
     tmp = os.path.join(OUT_DIR, "_src.wav")
@@ -123,30 +171,7 @@ def _prepare_source():
            .astype(np.float64) / 32768.0)
     w.close()
     os.remove(tmp)
-    # 偵測 C5 附近的精確基頻
-    F = np.fft.rfft(seg * np.hanning(len(seg)))
-    fr = np.fft.rfftfreq(len(seg), 1 / SR)
-    band = (fr > 500) & (fr < 545)
-    f0 = float(fr[band][np.argmax(np.abs(F)[band])])
-    # 諧波篩 + 提亮：保留 n*f0 並讓高次泛音加成（去掉 E、G、並對抗「悶」）
-    F = np.fft.rfft(seg)
-    fr = np.fft.rfftfreq(len(seg), 1 / SR)
-    F2 = np.zeros_like(F)
-    for n in range(1, 19):
-        c = n * f0
-        band = np.abs(fr - c) < max(5.0, 0.012 * c)
-        F2[band] = F[band] * (1.0 + 0.14 * (n - 1))  # 高次泛音加成 → 更亮
-    note = np.fft.irfft(F2, len(seg))
-    note /= max(1e-9, np.abs(note).max())
-    # 取真實鎚擊瞬態（原始寬頻、只留高頻）→ 補回清脆起音（諧波篩會把它削掉）
-    raw = seg[:int(0.022 * SR)].copy()
-    Fa = np.fft.rfft(raw)
-    fra = np.fft.rfftfreq(len(raw), 1 / SR)
-    Fa[fra < 1200] = 0
-    attack = np.fft.irfft(Fa, len(raw))
-    attack *= np.linspace(1, 0, len(attack)) ** 2  # 快速收掉
-    attack /= max(1e-9, np.abs(attack).max())
-    return note, f0, attack
+    return _sieve_c5(seg)
 
 
 _SRC_NOTE, _SRC_F0, _SRC_ATTACK = _prepare_source()
