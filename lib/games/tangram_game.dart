@@ -145,6 +145,85 @@ class _TangramGameState extends State<TangramGame> {
       _Part(ShapeKind.star, 0.5, 0.26, 0.4),
       _Part(ShapeKind.square, 0.5, 0.53, 0.14),
     ]),
+    // ---- 2026-08 加量（付費招牌關 11→22 圖；座標已用腳本驗過零重疊/相接/在界內）----
+    // 帆船：旗(星) + 帆(三角) + 船身(方)，3 種形狀
+    _Figure(<_Part>[
+      _Part(ShapeKind.star, 0.5, 0.06, 0.12),
+      _Part(ShapeKind.triangle, 0.5, 0.32, 0.4),
+      _Part(ShapeKind.square, 0.5, 0.64, 0.24),
+    ]),
+    // 大樹：兩層樹冠(三角) + 樹幹(方)
+    _Figure(<_Part>[
+      _Part(ShapeKind.triangle, 0.5, 0.2, 0.3),
+      _Part(ShapeKind.triangle, 0.5, 0.53, 0.36),
+      _Part(ShapeKind.square, 0.5, 0.81, 0.2),
+    ]),
+    // 城堡：底座(方) + 塔樓(方) + 塔頂(三角) + 兩側城垛(三角)，5 塊
+    _Figure(<_Part>[
+      _Part(ShapeKind.square, 0.5, 0.72, 0.4),
+      _Part(ShapeKind.square, 0.5, 0.4, 0.24),
+      _Part(ShapeKind.triangle, 0.5, 0.14, 0.28),
+      _Part(ShapeKind.triangle, 0.2, 0.42, 0.2),
+      _Part(ShapeKind.triangle, 0.8, 0.42, 0.2),
+    ]),
+    // 皇冠：三個尖(三角) + 相連底座(方×3，左右正好貼齊)，6 塊
+    _Figure(<_Part>[
+      _Part(ShapeKind.triangle, 0.2, 0.32, 0.24),
+      _Part(ShapeKind.triangle, 0.5, 0.32, 0.24),
+      _Part(ShapeKind.triangle, 0.8, 0.32, 0.24),
+      _Part(ShapeKind.square, 0.2, 0.59, 0.3),
+      _Part(ShapeKind.square, 0.5, 0.59, 0.3),
+      _Part(ShapeKind.square, 0.8, 0.59, 0.3),
+    ]),
+    // 熱氣球：球(圓) + 吊籃(方) + 籃邊沙包(三角×2)，3 種形狀
+    _Figure(<_Part>[
+      _Part(ShapeKind.circle, 0.5, 0.3, 0.44),
+      _Part(ShapeKind.square, 0.5, 0.62, 0.2),
+      _Part(ShapeKind.triangle, 0.31, 0.62, 0.18),
+      _Part(ShapeKind.triangle, 0.69, 0.62, 0.18),
+    ]),
+    // 燈塔：頂燈(圓) + 塔頂(三角) + 塔身(方×2)，3 種形狀由上而下
+    _Figure(<_Part>[
+      _Part(ShapeKind.circle, 0.5, 0.1, 0.18),
+      _Part(ShapeKind.triangle, 0.5, 0.31, 0.24),
+      _Part(ShapeKind.square, 0.5, 0.57, 0.28),
+      _Part(ShapeKind.square, 0.5, 0.85, 0.28),
+    ]),
+    // 毛毛蟲：帽(三角) + 頭(圓) + 身體(橢圓×3，唯一用到橢圓的圖之一)
+    _Figure(<_Part>[
+      _Part(ShapeKind.triangle, 0.14, 0.38, 0.2),
+      _Part(ShapeKind.circle, 0.14, 0.6, 0.24),
+      _Part(ShapeKind.oval, 0.38, 0.6, 0.24),
+      _Part(ShapeKind.oval, 0.62, 0.6, 0.24),
+      _Part(ShapeKind.oval, 0.86, 0.6, 0.24),
+    ]),
+    // 冰淇淋杯：星頂 + 兩球(圓) + 杯(方)，3 種形狀
+    _Figure(<_Part>[
+      _Part(ShapeKind.star, 0.5, 0.23, 0.2),
+      _Part(ShapeKind.circle, 0.38, 0.45, 0.24),
+      _Part(ShapeKind.circle, 0.62, 0.45, 0.24),
+      _Part(ShapeKind.square, 0.5, 0.72, 0.3),
+    ]),
+    // 房子和樹：屋頂(三角) + 牆(方) + 樹冠(三角) + 樹幹(方)——小場景
+    _Figure(<_Part>[
+      _Part(ShapeKind.triangle, 0.35, 0.25, 0.34),
+      _Part(ShapeKind.square, 0.35, 0.59, 0.34),
+      _Part(ShapeKind.triangle, 0.78, 0.4, 0.24),
+      _Part(ShapeKind.square, 0.78, 0.6, 0.16),
+    ]),
+    // 骨頭：兩端(圓) + 中桿(橢圓)——圓 vs 橢圓的形狀辨認
+    _Figure(<_Part>[
+      _Part(ShapeKind.circle, 0.15, 0.5, 0.26),
+      _Part(ShapeKind.oval, 0.5, 0.5, 0.44),
+      _Part(ShapeKind.circle, 0.85, 0.5, 0.26),
+    ]),
+    // 烏龜：頭(小圓) + 殼(大圓，兩圓正好相切) + 雙腳(方)
+    _Figure(<_Part>[
+      _Part(ShapeKind.circle, 0.2, 0.45, 0.2),
+      _Part(ShapeKind.circle, 0.5, 0.45, 0.4),
+      _Part(ShapeKind.square, 0.38, 0.73, 0.16),
+      _Part(ShapeKind.square, 0.62, 0.73, 0.16),
+    ]),
   ];
 
   final Random _rng = Random();

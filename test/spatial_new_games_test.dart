@@ -29,6 +29,25 @@ void main() {
     }
   });
 
+  testWidgets('積木照樣蓋：挑戰階（level 2，含 4×4 盤）能建構不炸', (WidgetTester tester) async {
+    // 全對兩局 → 難度 1→2（本遊戲無對錯、恆全對，實機玩兩局就會常駐挑戰階）。
+    await ProgressStore.instance.recordOutcome('test_block_hard', 0);
+    expect(ProgressStore.instance.levelFor('test_block_hard'), 2);
+    for (int run = 0; run < 6; run++) {
+      await tester.pumpWidget(MaterialApp(
+        home: BlockCopyGame(
+            key: ValueKey<int>(run),
+            gameId: 'test_block_hard',
+            title: '積木照樣蓋'),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Draggable<Color>), findsWidgets);
+      expect(find.byType(DragTarget<Color>), findsWidgets);
+    }
+  });
+
   testWidgets('拼出圖形：多次隨機圖案能建構 + 有可拖形狀與外框', (WidgetTester tester) async {
     for (int run = 0; run < 6; run++) {
       await tester.pumpWidget(MaterialApp(

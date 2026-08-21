@@ -31,6 +31,8 @@ class RotateMatchGame extends StatefulWidget {
 
   // 候選圖形（手性多邊形 polyomino，cell 座標）。執行期會驗證手性，
   // 確保鏡像永遠不等於任何旋轉，避免出現「兩個都對」。
+  // ⚠️ 手性 tetromino 在數學上只有 L/S 兩種（T/I/O 鏡像＝自身旋轉），
+  // 所以「一般」階的變化要靠 _pentominoEasy 補（挑最緊湊好認的兩個）。
   static const List<List<Point<int>>> _tetromino = <List<Point<int>>>[
     // L
     <Point<int>>[
@@ -45,6 +47,27 @@ class RotateMatchGame extends StatefulWidget {
       Point<int>(2, 0),
       Point<int>(0, 1),
       Point<int>(1, 1),
+    ],
+  ];
+
+  // 「一般」階的加量池：最簡單的兩個手性 pentomino——P（2×2 方塊加一格，
+  // 比 S tetromino 還緊湊好認）與 L5（長版 L）。皆 4 個相異旋轉、驗證過手性。
+  static const List<List<Point<int>>> _pentominoEasy = <List<Point<int>>>[
+    // P
+    <Point<int>>[
+      Point<int>(0, 0),
+      Point<int>(1, 0),
+      Point<int>(0, 1),
+      Point<int>(1, 1),
+      Point<int>(0, 2),
+    ],
+    // L5
+    <Point<int>>[
+      Point<int>(0, 0),
+      Point<int>(0, 1),
+      Point<int>(0, 2),
+      Point<int>(0, 3),
+      Point<int>(1, 3),
     ],
   ];
   static const List<List<Point<int>>> _pentomino = <List<Point<int>>>[
@@ -159,17 +182,26 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
 
   void _gen() {
     final int level = ProgressStore.instance.levelFor(widget.gameId);
-    // 5-6 的心像旋轉準確率仍低、個別差異大：預設(含一般)只用 4 格 tetromino。
-    // pentomino(5 格)＋鏡像是 MR 最難變體，只放「挑戰」階——孩子連續全對才會爬到。
-    final List<List<Point<int>>> pool = level < 2
-        ? RotateMatchGame._tetromino
-        : <List<Point<int>>>[
-            ...RotateMatchGame._tetromino,
-            ...RotateMatchGame._pentomino,
-          ];
+    // 5-6 的心像旋轉準確率仍低、個別差異大：簡單階只用 4 格 tetromino；
+    // 一般階加入兩個最緊湊好認的 pentomino（P/L5）補變化——手性 tetromino
+    // 只有 L/S 兩種，2 局就臉熟；F/N/Y/Z pentomino＋鏡像是 MR 最難變體，
+    // 只放「挑戰」階——孩子連續全對才會爬到。
+    final List<List<Point<int>>> pool = switch (level) {
+      0 => RotateMatchGame._tetromino,
+      1 => <List<Point<int>>>[
+          ...RotateMatchGame._tetromino,
+          ...RotateMatchGame._pentominoEasy,
+        ],
+      _ => <List<Point<int>>>[
+          ...RotateMatchGame._tetromino,
+          ...RotateMatchGame._pentominoEasy,
+          ...RotateMatchGame._pentomino,
+        ],
+    };
 
     // 找一個「手性」圖形：鏡像的旋轉集合與本體旋轉集合不相交，
-    // 且鏡像至少有 3 個相異旋轉（才湊得出 3 個干擾項）。
+    // 且鏡像至少有 2 個相異旋轉（S/Z 這類只有 2 個 → 出 3 選項的題；
+    // 其餘 4 個 → 出 4 選項。若卡在 ≥3 會讓 S 永遠出不了場）。
     late List<List<Point<int>>> rots;
     late List<List<Point<int>>> mrots;
     for (int attempt = 0; attempt < 30; attempt++) {
@@ -182,7 +214,7 @@ class _RotateMatchGameState extends State<RotateMatchGame> {
       final bool chiral = mrots.every(
         (List<Point<int>> s) => !rotKeys.contains(_key(s)),
       );
-      if (chiral && mrots.length >= 3) break;
+      if (chiral && mrots.length >= 2) break;
     }
 
     _target = rots[_rng.nextInt(rots.length)];

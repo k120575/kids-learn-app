@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../core/audio_service.dart';
 import '../core/game_complete.dart';
+import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
@@ -70,7 +71,11 @@ class _BlockCopyGameState extends State<BlockCopyGame> {
   }
 
   void _gen() {
-    // 難度隨回合微升：前兩回合小盤、後兩回合大盤。
+    // 適性難度 × 回合內微升：
+    //   簡單(0)＝全小盤；一般(1)＝小盤→大盤；挑戰(2)＝大盤→更大盤（含 4×4）。
+    // 本遊戲放錯只彈回、不計錯 → finishGame 恆 mistakes=0，等級只升不降：
+    // 玩兩局後會常駐挑戰階，所以挑戰階是「常駐上限」而非偶爾的尖峰，
+    // 天花板設 4×4 填 5~7 格＋3~4 色，別再往上。
     const List<List<int>> smalls = <List<int>>[
       <int>[2, 2],
       <int>[2, 3],
@@ -81,18 +86,37 @@ class _BlockCopyGameState extends State<BlockCopyGame> {
       <int>[3, 2],
       <int>[3, 3],
     ];
-    final List<int> d = (_i < 2 ? smalls : bigs)[_rng.nextInt(3)];
+    const List<List<int>> mediums = <List<int>>[
+      <int>[3, 3],
+      <int>[3, 4],
+      <int>[4, 3],
+    ];
+    const List<List<int>> huges = <List<int>>[
+      <int>[3, 4],
+      <int>[4, 3],
+      <int>[4, 4],
+    ];
+    final int level = ProgressStore.instance.levelFor(widget.gameId);
+    final List<List<int>> pool = switch (level) {
+      0 => smalls,
+      1 => _i < 2 ? smalls : bigs,
+      _ => _i < 2 ? mediums : huges,
+    };
+    final List<int> d = pool[_rng.nextInt(pool.length)];
     _rows = d[0];
     _cols = d[1];
     final int cells = _rows * _cols;
-    // 上色格數：小盤 3~4、大盤 4~5，且不超過總格數（保證仍有留白、看得出排列）。
-    final int k = (cells <= 6 ? 3 + _rng.nextInt(2) : 4 + _rng.nextInt(2)).clamp(
-      3,
-      cells,
-    );
-    // 本回合用 2~3 種顏色。
-    final List<Color> colors =
-        (List<Color>.of(_palette)..shuffle(_rng)).take(2 + _rng.nextInt(2)).toList();
+    // 上色格數：小盤 3~4、大盤 4~5、更大盤 5~7，且保證留白（看得出排列）。
+    final int k = (cells <= 6
+            ? 3 + _rng.nextInt(2)
+            : cells <= 9
+                ? 4 + _rng.nextInt(2)
+                : 5 + _rng.nextInt(3))
+        .clamp(3, cells - 2);
+    // 本回合用 2~3 種顏色（挑戰階 3~4 種）。
+    final List<Color> colors = (List<Color>.of(_palette)..shuffle(_rng))
+        .take(level == 2 ? 3 + _rng.nextInt(2) : 2 + _rng.nextInt(2))
+        .toList();
     final List<int> idx = List<int>.generate(cells, (int x) => x)
       ..shuffle(_rng);
     _target = List<Color?>.filled(cells, null);
