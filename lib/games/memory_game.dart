@@ -35,6 +35,17 @@ class MemoryGame extends StatefulWidget {
   final int pairs;
   final List<String>? pool;
 
+  /// 把「翻錯次數」正規化成全域星星/適性規則吃的 mistakes 值。
+  ///
+  /// 翻錯是記憶翻牌的常態——牌蓋著，必須翻開探索才知道內容，不像選擇題關卡
+  /// 「會了就不會錯」。連完美記憶的玩家平均也要翻錯約 0.6×對數 次；直接套
+  /// 全域規則（錯 1~2 次才有 2⭐）等於 3⭐ 全靠運氣，且適性難度會因
+  /// 錯≥3 恆降級、永遠升不上挑戰階。
+  /// → 相對牌數放寬：錯 ≤ 對數＝表現很好（0 → 3⭐、難度升）；
+  ///   錯 ≤ 兩倍對數＝一般（2 → 2⭐、難度持平）；再多＝3 → 1⭐、難度降。
+  static int normalizedMistakes(int mistakes, int pairs) =>
+      mistakes <= pairs ? 0 : (mistakes <= pairs * 2 ? 2 : 3);
+
   @override
   State<MemoryGame> createState() => _MemoryGameState();
 }
@@ -154,7 +165,7 @@ class _MemoryGameState extends State<MemoryGame> {
     final bool again = await finishGame(
       context,
       widget.gameId,
-      mistakes: _mistakes,
+      mistakes: MemoryGame.normalizedMistakes(_mistakes, _pairs),
     );
     if (!mounted) return;
     if (again) {
