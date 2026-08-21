@@ -67,7 +67,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     builder: (_) => PickGame(
       gameId: 'sound_hunt',
       title: '聲音尋寶',
-      rounds: soundHuntBank, // 14 動物題庫
+      rounds: soundHuntBank, // 18 動物題庫
       pickCount: 10,
     ),
   ),
@@ -165,7 +165,8 @@ final List<GameDef> gameRegistry = <GameDef>[
     builder: (_) => MazeGame(
       gameId: 'maze',
       title: '走迷宮',
-      generator: () => genHardMaze(4), // 9×9 程序產生、含死巷（原 5-6 等級）
+      // 適性：簡單=手工無死巷關、一般=7×7、挑戰=9×9（舊固定難度成天花板）
+      generator: genMaze34,
       genCount: 4,
     ),
   ),
@@ -295,7 +296,8 @@ final List<GameDef> gameRegistry = <GameDef>[
       gameId: 'maze_hard',
       title: '走迷宮',
       intro: '用箭頭找路走到起司！',
-      generator: () => genHardMaze(5), // 11×11 程序產生、含死巷（原 7-8 等級）
+      // 適性：7×7 → 9×9 → 11×11（舊固定 11×11 成天花板）
+      generator: (int level) => genHardMaze(3 + level),
       genCount: 4,
     ),
   ),
@@ -483,7 +485,7 @@ final List<GameDef> gameRegistry = <GameDef>[
     builder: (_) => PickGame(
       gameId: 'hanzi_56',
       title: '認國字',
-      rounds: hanziBank56, // 36 個一年級常見字（聽詞點字）
+      rounds: hanziBank56, // 50 個一年級常見字（聽詞點字）
       pickCount: 10,
     ),
   ),

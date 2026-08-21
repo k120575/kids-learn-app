@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../core/audio_service.dart';
 import '../core/game_complete.dart';
+import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -48,7 +49,9 @@ class MazeGame extends StatefulWidget {
   final int? pickCount;
 
   /// 迷宮產生器（每局即時產生 [genCount] 個，做到無限變化／難度可調）。
-  final MazeLevel Function()? generator;
+  /// 會收到 [ProgressStore.levelFor] 的適性難度（0=簡單、1=一般、2=挑戰），
+  /// 由呼叫端決定每一階的迷宮大小/來源。
+  final MazeLevel Function(int level)? generator;
   final int genCount;
 
   @override
@@ -67,9 +70,12 @@ class _MazeGameState extends State<MazeGame> {
 
   void _prepare() {
     if (widget.generator != null) {
+      // 走迷宮無對錯（撞牆只回饋不計錯）→ finishGame 恆 mistakes=0、等級只升
+      // 不降：新孩子從簡單起步，玩幾局後常駐挑戰階（＝舊版的固定難度）。
+      final int level = ProgressStore.instance.levelFor(widget.gameId);
       _levels = List<MazeLevel>.generate(
         widget.genCount,
-        (_) => widget.generator!(),
+        (_) => widget.generator!(level),
       );
       return;
     }
