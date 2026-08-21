@@ -147,33 +147,37 @@
 - **適性難度（音樂 6 關）**：目前固定難度。要做需在 gen_tones 增「較小音程/較近速度差/微離調」的 hard 變體 clip，再讓 ListenChooseGame 依 `ProgressStore.levelFor` 選題池（clip 架構已留好）。
 - **真人手感**：什麼不見了記憶節奏、轉轉看難度、各音樂關長短/快慢/走音對比是否夠清楚 → 待給孩子實玩回饋。
 
-## TODO（下次）＝ 內容補強（2026-08-19 全面審查的「方向二」，明天做）
+### 內容補強（2026-08-19 審查「方向二」）——✅ 已全部完成（2026-08-21）
 
 > 背景：2026-08-19 三路審查（RWD／資安／內容）後，方向一（資安+破版+家長鎖）已修完
-> （commit `f97560d`）。剩內容面：結論是「語文/邏輯值 NT$350，音樂域和幾個付費招牌關
-> 對不起這個價」。依 CP 值排序如下。
+> （commit `f97560d`）。方向二內容面 4 項＋小修於 2026-08-21 完成，4 個 commit。
 
-- [ ] **① 音樂 6 關拉起來（最大缺口）**：快快慢慢/高高低低/大聲小聲/音的長短/音往哪裡走/這首對嗎
-      每關只有 6~8 段 clip、零適性難度（`listen_choose_game.dart` 是 17 個接 levelFor 的遊戲中唯一沒接的）。
-  - 做法 todo 下方「⚠️ 待優化」早寫好：`gen_tones.py` 補 hard 變體 clip（較小音程/較近速度差/微離調），
-    ListenChooseGame 依 `ProgressStore.levelFor` 選題池（clip 架構已留好）。
-  - ⚠️ 鋼琴音色要先換來源素材（一段乾淨的鋼琴單音，CC0 或自錄）→ **卡 Kevin 給素材**，
-    沒素材也能先做 hard clip（用現有音色）。
-- [ ] **② 付費招牌關加量**：
-  - 轉轉看（5-6 空間招牌）：一般難度圖形池只有 2 種（L/S tetromino），2 局就臉熟 → 補 2-3 個
-    tetromino/tromino 手性變體（`rotate_match_game.dart:34-83`，守執行期手性驗證）。
-  - 拼出圖形：11 圖案 2 局看完 → 擴到 20+（`tangram_game.dart:70-148`，守 [[tangram-figure-design-rules]] 三鐵則）。
-  - 積木照樣蓋：天花板僅 3×3 填 5 格且沒接適性 → 接 levelFor，挑戰階 4×4 或「看幾秒蓋住參照圖」記憶變體。
-- [ ] **③ 試玩關互撞（直接影響轉換率）**：
-  - instrument_45 與 3-4 樂器配對**同一套 5 個音檔**（`music_levels.dart:13-23`）→ 換一批新樂器聲（CC0）。
-  - memory_56 與 4-5 的 memory 幾乎同款且兩邊都是動腦試玩關 → 換 5-6 專屬卡池（魔法主題 emoji）。
-  - （同理可順修：pattern_56 與 4-5 找規律只差 2 格、挑戰階完全相同。）
-- [ ] **④ 3-4 走迷宮適齡（審查最大紅旗）**：現在直接 `genHardMaze(4)`＝9×9 含死巷（註解自認「原 5-6 等級」），
-      手工簡單迷宮 `maze_levels.dart`（無死巷 2-3 轉角）成孤兒檔 → 迷宮接適性難度，
-      level 0 用回簡單關或 `genHardMaze(2)`，往上再爬。
-- [ ] **小修（順手）**：`lang45_levels.dart:78` 找不同類第 5 類是說不出名字的「雜物」、水果 vs 食物類互為干擾是模糊題；
-      `lang56_levels.dart:38`「桌」配 🪑；registry 過時註解（:70 寫 14 實為 18、:482 寫 36 實為 50）；
-      死碼清理：`rhythm_game.dart`、`maze_levels.dart`（若 ④ 不用回它）、`spatial_levels.dart:59` makePuzzleBoard。
+- [x] **① 音樂 6 關拉起來**：`gen_tones.py` 產 42 個新 clip（每關 hard 變體＝較小音程/
+      較近速度差/6dB 音量差/微離調＋base 各加第 4 顆）；ListenChooseGame 新增
+      `hardQuestions`，levelFor==2 抽 hard 池、錯 ≥3 自動降回；6 關 registry 掛好。
+  - ⚠️ 原始 Bach 來源 mp3 已被刪 → gen_tones 自動 **bootstrap 自 tone_loud1.mp3**
+    （不再疊 click/不再二次 treble），預設只產缺檔；**別對舊檔 --force**（音色會微漂）。
+- [x] **② 付費招牌關加量**：轉轉看一般階 P/L5 pentomino 入池＋放寬 mrots>=2（原本
+      S 被 >=3 門檻擋掉、一般階實際只出 L 一種）；拼出圖形 11→22 圖（新圖座標經
+      腳本驗零重疊/相接/界內）；積木照樣蓋接 levelFor（挑戰 3×3→4×4 填 5~7 格 3~4 色）。
+- [x] **③ 試玩關互撞**：`tool/gen_instruments.py`（新）合成第二套 5 樂器聲
+      inst_piano/guitar/conga/accordion/flute（🎹🎸🪘🪗🪈 已用 fontTools 驗過在
+      bundled NotoColorEmoji 內）→ instrument_45 專用；memory_56 換魔法學院 16 卡池
+      （MemoryGame 新增 pool 參數）；memory/pattern 適性改相對 pairs/length，
+      5-6 挑戰階終於比 4-5 高（10 對/長 10）。
+- [x] **④ 3-4 走迷宮適齡**：MazeGame.generator 改帶 level。3-4＝手工簡單關
+      （maze_levels.dart 復活）→7×7→9×9；4-5＝7×7→9×9→11×11。舊固定難度成挑戰階天花板。
+- [x] **小修**：找不同類第 4/5 類換樂器/衣物（原食物 vs 水果互為干擾模糊、雜物無類名）；
+      「桌」🪑→「豬」🐷（該語音句歷史已烤、直接可用）；registry 註解 14→18、36→50；
+      刪 rhythm_game.dart、makePuzzleBoard 死碼。
+
+## TODO（下次）
+
+- [ ] **新合成樂器聲試聽把關（卡 Kevin）**：`assets/sfx/inst_*.mp3` 是合成音——孩子聽得出
+      鋼琴/吉他/手鼓/手風琴/長笛嗎？不行就換素材重合成。順帶模擬器/真機實測一輪
+      （音樂 hard 池、4×4 積木、22 拼圖、新迷宮階梯、魔法卡池）。
+- [ ] **鋼琴 base 音色升級（卡 Kevin 素材）**：給一段乾淨鋼琴單音（CC0/自錄），設
+      `PIANO_SRC` 環境變數重跑 `gen_tones.py --force` 全面換音色。
 - [ ] **（提醒，非程式）** Play Console 問卷成對更新（Data safety A→B、App access、數位購買 Yes，
       照 PLAY_STORE_LAUNCH.md:93-106）；下次重打包 versionCode +1（現 1.1.1+6）。
 
