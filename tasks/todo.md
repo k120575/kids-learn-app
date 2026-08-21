@@ -176,8 +176,11 @@
 - [ ] **新合成樂器聲試聽把關（卡 Kevin）**：`assets/sfx/inst_*.mp3` 是合成音——孩子聽得出
       鋼琴/吉他/手鼓/手風琴/長笛嗎？不行就換素材重合成。順帶模擬器/真機實測一輪
       （音樂 hard 池、4×4 積木、22 拼圖、新迷宮階梯、魔法卡池）。
-- [ ] **鋼琴 base 音色升級（卡 Kevin 素材）**：給一段乾淨鋼琴單音（CC0/自錄），設
-      `PIANO_SRC` 環境變數重跑 `gen_tones.py --force` 全面換音色。
+- [x] **鋼琴 base 音色升級**（2026-08-21）：已下載 University of Iowa MIS 的
+      Piano.mf.C5.aiff（授權 without restrictions，查證 2026-08-21）**入庫
+      tool/piano_src/**（來源不會再弄丟）。gen_tones 來源優先序＝PIANO_SRC env →
+      piano_src 單音（onset 自動取窗）→ Bach（歷史）→ bootstrap。全部 80 clip 與
+      inst_piano 已用真鋼琴重產。
 - [ ] **（提醒，非程式）** Play Console 問卷成對更新（Data safety A→B、App access、數位購買 Yes，
       照 PLAY_STORE_LAUNCH.md:93-106）；下次重打包 versionCode +1（現 1.1.1+6）。
 
