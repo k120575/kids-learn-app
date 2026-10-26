@@ -7,6 +7,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
@@ -237,10 +238,7 @@ class _SpotDifferenceGameState extends State<SpotDifferenceGame> {
                       : null,
                 ),
                 child: Center(
-                  child: Text(
-                    data[idx],
-                    style: TextStyle(fontSize: context.s(50)),
-                  ),
+                  child: EmojiArt(data[idx], size: context.s(55)),
                 ),
               ),
             );

@@ -11,11 +11,15 @@ class EmojiArt extends StatelessWidget {
   final String emoji;
   final double size;
 
-  static bool hasArt(String emoji) => kEmojiArt.containsKey(emoji);
+  /// 查表時去掉 U+FE0F（變體選擇字元），'☀️' 與 '☀' 視為同一個。
+  static String? assetFor(String emoji) =>
+      kEmojiArt[emoji.replaceAll('\u{FE0F}', '')];
+
+  static bool hasArt(String emoji) => assetFor(emoji) != null;
 
   @override
   Widget build(BuildContext context) {
-    final String? asset = kEmojiArt[emoji];
+    final String? asset = assetFor(emoji);
     if (asset == null) {
       return Text(emoji, style: TextStyle(fontSize: size * 0.85));
     }

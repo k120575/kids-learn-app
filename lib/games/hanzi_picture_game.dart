@@ -6,6 +6,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
@@ -178,10 +179,7 @@ class _HanziPictureGameState extends State<HanziPictureGame> {
                           width: 4,
                         ),
                       ),
-                      child: Text(
-                        _item.$2,
-                        style: TextStyle(fontSize: context.s(96)),
-                      ),
+                      child: EmojiArt(_item.$2, size: context.s(106)),
                     ),
                     SizedBox(height: context.s(Sizes.gap)),
                     Text(

@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
@@ -242,13 +243,12 @@ class _MemoryGameState extends State<MemoryGame> {
           ),
         ),
         child: Center(
-          child: Text(
-            shown ? c.emoji : '❓',
-            style: TextStyle(
-              fontSize: cell * 0.54,
-              color: shown ? null : Colors.white,
-            ),
-          ),
+          child: shown
+              ? EmojiArt(c.emoji, size: cell * 0.62)
+              : Text(
+                  '❓',
+                  style: TextStyle(fontSize: cell * 0.54, color: Colors.white),
+                ),
         ),
       ),
     );

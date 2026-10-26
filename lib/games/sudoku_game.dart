@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -309,10 +310,9 @@ class _SudokuGameState extends State<SudokuGame> {
                       ),
                     ),
                     child: Center(
-                      child: Text(
-                        v < 0 ? '' : _symbols[v],
-                        style: TextStyle(fontSize: context.s(34)),
-                      ),
+                      child: v < 0
+                          ? null
+                          : EmojiArt(_symbols[v], size: context.s(38)),
                     ),
                   ),
                 ),
@@ -340,10 +340,7 @@ class _SudokuGameState extends State<SudokuGame> {
               border: Border.all(color: const Color(0xFF7C4DFF), width: 3),
             ),
             child: Center(
-              child: Text(
-                _symbols[s],
-                style: TextStyle(fontSize: context.s(36)),
-              ),
+              child: EmojiArt(_symbols[s], size: context.s(40)),
             ),
           ),
         );

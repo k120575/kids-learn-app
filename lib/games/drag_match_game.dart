@@ -6,6 +6,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shape_view.dart';
 
@@ -309,7 +310,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
         );
       }
       if (slot.emoji != null) {
-        return Text(slot.emoji!, style: TextStyle(fontSize: context.s(64)));
+        return EmojiArt(slot.emoji!, size: context.s(70));
       }
     }
     // 未填：顯示提示（形狀外框 / emoji / 文字標籤 + 計數）
@@ -324,7 +325,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
         ),
       );
     } else if (slot.emoji != null) {
-      bits.add(Text(slot.emoji!, style: TextStyle(fontSize: context.s(56))));
+      bits.add(EmojiArt(slot.emoji!, size: context.s(62)));
     }
     if (slot.label.isNotEmpty) {
       bits.add(
@@ -368,7 +369,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
       return ShapeView(kind: p.shape!, color: p.color, size: size);
     }
     if (p.emoji != null) {
-      return Text(p.emoji!, style: TextStyle(fontSize: size * 0.75));
+      return EmojiArt(p.emoji!, size: (size * 0.75) * 1.1);
     }
     return SizedBox(width: size, height: size);
   }

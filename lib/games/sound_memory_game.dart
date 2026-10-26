@@ -9,6 +9,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/game_scaffold.dart';
 
 class _Pad {
@@ -221,10 +222,7 @@ class _SoundMemoryGameState extends State<SoundMemoryGame> {
                           : null,
                     ),
                     child: Center(
-                      child: Text(
-                        pad.emoji,
-                        style: TextStyle(fontSize: context.s(64)),
-                      ),
+                      child: EmojiArt(pad.emoji, size: context.s(70)),
                     ),
                   ),
                 ),

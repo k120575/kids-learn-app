@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
@@ -184,10 +185,7 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
                                 size: context.s(36),
                                 color: const Color(0xFFFFB300),
                               )
-                            : Text(
-                                _seq[i],
-                                style: TextStyle(fontSize: context.s(38)),
-                              ),
+                            : EmojiArt(_seq[i], size: context.s(42)),
                       ),
                     );
                   }),
@@ -235,10 +233,7 @@ class _PatternMatrixGameState extends State<PatternMatrixGame> {
                             ),
                           ),
                           child: Center(
-                            child: Text(
-                              v,
-                              style: TextStyle(fontSize: context.s(48)),
-                            ),
+                            child: EmojiArt(v, size: context.s(53)),
                           ),
                         ),
                       ),

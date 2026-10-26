@@ -7,6 +7,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
@@ -240,10 +241,7 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
                           // 記憶階段全部亮出；蓋牌階段全部蓋住；
                           // 出題階段除了「消失的那格」其餘亮出。
                           child: switch (_phase) {
-                            _Phase.memorize => Text(
-                              _items[idx],
-                              style: TextStyle(fontSize: context.s(52)),
-                            ),
+                            _Phase.memorize => EmojiArt(_items[idx], size: context.s(57)),
                             _Phase.hide => Text(
                               '🟦',
                               style: TextStyle(fontSize: context.s(52)),
@@ -254,10 +252,7 @@ class _WhatsMissingGameState extends State<WhatsMissingGame> {
                                       '❓',
                                       style: TextStyle(fontSize: context.s(46)),
                                     )
-                                  : Text(
-                                      _items[idx],
-                                      style: TextStyle(fontSize: context.s(52)),
-                                    ),
+                                  : EmojiArt(_items[idx], size: context.s(57)),
                           },
                         );
                       }),
@@ -373,7 +368,7 @@ class _Option extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(emoji, style: TextStyle(fontSize: context.s(70))),
+          child: EmojiArt(emoji, size: context.s(77)),
         ),
       ),
     );

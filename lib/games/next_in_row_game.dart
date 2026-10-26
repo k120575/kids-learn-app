@@ -7,6 +7,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
@@ -170,18 +171,12 @@ class _NextInRowGameState extends State<NextInRowGame> {
                   children: <Widget>[
                     for (final String e in _seq)
                       _Car(
-                        child: Text(
-                          e,
-                          style: TextStyle(fontSize: context.s(48)),
-                        ),
+                        child: EmojiArt(e, size: context.s(53)),
                       ),
                     _Car(
                       dashed: true,
                       child: _success
-                          ? Text(
-                              _answer,
-                              style: TextStyle(fontSize: context.s(48)),
-                            )
+                          ? EmojiArt(_answer, size: context.s(53))
                           : Text(
                               '❓',
                               style: TextStyle(fontSize: context.s(44)),
@@ -278,7 +273,7 @@ class _Option extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(emoji, style: TextStyle(fontSize: context.s(64))),
+          child: EmojiArt(emoji, size: context.s(70)),
         ),
       ),
     );

@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -388,10 +389,7 @@ class _ChoiceCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             choice.child ??
-                Text(
-                  choice.emoji,
-                  style: TextStyle(fontSize: context.s(dense ? 50 : 72)),
-                ),
+                EmojiArt(choice.emoji, size: (context.s(dense ? 50 : 72)) * 1.1),
             SizedBox(height: context.s(dense ? 2 : 6)),
             Text(
               choice.label,

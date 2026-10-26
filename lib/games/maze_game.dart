@@ -7,6 +7,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 一個迷宮：字元 S=起點、G=終點、#=牆、.=路。各列長度需一致。
@@ -227,10 +228,9 @@ class _MazeBoard extends StatelessWidget {
                         ),
                       ),
                       child: Center(
-                        child: Text(
-                          isMouse ? '🐭' : (isGoal ? '🧀' : ''),
-                          style: TextStyle(fontSize: cell * 0.62),
-                        ),
+                        child: isMouse || isGoal
+                            ? EmojiArt(isMouse ? '🐭' : '🧀', size: cell * 0.72)
+                            : null,
                       ),
                     );
                   }),

@@ -8,6 +8,7 @@ import '../core/game_complete.dart';
 import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -372,7 +373,7 @@ class _OptionTile extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(emoji, style: TextStyle(fontSize: context.s(84))),
+          child: EmojiArt(emoji, size: context.s(92)),
         ),
       ),
     );

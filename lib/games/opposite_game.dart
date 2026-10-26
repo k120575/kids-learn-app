@@ -7,6 +7,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -159,10 +160,7 @@ class _OppositeGameState extends State<OppositeGame> {
                       width: 4,
                     ),
                   ),
-                  child: Text(
-                    _prompt,
-                    style: TextStyle(fontSize: context.s(80)),
-                  ),
+                  child: EmojiArt(_prompt, size: context.s(88)),
                 ),
                 SizedBox(height: context.s(10)),
                 Text(
@@ -206,10 +204,7 @@ class _OppositeGameState extends State<OppositeGame> {
                             ),
                           ),
                           child: Center(
-                            child: Text(
-                              v,
-                              style: TextStyle(fontSize: context.s(64)),
-                            ),
+                            child: EmojiArt(v, size: context.s(70)),
                           ),
                         ),
                       ),

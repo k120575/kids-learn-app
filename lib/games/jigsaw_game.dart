@@ -7,6 +7,7 @@ import '../core/audio_service.dart';
 import '../core/game_complete.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/celebration.dart';
 import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
@@ -182,7 +183,7 @@ class _JigsawGameState extends State<JigsawGame> {
         ),
       ),
       child: Center(
-        child: Text(_pic.emoji, style: TextStyle(fontSize: min(w, h) * 0.66)),
+        child: EmojiArt(_pic.emoji, size: (min(w, h) * 0.66) * 1.1),
       ),
     );
   }
