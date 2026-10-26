@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>風格二選一</title>
+<style>
+:root{--bg:#fbf8f3;--fg:#2b2b2b;--muted:#6b6b6b;--card:#fff;--line:#e8e2d8}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1c1a;--fg:#eee;--muted:#aaa;--card:#2a2926;--line:#3a3833}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"Noto Sans TC",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{margin:0 0 4px} .sub{color:var(--muted);margin:0 0 28px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:24px}
+h2{margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+figure{margin:0;text-align:center} figure img{width:100%;height:auto;border-radius:12px;background:#fff}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px}
+.bg{margin-top:14px}
+</style></head><body><main>
+<h1>寶貝學習樂園｜扁平繪本 vs 黏土 3D</h1>
+<p class="sub">同樣的題材（小企鵝、蘋果、語文、音樂）用兩種風格並排。（gemini-2.5-flash-image）</p>
+<section><h2>扁平繪本（沿用現有關卡風）</h2><div class="grid"><figure><img src="compare/flat_penguin.webp" alt="小企鵝"><figcaption>小企鵝</figcaption></figure><figure><img src="compare/flat_apple.webp" alt="蘋果"><figcaption>蘋果</figcaption></figure><figure><img src="compare/flat_icon_language.webp" alt="語文"><figcaption>語文</figcaption></figure><figure><img src="compare/flat_icon_music.webp" alt="音樂"><figcaption>音樂</figcaption></figure></div><figure class="bg"><img src="../../assets/images/park_bg.png" alt="現有遊樂園背景"><figcaption>現有遊樂園背景</figcaption></figure></section><section><h2>黏土 3D</h2><div class="grid"><figure><img src="compare/clay_penguin.webp" alt="小企鵝"><figcaption>小企鵝</figcaption></figure><figure><img src="clay/item_apple.webp" alt="蘋果"><figcaption>蘋果</figcaption></figure><figure><img src="clay/icon_language.webp" alt="語文"><figcaption>語文</figcaption></figure><figure><img src="clay/icon_music.webp" alt="音樂"><figcaption>音樂</figcaption></figure></div><figure class="bg"><img src="clay/home_bg.webp" alt="黏土樣稿背景"><figcaption>黏土樣稿背景</figcaption></figure></section>
+<section><h2>參考：現有關卡圖</h2><div class="grid"><figure><img src="../../assets/images/storyhouse.png" alt="storyhouse"></figure><figure><img src="../../assets/images/ferris.png" alt="ferris"></figure><figure><img src="../../assets/images/castle.png" alt="castle"></figure><figure><img src="../../assets/images/planet_music.png" alt="planet_music"></figure><figure><img src="../../assets/images/magic_spell.png" alt="magic_spell"></figure></div></section>
+</main></body></html>
