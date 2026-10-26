@@ -52,8 +52,12 @@ VARIANTS = [
 POSES = [
     ("wave", "揮手（打招呼）", "Waving hello happily with one flipper raised."),
     ("cheer", "歡呼（答對）", "Jumping with joy, both flippers raised high, eyes closed with a big open smile, a few sparkles around."),
-    ("think", "思考（出題）", "Thinking pose, one flipper touching its chin, looking up curiously."),
-    ("encourage", "加油（答錯）", "Gentle encouraging pose, one flipper making a little fist pump, warm kind smile."),
+    ("think", "思考（出題）", "Thinking pose: head tilted to one side, eyes looking up and to the side, "
+     "one flipper raised with its tip resting on its beak/chin, the other flipper on its belly, "
+     "small curious closed-mouth smile."),
+    ("encourage", "加油（答錯）", "Cheering-you-on pose: both flippers held up in front of its chest "
+     "like two little fists pumping, leaning slightly forward, determined eyebrows, "
+     "confident big smile, as if saying 'you can do it'. Different from waving."),
     ("sleep", "睡覺（休息提醒）", "Sleeping peacefully sitting down, eyes closed, wearing a tiny nightcap."),
 ]
 
@@ -147,6 +151,33 @@ figcaption{{margin-top:8px;color:var(--muted)}} figcaption b{{color:var(--fg);fo
         f.write(html)
 
 
+def write_poses_html():
+    # poses.html 放在 PROPOSAL 根目錄，圖在 assets/images/mascot/
+    cells = "".join(
+        f'<figure><img src="../../assets/images/mascot/{n}.webp" alt="{zh}">'
+        f'<figcaption>{zh}</figcaption></figure>' for n, zh, _ in POSES)
+    html = f"""<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小企鵝動作</title>
+<style>
+:root{{--bg:#fbf8f3;--fg:#2b2b2b;--muted:#6b6b6b;--card:#fff;--line:#e8e2d8}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#1d1c1a;--fg:#eee;--muted:#aaa;--card:#2a2926;--line:#3a3833}}}}
+body{{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"Noto Sans TC",sans-serif}}
+main{{max-width:1100px;margin:0 auto;padding:24px 16px 64px}}
+h1{{margin:0 0 24px}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}}
+figure{{margin:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}}
+figure img{{width:100%;height:auto;border-radius:10px;background:#fff}}
+figcaption{{margin-top:8px;color:var(--muted)}}
+</style></head><body><main>
+<h1>小企鵝動作（造型 A）</h1>
+<div class="grid">{cells}</div>
+</main></body></html>"""
+    with open(os.path.join(PROPOSAL, "poses.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+
+
 def main():
     if not gs.KEY:
         sys.exit("tool/secrets.env 沒有 GEMINI_API_KEY")
@@ -158,6 +189,7 @@ def main():
         pick = args[1]
         ref = BASE if pick == "A" else os.path.join(VAR_DIR, pick + ".webp")
         run([(n, f"{desc} {KEEP}") for n, _, desc in POSES], ref, POSE_DIR)
+        write_poses_html()
     else:
         sys.exit(__doc__)
 
