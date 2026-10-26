@@ -118,8 +118,9 @@ def run(jobs, ref, out_dir):
 
 
 def write_variants_html():
-    cards = [("../compare/flat_penguin.webp", "A", "原版：亮藍＋探險背包")]
-    cards += [(f"{c}.webp", c, zh) for c, zh, _ in VARIANTS]
+    # mascot.html 放在 PROPOSAL 根目錄，路徑以它為基準
+    cards = [("compare/flat_penguin.webp", "A", "原版：亮藍＋探險背包")]
+    cards += [(f"mascot/{c}.webp", c, zh) for c, zh, _ in VARIANTS]
     cells = "".join(
         f'<figure><img src="{src}" alt="造型 {c}"><figcaption><b>{c}</b>　{zh}</figcaption></figure>'
         for src, c, zh in cards)
