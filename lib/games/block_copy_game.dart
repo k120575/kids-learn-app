@@ -107,12 +107,13 @@ class _BlockCopyGameState extends State<BlockCopyGame> {
     _cols = d[1];
     final int cells = _rows * _cols;
     // 上色格數：小盤 3~4、大盤 4~5、更大盤 5~7，且保證留白（看得出排列）。
+    // 下限 2：2×2 盤 cells-2=2，若下限寫 3 會 clamp(3, 2) 丟例外（新手關 1/3 機率閃退）。
     final int k = (cells <= 6
             ? 3 + _rng.nextInt(2)
             : cells <= 9
                 ? 4 + _rng.nextInt(2)
                 : 5 + _rng.nextInt(3))
-        .clamp(3, cells - 2);
+        .clamp(2, cells - 2);
     // 本回合用 2~3 種顏色（挑戰階 3~4 種）。
     final List<Color> colors = (List<Color>.of(_palette)..shuffle(_rng))
         .take(level == 2 ? 3 + _rng.nextInt(2) : 2 + _rng.nextInt(2))
