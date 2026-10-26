@@ -43,7 +43,7 @@ Future<bool> showCompletionDialog(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Penguin(size: context.s(64)),
+                Penguin(size: context.s(64), pose: PenguinPose.cheer),
                 SizedBox(height: context.s(6)),
                 Text(
                   '全部完成！',

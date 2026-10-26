@@ -86,7 +86,7 @@ class ScreenTimeManager with WidgetsBindingObserver {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Penguin(size: c.s(84)),
+              Penguin(size: c.s(84), pose: PenguinPose.sleep),
               SizedBox(height: c.s(10)),
               Text(
                 '休息一下吧！',

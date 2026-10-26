@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import '../responsive.dart';
 import '../theme.dart';
 
-/// 大型可點卡片：上方大 emoji，下方標題。按下有縮放回饋。
+/// 大型可點卡片：上方大圖（插畫或 emoji），下方標題。按下有縮放回饋。
 class BigCard extends StatefulWidget {
   const BigCard({
     super.key,
     required this.emoji,
     required this.onTap,
+    this.image,
     this.label,
     this.color = const Color(0xFF90CAF9),
     this.size = 160,
@@ -19,6 +20,9 @@ class BigCard extends StatefulWidget {
   });
 
   final String emoji;
+
+  /// 插畫 asset 路徑；有給就取代 [emoji] 顯示。
+  final String? image;
   final String? label;
   final Color color;
   final double size;
@@ -84,10 +88,18 @@ class _BigCardState extends State<BigCard> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text(
-                            widget.emoji,
-                            style: TextStyle(fontSize: widget.size * 0.42),
-                          ),
+                          if (widget.image != null)
+                            Image.asset(
+                              widget.image!,
+                              width: widget.size * 0.58,
+                              height: widget.size * 0.58,
+                              fit: BoxFit.contain,
+                            )
+                          else
+                            Text(
+                              widget.emoji,
+                              style: TextStyle(fontSize: widget.size * 0.42),
+                            ),
                           if (widget.label != null) ...<Widget>[
                             SizedBox(height: widget.size * 0.05),
                             Text(

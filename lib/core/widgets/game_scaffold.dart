@@ -81,7 +81,12 @@ class _GameScaffoldState extends State<GameScaffold> {
                         onTap: () => Navigator.of(context).maybePop(),
                       ),
                       SizedBox(width: context.s(8)),
-                      Penguin(size: context.s(48)), // 企企陪玩
+                      // 企企陪玩：平常思考，答對歡呼、答錯加油（AudioService 觸發）
+                      Penguin(
+                        size: context.s(48),
+                        pose: PenguinPose.think,
+                        reactive: true,
+                      ),
                       SizedBox(width: context.s(8)),
                       // 品牌標題（與首頁同字型、同塗鴉風，描邊讓深淺背景都清楚）。
                       // 用 Flexible + FittedBox：長標題自動縮到放得下，不溢出也不被截斷。
@@ -156,7 +161,7 @@ class _PauseOverlay extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Penguin(size: context.s(88)),
+                  Penguin(size: context.s(88), pose: PenguinPose.sleep),
                   SizedBox(height: context.s(12)),
                   Text(
                     '休息一下',

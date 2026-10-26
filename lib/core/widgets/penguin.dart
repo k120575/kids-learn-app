@@ -1,14 +1,39 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/// 吉祥物「企企」：圓滾滾的可愛企鵝（白臉＋深色頭罩＋張開翅膀＋呆毛），
-/// 向量繪製（零素材），會輕輕搖擺＋眨眼。
+/// 企企的姿勢；對應 `assets/images/mascot/{name}.webp`（tool/gen_mascot.py 產出）。
+enum PenguinPose { wave, cheer, think, encourage, sleep }
+
+/// 吉祥物「企企」：淺藍小企鵝（扁平繪本插畫），會輕輕上下搖擺。
+///
+/// [reactive] 為 true 時會跟著 [Penguin.react] 暫時換姿勢（答對歡呼、答錯加油），
+/// 約 1.6 秒後回到 [pose]。
 class Penguin extends StatefulWidget {
-  const Penguin({super.key, this.size = 140, this.animate = true});
+  const Penguin({
+    super.key,
+    this.size = 140,
+    this.animate = true,
+    this.pose = PenguinPose.wave,
+    this.reactive = false,
+  });
 
   final double size;
   final bool animate;
+  final PenguinPose pose;
+  final bool reactive;
+
+  /// 最近一次反應（姿勢 + 序號；序號讓連續同姿勢也會重新計時）。
+  static final ValueNotifier<(PenguinPose, int)?> reaction =
+      ValueNotifier<(PenguinPose, int)?>(null);
+  static int _seq = 0;
+
+  /// 讓畫面上 reactive 的企企暫時換成 [pose]。
+  static void react(PenguinPose pose) => reaction.value = (pose, ++_seq);
+
+  static String assetFor(PenguinPose pose) =>
+      'assets/images/mascot/${pose.name}.webp';
 
   @override
   State<Penguin> createState() => _PenguinState();
@@ -17,6 +42,8 @@ class Penguin extends StatefulWidget {
 class _PenguinState extends State<Penguin> with SingleTickerProviderStateMixin {
   // 只在需要動畫時才建立控制器；用可空避免 dispose 時才懶初始化而崩潰。
   AnimationController? _c;
+  PenguinPose? _reacting;
+  Timer? _reset;
 
   @override
   void initState() {
@@ -27,178 +54,45 @@ class _PenguinState extends State<Penguin> with SingleTickerProviderStateMixin {
         duration: const Duration(milliseconds: 3200),
       )..repeat();
     }
+    if (widget.reactive) Penguin.reaction.addListener(_onReact);
+  }
+
+  void _onReact() {
+    final (PenguinPose, int)? r = Penguin.reaction.value;
+    if (r == null || !mounted) return;
+    _reset?.cancel();
+    setState(() => _reacting = r.$1);
+    _reset = Timer(const Duration(milliseconds: 1600), () {
+      if (mounted) setState(() => _reacting = null);
+    });
   }
 
   @override
   void dispose() {
+    if (widget.reactive) Penguin.reaction.removeListener(_onReact);
+    _reset?.cancel();
     _c?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final Widget image = Image.asset(
+      Penguin.assetFor(_reacting ?? widget.pose),
+      width: widget.size,
+      height: widget.size,
+      fit: BoxFit.contain,
+      gaplessPlayback: true, // 換姿勢時不閃白
+    );
     final AnimationController? c = _c;
-    if (c == null) {
-      return CustomPaint(
-        size: Size(widget.size, widget.size),
-        painter: _PenguinPainter(eyeOpen: 1),
-      );
-    }
+    if (c == null) return image;
     return AnimatedBuilder(
       animation: c,
+      child: image,
       builder: (BuildContext context, Widget? child) {
-        final double t = c.value;
-        final double bob = sin(t * 2 * pi) * widget.size * 0.022;
-        double eyeOpen = 1;
-        if (t > 0.46 && t < 0.54) {
-          final double k = (t - 0.46) / 0.08; // 0..1
-          eyeOpen = (1 - (1 - (2 * k - 1).abs())).clamp(0.12, 1.0);
-        }
-        return Transform.translate(
-          offset: Offset(0, bob),
-          child: CustomPaint(
-            size: Size(widget.size, widget.size),
-            painter: _PenguinPainter(eyeOpen: eyeOpen),
-          ),
-        );
+        final double bob = sin(c.value * 2 * pi) * widget.size * 0.022;
+        return Transform.translate(offset: Offset(0, bob), child: child);
       },
     );
   }
-}
-
-class _PenguinPainter extends CustomPainter {
-  _PenguinPainter({required this.eyeOpen});
-
-  final double eyeOpen;
-
-  static const Color _dark = Color(0xFF2E3A59); // 深藍黑
-  static const Color _white = Color(0xFFFDFDFF);
-  static const Color _beak = Color(0xFFFFB23E);
-  static const Color _foot = Color(0xFFFF9F2E);
-  static const Color _cheek = Color(0xFFFFB3C1);
-  static const Color _eye = Color(0xFF2B2B33);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double s = size.width;
-    final double cx = s / 2;
-    final Paint p = Paint()..isAntiAlias = true;
-
-    // 腳（橘色蹼，帶小凹）
-    p.color = _foot;
-    for (final double sign in <double>[-1, 1]) {
-      final double fx = cx + sign * s * 0.15;
-      final Path foot = Path()
-        ..moveTo(fx - s * 0.13, s * 0.99)
-        ..lineTo(fx - s * 0.04, s * 0.88)
-        ..lineTo(fx + s * 0.04, s * 0.88)
-        ..lineTo(fx + s * 0.13, s * 0.99)
-        ..quadraticBezierTo(fx, s * 1.02, fx - s * 0.13, s * 0.99)
-        ..close();
-      canvas.drawPath(foot, p);
-    }
-
-    // 翅膀（張開、往外，較大）
-    p.color = _dark;
-    for (final double sign in <double>[-1, 1]) {
-      canvas.save();
-      canvas.translate(cx + sign * s * 0.37, s * 0.5);
-      canvas.rotate(sign * 0.55);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: Offset.zero,
-            width: s * 0.22,
-            height: s * 0.52,
-          ),
-          Radius.circular(s * 0.11),
-        ),
-        p,
-      );
-      canvas.restore();
-    }
-
-    // 深色身體（頭罩＋背）
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx, s * 0.54),
-        width: s * 0.8,
-        height: s * 0.9,
-      ),
-      p,
-    );
-
-    // 呆毛
-    final Path tuft = Path()
-      ..moveTo(cx - s * 0.02, s * 0.12)
-      ..quadraticBezierTo(cx + s * 0.03, -s * 0.01, cx + s * 0.1, s * 0.04)
-      ..quadraticBezierTo(cx + s * 0.02, s * 0.08, cx + s * 0.05, s * 0.14)
-      ..close();
-    canvas.drawPath(tuft, p);
-
-    // 白色臉＋肚子：大肚子 + 兩個圓臉頰（重疊處在眼睛中間留出深色「尖頭罩」）
-    p.color = _white;
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx, s * 0.66),
-        width: s * 0.64,
-        height: s * 0.62,
-      ),
-      p,
-    ); // 肚子
-    canvas.drawCircle(Offset(cx - s * 0.15, s * 0.42), s * 0.165, p); // 左臉
-    canvas.drawCircle(Offset(cx + s * 0.15, s * 0.42), s * 0.165, p); // 右臉
-
-    // 臉頰（粉）
-    p.color = _cheek;
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx - s * 0.24, s * 0.5),
-        width: s * 0.14,
-        height: s * 0.1,
-      ),
-      p,
-    );
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx + s * 0.24, s * 0.5),
-        width: s * 0.14,
-        height: s * 0.1,
-      ),
-      p,
-    );
-
-    // 眼睛（大、亮、會眨；中間是深色尖罩）
-    final double eyeY = s * 0.43;
-    final double eyeDx = s * 0.145;
-    for (final double sign in <double>[-1, 1]) {
-      final Offset ec = Offset(cx + sign * eyeDx, eyeY);
-      p.color = _eye;
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: ec,
-          width: s * 0.18,
-          height: s * 0.21 * eyeOpen,
-        ),
-        p,
-      );
-      if (eyeOpen > 0.6) {
-        p.color = _white;
-        canvas.drawCircle(ec.translate(s * 0.035, -s * 0.04), s * 0.034, p);
-        canvas.drawCircle(ec.translate(-s * 0.035, s * 0.03), s * 0.016, p);
-      }
-    }
-
-    // 嘴巴（橘色小三角，朝下，在兩眼中間下方）
-    p.color = _beak;
-    final Path beak = Path()
-      ..moveTo(cx - s * 0.05, s * 0.5)
-      ..lineTo(cx + s * 0.05, s * 0.5)
-      ..lineTo(cx, s * 0.58)
-      ..close();
-    canvas.drawPath(beak, p);
-  }
-
-  @override
-  bool shouldRepaint(covariant _PenguinPainter old) => old.eyeOpen != eyeOpen;
 }

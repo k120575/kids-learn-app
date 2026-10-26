@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../content/access_policy.dart';
+import '../content/game_icons.dart';
 import '../content/registry.dart';
 import '../core/audio_service.dart';
 import '../core/parent_gate.dart';
@@ -100,6 +101,7 @@ class _GameListScreenState extends State<GameListScreen> {
         final bool locked = !AccessPolicy.isUnlocked(g, widget.band);
         return BigCard(
           emoji: g.emoji,
+          image: gameIconAsset(g.id),
           label: g.title,
           color: widget.domain.color,
           size: cardSize,

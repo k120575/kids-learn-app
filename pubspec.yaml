@@ -86,6 +86,8 @@ flutter:
     - assets/sfx/
     - assets/music/
     - assets/images/
+    - assets/images/icons/
+    - assets/images/mascot/
 
   fonts:
     # 首頁大標題（CloudTitle）用 Heavy，大字夠粗才有招牌感。

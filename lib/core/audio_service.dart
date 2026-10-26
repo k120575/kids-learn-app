@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import '../content/voice_manifest.dart';
 import 'progress_store.dart';
+import 'widgets/penguin.dart';
 
 /// 全 App 的聲音出口：
 /// - 語音：優先播放預先烤好的「HsiaoChen 國語音檔」（`assets/voice/<md5>.mp3`），
@@ -393,6 +394,7 @@ class AudioService with WidgetsBindingObserver {
 
   /// 答對：觸覺 + 歡呼音（有 success 音檔就播，沒有則念鼓勵語）。
   Future<void> correct() async {
+    Penguin.react(PenguinPose.cheer);
     try {
       await HapticFeedback.lightImpact();
       final bool cheered = await playCheer('success.mp3');
@@ -406,6 +408,7 @@ class AudioService with WidgetsBindingObserver {
 
   /// 答錯：溫和提示，不責備。
   Future<void> wrong() async {
+    Penguin.react(PenguinPose.encourage);
     try {
       await HapticFeedback.mediumImpact();
       await speak('再試一次');

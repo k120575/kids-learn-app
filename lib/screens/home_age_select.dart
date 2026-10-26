@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../content/game_icons.dart';
 import '../core/audio_service.dart';
 import '../core/parent_gate.dart';
 import '../core/progress_store.dart';
@@ -336,6 +337,7 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
           children: AgeBand.values.map((AgeBand band) {
             return BigCard(
               emoji: band.emoji,
+              image: iconAsset(band.name), // 企企成長階段：破殼 / 小雛鳥 / 背背包
               // 卡片尺寸隨裝置縮放（原本寫死 160，手機放不下 3 張）。
               size: context.s(108),
               // 年齡文字（3-4 歲…）在手機上太小，只放大字級、卡片與 emoji 不動。
@@ -402,7 +404,7 @@ class _RewardDock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _SmallRewardButton(
-          emoji: '🎰',
+          icon: 'gacha',
           label: '扭蛋機',
           color: const Color(0xFFFF7043),
           scale: scale,
@@ -410,7 +412,7 @@ class _RewardDock extends StatelessWidget {
         ),
         SizedBox(height: 8 * scale),
         _SmallRewardButton(
-          emoji: '🧸',
+          icon: 'collection',
           label: '收藏室',
           color: const Color(0xFF42A5F5),
           scale: scale,
@@ -418,7 +420,7 @@ class _RewardDock extends StatelessWidget {
         ),
         SizedBox(height: 8 * scale),
         _SmallRewardButton(
-          emoji: '🏆',
+          icon: 'trophy',
           label: '獎盃櫃',
           color: const Color(0xFFFFB300),
           scale: scale,
@@ -431,14 +433,15 @@ class _RewardDock extends StatelessWidget {
 
 class _SmallRewardButton extends StatelessWidget {
   const _SmallRewardButton({
-    required this.emoji,
+    required this.icon,
     required this.label,
     required this.color,
     required this.scale,
     required this.onTap,
   });
 
-  final String emoji;
+  /// `assets/images/icons/` 的圖示鍵。
+  final String icon;
   final String label;
   final Color color;
   final double scale;
@@ -468,7 +471,12 @@ class _SmallRewardButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(emoji, style: TextStyle(fontSize: 22 * scale)),
+              Image.asset(
+                iconAsset(icon),
+                width: 30 * scale,
+                height: 30 * scale,
+                fit: BoxFit.contain,
+              ),
               SizedBox(width: 6 * scale),
               Text(
                 label,

@@ -29,7 +29,11 @@ class Celebration extends StatelessWidget {
                     scale: Curves.elasticOut.transform(t.clamp(0.0, 1.0)),
                     child: Opacity(
                       opacity: 1 - ((t - 0.7).clamp(0.0, 0.3) / 0.3),
-                      child: Penguin(size: context.s(96), animate: false),
+                      child: Penguin(
+                        size: context.s(96),
+                        animate: false,
+                        pose: PenguinPose.cheer,
+                      ),
                     ),
                   ),
                 ],
