@@ -5,6 +5,7 @@ import '../core/responsive.dart';
 import '../core/sync_service.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
+import '../core/widgets/emoji_art.dart';
 import '../models/profile.dart';
 
 const List<String> kProfileEmojis = <String>[
@@ -108,10 +109,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                                       width: sel ? 3 : 1,
                                     ),
                                   ),
-                                  child: Text(
-                                    e,
-                                    style: TextStyle(fontSize: context.s(30)),
-                                  ),
+                                  child: EmojiArt(e, size: context.s(40)),
                                 ),
                               );
                             },
@@ -190,10 +188,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                 return Card(
                   color: active ? const Color(0xFFE3F2FD) : null,
                   child: ListTile(
-                    leading: Text(
-                      p.emoji,
-                      style: TextStyle(fontSize: context.s(34)),
-                    ),
+                    leading: EmojiArt(p.emoji, size: context.s(44)),
                     title: Text(
                       p.name,
                       style: TextStyle(fontSize: context.s(20)),

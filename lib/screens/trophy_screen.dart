@@ -5,6 +5,7 @@ import '../core/responsive.dart';
 import '../core/rewards.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/reward_background.dart';
 
 /// 獎盃櫃：展示所有成就與目前等級（銅／銀／金）及到下一級的進度。
@@ -48,10 +49,7 @@ class TrophyScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                             border: Border.all(color: tierColor, width: 2),
                           ),
-                          child: Text(
-                            a.emoji,
-                            style: TextStyle(fontSize: context.s(28)),
-                          ),
+                          child: EmojiArt(a.emoji, size: context.s(36)),
                         ),
                       ),
                       SizedBox(width: context.s(14)),

@@ -10,6 +10,7 @@ import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/gacha_machine.dart';
 import '../core/widgets/reward_background.dart';
+import '../core/widgets/emoji_art.dart';
 import 'collection_screen.dart';
 
 /// 扭蛋機：用星星抽玩具模型。抽到重複退一點星星。
@@ -175,7 +176,7 @@ class _ResultView extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: toy.rarity.color, width: 3),
           ),
-          child: Text(toy.id, style: TextStyle(fontSize: context.s(76))),
+          child: EmojiArt(toy.id, size: context.s(96)),
         ),
         SizedBox(height: context.s(6)),
         Text(

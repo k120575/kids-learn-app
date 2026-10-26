@@ -5,6 +5,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/game_scaffold.dart';
+import '../core/widgets/emoji_art.dart';
 import '../core/widgets/reward_background.dart';
 
 /// 玩具收藏室（圖鑑）：扭蛋抽到的玩具收集在這。未取得顯示問號剪影。
@@ -58,9 +59,10 @@ class CollectionScreen extends StatelessWidget {
                         children: <Widget>[
                           Center(
                             child: has
-                                ? Text(
-                                    t.id,
-                                    style: TextStyle(fontSize: context.s(44)),
+                                // 依格子大小縮放（各裝置格子寬不同），不寫死尺寸。
+                                ? LayoutBuilder(
+                                    builder: (BuildContext _, BoxConstraints c) =>
+                                        EmojiArt(t.id, size: c.maxWidth * 0.62),
                                   )
                                 : Text(
                                     '❓',

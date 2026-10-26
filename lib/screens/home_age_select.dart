@@ -17,6 +17,7 @@ import 'domain_select.dart';
 import 'gacha_screen.dart';
 import 'profiles_screen.dart';
 import 'settings_screen.dart';
+import '../core/widgets/emoji_art.dart';
 import 'trophy_screen.dart';
 
 /// 首頁：選擇年齡段，並可進入扭蛋機 / 收藏室 / 獎盃櫃。
@@ -88,10 +89,7 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
               ...store.profiles.map((Profile p) {
                 final bool active = p.id == store.activeProfileId;
                 return ListTile(
-                  leading: Text(
-                    p.emoji,
-                    style: TextStyle(fontSize: sheetContext.s(30)),
-                  ),
+                  leading: EmojiArt(p.emoji, size: sheetContext.s(40)),
                   title: Text(
                     p.name,
                     style: TextStyle(fontSize: sheetContext.s(18)),
@@ -216,10 +214,7 @@ class _HomeAgeSelectScreenState extends State<HomeAgeSelectScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Text(
-                          store.activeProfile.emoji,
-                          style: TextStyle(fontSize: context.s(22)),
-                        ),
+                        EmojiArt(store.activeProfile.emoji, size: context.s(30)),
                         SizedBox(width: context.s(4)),
                         Text(
                           store.activeProfile.name,

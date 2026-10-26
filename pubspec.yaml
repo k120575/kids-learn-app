@@ -87,6 +87,7 @@ flutter:
     - assets/music/
     - assets/images/
     - assets/images/icons/
+    - assets/images/items/
     - assets/images/mascot/
 
   fonts:

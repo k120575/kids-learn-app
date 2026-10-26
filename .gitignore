@@ -74,3 +74,6 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+
+# 生圖白底原圖備份（tool/cutout.py）
+tool/art_raw/

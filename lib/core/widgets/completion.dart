@@ -6,6 +6,7 @@ import '../responsive.dart';
 import '../rewards.dart';
 import '../theme.dart';
 import 'big_card.dart';
+import 'emoji_art.dart';
 import 'penguin.dart';
 
 /// 完成一個遊戲時跳出的慶祝對話框。
@@ -107,13 +108,20 @@ Future<bool> showCompletionDialog(
                             width: 2,
                           ),
                         ),
-                        child: Text(
-                          '${u.achievement.emoji} ${u.achievement.name}・'
-                          '${kTierNames[u.tier]}牌',
-                          style: TextStyle(
-                            fontSize: context.s(16),
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            EmojiArt(u.achievement.emoji, size: context.s(24)),
+                            SizedBox(width: context.s(6)),
+                            Text(
+                              '${u.achievement.name}・'
+                              '${kTierNames[u.tier]}牌',
+                              style: TextStyle(
+                                fontSize: context.s(16),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
