@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/entitlement_service.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 
 /// 付費牆（解鎖完整版）。完整設計見 docs/PLAN_billing_sync.md §2.5。
@@ -65,79 +66,91 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GameScaffold(
-      title: '完整版',
-      child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(context.s(Sizes.bigGap)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text('🎁', style: TextStyle(fontSize: context.s(56))),
-                SizedBox(height: context.s(Sizes.gap)),
-                Text(
-                  '解鎖寶貝的完整學習樂園',
-                  textAlign: TextAlign.center,
+    // 橫向螢幕高度有限：直排會把購買按鈕擠到畫面下方要捲動才看得到。
+    // 改左右兩欄（左：標題＋購買、右：權益），再用 FitBox 保證一屏看完。
+    final Widget buy = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text('🎁', style: TextStyle(fontSize: context.s(56))),
+        SizedBox(height: context.s(Sizes.gap)),
+        Text(
+          '解鎖寶貝的完整學習樂園',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: context.s(24),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: context.s(Sizes.bigGap)),
+        ElevatedButton(
+          onPressed: _busy ? null : _buy,
+          style: ElevatedButton.styleFrom(
+            minimumSize: Size.fromHeight(context.s(64)),
+            backgroundColor: const Color(0xFFFFB300),
+            foregroundColor: Colors.white,
+          ),
+          child: _busy
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  '解鎖完整版 · $_priceLabel',
                   style: TextStyle(
-                    fontSize: context.s(24),
+                    fontSize: context.s(20),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: context.s(Sizes.bigGap)),
-                ..._benefits.map(
-                  (e) => Padding(
-                    padding: EdgeInsets.symmetric(vertical: context.s(6)),
-                    child: Row(
-                      children: <Widget>[
-                        Text(e.$1, style: TextStyle(fontSize: context.s(24))),
-                        SizedBox(width: context.s(12)),
-                        Expanded(
-                          child: Text(
-                            e.$2,
-                            style: TextStyle(fontSize: context.s(18)),
-                          ),
-                        ),
-                      ],
+        ),
+        SizedBox(height: context.s(Sizes.gap)),
+        TextButton(
+          onPressed: _busy ? null : _restore,
+          child: Text(
+            '我已經買過了，還原購買',
+            style: TextStyle(fontSize: context.s(16)),
+          ),
+        ),
+      ],
+    );
+    final Widget benefits = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _benefits
+          .map(
+            (e) => Padding(
+              padding: EdgeInsets.symmetric(vertical: context.s(6)),
+              child: Row(
+                children: <Widget>[
+                  Text(e.$1, style: TextStyle(fontSize: context.s(24))),
+                  SizedBox(width: context.s(12)),
+                  Expanded(
+                    child: Text(
+                      e.$2,
+                      style: TextStyle(fontSize: context.s(18)),
                     ),
                   ),
-                ),
-                SizedBox(height: context.s(Sizes.bigGap)),
-                ElevatedButton(
-                  onPressed: _busy ? null : _buy,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.fromHeight(context.s(64)),
-                    backgroundColor: const Color(0xFFFFB300),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: _busy
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          '解鎖完整版 · $_priceLabel',
-                          style: TextStyle(
-                            fontSize: context.s(20),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-                SizedBox(height: context.s(Sizes.gap)),
-                TextButton(
-                  onPressed: _busy ? null : _restore,
-                  child: Text(
-                    '我已經買過了，還原購買',
-                    style: TextStyle(fontSize: context.s(16)),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+          )
+          .toList(),
+    );
+    return GameScaffold(
+      title: '完整版',
+      child: FitBox(
+        child: SizedBox(
+          width: context.s(820),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Expanded(child: buy),
+              SizedBox(width: context.s(40)),
+              Expanded(child: benefits),
+            ],
           ),
         ),
       ),

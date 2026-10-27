@@ -26,10 +26,18 @@ class _GachaScreenState extends State<GachaScreen>
   final ProgressStore _store = ProgressStore.instance;
   GachaResult? _result;
   bool _spinning = false;
-  late final AnimationController _ctrl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 600),
-  );
+  // 在 initState 建立：若用 late 懶初始化，沒轉過就離開時 dispose() 會在
+  // 已停用的 element 上才建立 Ticker → 斷言錯誤。
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+  }
 
   @override
   void dispose() {

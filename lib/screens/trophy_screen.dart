@@ -19,7 +19,7 @@ class TrophyScreen extends StatelessWidget {
       backgroundWidget: const RewardBackground(),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
+          constraints: BoxConstraints(maxWidth: context.s(600)),
           child: ListView(
             padding: EdgeInsets.all(context.s(Sizes.bigGap)),
             children: achievements.map((Achievement a) {

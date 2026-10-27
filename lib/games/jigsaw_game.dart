@@ -290,37 +290,68 @@ class _JigsawGameState extends State<JigsawGame> {
       onReplay: () => AudioService.instance.speak('看看完成圖，把每一塊拼回正確的位置！'),
       child: Stack(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              // 上半：完成圖（寬螢幕在左、窄螢幕在上）＋ 拼圖板。
-              // 用 FitBox 等比縮到放得下這塊區域，矮螢幕也不會把拼圖板下緣切掉。
-              Expanded(child: FitBox(child: top)),
-              const Divider(height: 1),
-              // 下半：打散的碎片托盤
-              SizedBox(
-                height: tray + context.s(Sizes.gap) * 2,
-                child: Padding(
-                  padding: EdgeInsets.all(context.s(Sizes.gap)),
-                  child: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _tray
-                            .map(
-                              (int idx) => Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: context.s(6),
-                                ),
-                                child: _draggablePiece(idx, tray),
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints c) {
+              // 碎片托盤：舊版一列橫向捲動，碎片多時一半藏在畫面外。
+              // 改成依寬度算碎片大小，太小就分成 2~3 列（以總塊數決定，放進板子時不跳動）。
+              final double gap = context.s(Sizes.gap);
+              final double pieceGap = context.s(12);
+              final double avail = c.maxWidth - gap * 2;
+              final int total = _rows * _cols;
+              final double minPiece = min(tray, context.s(60));
+              int trayRows = 1;
+              int perRow = total;
+              double piece = tray;
+              for (int r = 1; r <= 3; r++) {
+                perRow = (total / r).ceil();
+                piece = min(tray, (avail - pieceGap * (perRow - 1)) / perRow);
+                trayRows = r;
+                if (piece >= minPiece) break;
+              }
+              final double trayH =
+                  piece * trayRows + pieceGap * (trayRows - 1) + gap * 2;
+              return Column(
+                children: <Widget>[
+                  // 上半：完成圖（寬螢幕在左、窄螢幕在上）＋ 拼圖板。
+                  // 用 FitBox 等比縮到放得下這塊區域，矮螢幕也不會把拼圖板下緣切掉。
+                  Expanded(child: FitBox(child: top)),
+                  const Divider(height: 1),
+                  // 下半：打散的碎片托盤
+                  SizedBox(
+                    height: trayH,
+                    child: Padding(
+                      padding: EdgeInsets.all(gap),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            for (int r = 0; r * perRow < _tray.length; r++) ...<
+                              Widget
+                            >[
+                              if (r > 0) SizedBox(height: pieceGap),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  for (
+                                    int i = r * perRow;
+                                    i < _tray.length && i < (r + 1) * perRow;
+                                    i++
+                                  ) ...<Widget>[
+                                    if (i > r * perRow)
+                                      SizedBox(width: pieceGap),
+                                    _draggablePiece(_tray[i], piece),
+                                  ],
+                                ],
                               ),
-                            )
-                            .toList(),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
           if (_success) const Positioned.fill(child: Celebration()),
         ],

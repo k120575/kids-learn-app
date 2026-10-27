@@ -9,6 +9,7 @@ import '../core/progress_store.dart';
 import '../core/responsive.dart';
 import '../core/theme.dart';
 import '../core/widgets/celebration.dart';
+import '../core/widgets/fit_box.dart';
 import '../core/widgets/game_scaffold.dart';
 import '../core/widgets/shaker.dart';
 
@@ -138,68 +139,66 @@ class _NumberCompareGameState extends State<NumberCompareGame> {
       onReplay: () => AudioService.instance.speak(_prompt),
       child: Stack(
         children: <Widget>[
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(context.s(Sizes.gap)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    _pickMax ? '點最大的數字' : '點最小的數字',
-                    style: TextStyle(
-                      fontSize: context.s(22),
-                      fontWeight: FontWeight.bold,
-                    ),
+          // FitBox：挑戰難度 5 張卡在手機橫向放不下一排，等比縮小而非換行溢出。
+          FitBox(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  _pickMax ? '點最大的數字' : '點最小的數字',
+                  style: TextStyle(
+                    fontSize: context.s(22),
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: context.s(Sizes.bigGap)),
-                  Wrap(
-                    spacing: context.s(Sizes.bigGap),
-                    runSpacing: context.s(Sizes.gap),
-                    alignment: WrapAlignment.center,
-                    children: List<Widget>.generate(_nums.length, (int idx) {
-                      final int v = _nums[idx];
-                      final bool win = _success && v == _ans;
-                      final bool hint = !win && v == _ans && _wrongCount >= 3;
-                      return Shaker(
-                        trigger: _wrong[idx] ?? 0,
-                        child: GestureDetector(
-                          onTap: () => _onTap(v, idx),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            width: context.s(130),
-                            height: context.s(130),
-                            decoration: BoxDecoration(
+                ),
+                SizedBox(height: context.s(Sizes.bigGap)),
+                Wrap(
+                  spacing: context.s(Sizes.bigGap),
+                  runSpacing: context.s(Sizes.gap),
+                  alignment: WrapAlignment.center,
+                  children: List<Widget>.generate(_nums.length, (int idx) {
+                    final int v = _nums[idx];
+                    final bool win = _success && v == _ans;
+                    final bool hint = !win && v == _ans && _wrongCount >= 3;
+                    return Shaker(
+                      trigger: _wrong[idx] ?? 0,
+                      child: GestureDetector(
+                        onTap: () => _onTap(v, idx),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          width: context.s(130),
+                          height: context.s(130),
+                          decoration: BoxDecoration(
+                            color: win
+                                ? const Color(0xFFC8E6C9)
+                                : (hint
+                                      ? const Color(0xFFFFF8E1)
+                                      : Colors.white),
+                            borderRadius: BorderRadius.circular(Sizes.radius),
+                            border: Border.all(
                               color: win
-                                  ? const Color(0xFFC8E6C9)
+                                  ? const Color(0xFF4CAF50)
                                   : (hint
-                                        ? const Color(0xFFFFF8E1)
-                                        : Colors.white),
-                              borderRadius: BorderRadius.circular(Sizes.radius),
-                              border: Border.all(
-                                color: win
-                                    ? const Color(0xFF4CAF50)
-                                    : (hint
-                                          ? const Color(0xFFFFC107)
-                                          : Colors.grey.shade300),
-                                width: win ? 6 : (hint ? 5 : 3),
-                              ),
+                                        ? const Color(0xFFFFC107)
+                                        : Colors.grey.shade300),
+                              width: win ? 6 : (hint ? 5 : 3),
                             ),
-                            child: Center(
-                              child: Text(
-                                '$v',
-                                style: TextStyle(
-                                  fontSize: context.s(56),
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '$v',
+                              style: TextStyle(
+                                fontSize: context.s(56),
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    }),
-                  ),
-                ],
-              ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
             ),
           ),
           if (_success) const Positioned.fill(child: Celebration()),

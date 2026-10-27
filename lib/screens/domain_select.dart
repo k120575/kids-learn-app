@@ -155,7 +155,7 @@ class _DomainSelectScreenState extends State<DomainSelectScreen> {
               padding: EdgeInsets.all(context.s(Sizes.gap)),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: c.maxHeight - Sizes.gap * 2,
+                  minHeight: c.maxHeight - context.s(Sizes.gap) * 2,
                 ),
                 child: Center(
                   child: _stationGrid(context, domains, c.maxHeight),

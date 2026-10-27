@@ -64,7 +64,7 @@ class _GameListScreenState extends State<GameListScreen> {
                   padding: EdgeInsets.all(context.s(Sizes.gap)),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minHeight: c.maxHeight - Sizes.gap * 2,
+                      minHeight: c.maxHeight - context.s(Sizes.gap) * 2,
                     ),
                     child: Center(
                       child: _gameGrid(context, games, cardSize),

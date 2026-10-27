@@ -57,7 +57,7 @@ class DashboardScreen extends StatelessWidget {
 
           return Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 640),
+              constraints: BoxConstraints(maxWidth: context.s(640)),
               child: ListView(
                 padding: EdgeInsets.all(context.s(Sizes.bigGap)),
                 children: <Widget>[

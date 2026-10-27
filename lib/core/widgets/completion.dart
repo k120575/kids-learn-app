@@ -31,7 +31,7 @@ Future<bool> showCompletionDialog(
           borderRadius: BorderRadius.circular(Sizes.radius),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
+          constraints: BoxConstraints(maxWidth: context.s(520)),
           // 矮螢幕（手機橫向）整個對話框可能比螢幕高，按鈕被擠到畫面外。
           // 用 FittedBox(scaleDown) 等比縮到放得下，永不放大（平板維持原樣）。
           child: FittedBox(

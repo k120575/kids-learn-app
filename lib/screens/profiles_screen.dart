@@ -179,7 +179,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
       title: '孩子檔案',
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
+          constraints: BoxConstraints(maxWidth: context.s(560)),
           child: ListView(
             padding: EdgeInsets.all(context.s(Sizes.bigGap)),
             children: <Widget>[

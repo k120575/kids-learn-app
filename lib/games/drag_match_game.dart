@@ -368,11 +368,14 @@ class _DragMatchGameState extends State<DragMatchGame> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    for (int i = r * perRow; i < n && i < (r + 1) * perRow; i++)
-                      ...<Widget>[
-                        if (i > r * perRow) SizedBox(width: gap),
-                        _buildDraggable(_remaining[i], size),
-                      ],
+                    for (
+                      int i = r * perRow;
+                      i < n && i < (r + 1) * perRow;
+                      i++
+                    ) ...<Widget>[
+                      if (i > r * perRow) SizedBox(width: gap),
+                      _buildDraggable(_remaining[i], size),
+                    ],
                   ],
                 ),
               ],
