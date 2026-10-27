@@ -21,7 +21,8 @@ class CollectionScreen extends StatelessWidget {
       backgroundWidget: const RewardBackground(),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
+          // 上限隨裝置縮放：寫死 720 在橫向平板只排得下 3 欄、兩側大片留白。
+          constraints: BoxConstraints(maxWidth: context.s(760)),
           child: Column(
             children: <Widget>[
               Padding(

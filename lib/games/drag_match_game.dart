@@ -193,23 +193,7 @@ class _DragMatchGameState extends State<DragMatchGame> {
             flex: 2,
             child: Padding(
               padding: EdgeInsets.all(context.s(Sizes.gap)),
-              child: Center(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _remaining
-                        .map(
-                          (DragPiece p) => Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.s(10),
-                            ),
-                            child: _buildDraggable(p),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ),
+              child: _buildPieceTray(),
             ),
           ),
         ],
@@ -352,8 +336,55 @@ class _DragMatchGameState extends State<DragMatchGame> {
     return Column(mainAxisSize: MainAxisSize.min, children: bits);
   }
 
-  Widget _buildDraggable(DragPiece p) {
-    final Widget content = _pieceContent(p, context.s(96));
+  /// 下半的物件盤：依可用空間算物件大小（必要時排成多列），全部一次看得到。
+  /// 舊版固定 context.s(96) 排一列橫向捲動，物件一多右邊就被切一半、孩子不知道還能捲。
+  Widget _buildPieceTray() {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints c) {
+        final int n = _remaining.length;
+        if (n == 0) return const SizedBox.shrink();
+        final double gap = context.s(Sizes.gap);
+        double best = 0;
+        int bestRows = 1;
+        for (int rows = 1; rows <= n; rows++) {
+          final int cols = (n / rows).ceil();
+          final double w = (c.maxWidth - gap * (cols - 1)) / cols;
+          final double h = (c.maxHeight - gap * (rows - 1)) / rows;
+          final double side = w < h ? w : h;
+          if (side > best) {
+            best = side;
+            bestRows = rows;
+          }
+        }
+        final double size = best.clamp(0.0, context.s(96));
+        // 平均分到各列（12 顆排 6+6，不要 11+1）。
+        final int perRow = (n / bestRows).ceil();
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              for (int r = 0; r * perRow < n; r++) ...<Widget>[
+                if (r > 0) SizedBox(height: gap),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (int i = r * perRow; i < n && i < (r + 1) * perRow; i++)
+                      ...<Widget>[
+                        if (i > r * perRow) SizedBox(width: gap),
+                        _buildDraggable(_remaining[i], size),
+                      ],
+                  ],
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDraggable(DragPiece p, double size) {
+    final Widget content = _pieceContent(p, size);
     return Draggable<DragPiece>(
       data: p,
       feedback: Transform.scale(scale: 1.15, child: content),
