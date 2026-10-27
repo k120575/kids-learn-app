@@ -61,32 +61,37 @@ class DashboardScreen extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.all(context.s(Sizes.bigGap)),
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.today_rounded,
-                          label: '今天',
-                          value: '${(todaySec / 60).round()} 分',
+                  // 「49 分」含中文、「0」只有數字，字高不同 → 卡片高矮不一；
+                  // IntrinsicHeight + stretch 讓三張卡等高。
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.today_rounded,
+                            label: '今天',
+                            value: '${(todaySec / 60).round()} 分',
+                          ),
                         ),
-                      ),
-                      SizedBox(width: context.s(Sizes.gap)),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.date_range_rounded,
-                          label: '近兩週',
-                          value: '${(weekSec / 60).round()} 分',
+                        SizedBox(width: context.s(Sizes.gap)),
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.date_range_rounded,
+                            label: '近兩週',
+                            value: '${(weekSec / 60).round()} 分',
+                          ),
                         ),
-                      ),
-                      SizedBox(width: context.s(Sizes.gap)),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.videogame_asset_rounded,
-                          label: '遊玩次數',
-                          value: '$totalPlays',
+                        SizedBox(width: context.s(Sizes.gap)),
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.videogame_asset_rounded,
+                            label: '遊玩次數',
+                            value: '$totalPlays',
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   SizedBox(height: context.s(Sizes.bigGap)),
                   _TrendChart(daily: daily),
@@ -316,6 +321,7 @@ class _StatCard extends StatelessWidget {
           horizontal: context.s(8),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(icon, size: context.s(28), color: const Color(0xFF42A5F5)),
             SizedBox(height: context.s(6)),

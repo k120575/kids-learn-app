@@ -229,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   minimumSize: Size.fromHeight(context.s(60)),
                   foregroundColor: Colors.red,
                 ),
-                icon: const Icon(Icons.delete_outline_rounded),
+                icon: Icon(Icons.delete_outline_rounded, size: context.s(24)),
                 label: Text(
                   '清除所有進度',
                   style: TextStyle(fontSize: context.s(18)),
